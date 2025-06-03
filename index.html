@@ -1,0 +1,418 @@
+// --- Global State ---
+// ... (previous code) ...
+
+        // --- User Provided Firebase Configuration ---
+        // ... (previous code) ...
+        
+        // Initialize Firebase
+        // ... (previous code) ...
+
+        // --- Language and Translations ---
+        // ... (previous code) ...
+
+        // --- Global State ---
+        // ... (previous code) ...
+
+        // PASSCODES and views
+        // ... (previous code) ...
+
+        // DOM Elements
+        // ... (previous code) ...
+        
+        // showView, showAdminSection, showUserSection, showToast functions
+        // ... (previous code) ...
+
+        // onAuthStateChanged
+        // ... (previous code) ...
+
+        // Admin Login Form
+        // ... (previous code) ...
+
+        // User Login Form
+        // ... (previous code) ...
+
+        // performSignOut
+        // ... (previous code) ...
+
+        // addProduct
+        // ... (previous code) ...
+
+        // renderProductsTable
+        // ... (previous code) ...
+
+        // deleteProduct
+        // ... (previous code) ...
+
+        // openRestockModal
+        // ... (previous code) ...
+
+        // handleRestock
+        // ... (previous code) ...
+
+        async function placeNewOrder() {
+            if (shoppingCart.length === 0) {
+                showToast("toastCartEmpty", "error"); return;
+            }
+            const orderItems = shoppingCart.map(item => ({
+                productId: item.productId, productName: item.name, quantityOrdered: item.quantity,
+                quantityDelivered: item.quantity, // Initial quantityDelivered is same as ordered
+                unit: item.unit,
+            }));
+            try {
+                const newOrderRef = doc(collection(db, `/artifacts/${firestoreAppId}/public/data/orders`));
+                await setDoc(newOrderRef, {
+                    id: newOrderRef.id, section: currentSection, orderByUserId: currentUserId, 
+                    items: orderItems, status: "pending", orderDate: Timestamp.now(), cancellationRequests: [] 
+                });
+
+                // DO NOT deduct stock here. Stock will be deducted upon delivery by admin.
+                // The following block for stock deduction is removed:
+                /*
+                const batch = writeBatch(db);
+                for (const item of orderItems) {
+                    const productRef = doc(db, `/artifacts/${firestoreAppId}/public/data/products`, item.productId);
+                    const productDoc = await getDoc(productRef);
+                    if (productDoc.exists()) {
+                        const currentStock = productDoc.data().stock;
+                        const newStock = currentStock - item.quantityOrdered;
+                        if (newStock < 0) {
+                            showToast("toastProductOutOfStockPartial", "warning", {productName: item.productName});
+                            batch.update(productRef, { stock: 0, updatedAt: Timestamp.now() });
+                        } else {
+                             batch.update(productRef, { stock: newStock, updatedAt: Timestamp.now() });
+                        }
+                    }
+                }
+                await batch.commit();
+                */
+
+                await addNotification("Admin", `New order #${newOrderRef.id.substring(0,6)} from ${currentSection} section.`);
+                showToast("toastOrderPlacedSuccess", "success");
+                shoppingCart = [];
+                renderShoppingCart();
+            } catch (error) {
+                console.error("Error placing order: ", error);
+                showToast("toastOrderPlaceError", "error");
+            }
+        }
+        if (placeOrderButton) placeOrderButton.addEventListener('click', placeNewOrder);
+
+        // renderAdminOrdersTable
+        // ... (previous code) ...
+
+        // updateOrderStatus
+        // ... (previous code) ...
+
+        async function markOrderDelivered(order) {
+            const orderRef = doc(db, `/artifacts/${firestoreAppId}/public/data/orders`, order.id);
+            const batch = writeBatch(db); // Create a single batch for all Firestore operations
+
+            try {
+                // 1. Deduct stock for delivered items
+                for (const item of order.items) {
+                    if (item.quantityDelivered > 0) {
+                        const productRef = doc(db, `/artifacts/${firestoreAppId}/public/data/products`, item.productId);
+                        const productDocSnap = await getDoc(productRef); // Read product stock BEFORE batch update
+
+                        if (productDocSnap.exists()) {
+                            const productData = productDocSnap.data();
+                            const currentStock = parseFloat(productData.stock);
+                            const newStock = currentStock - parseFloat(item.quantityDelivered);
+
+                            if (newStock < 0) {
+                                // This case should ideally be handled by admin ensuring quantityDelivered is not > currentStock
+                                // For robustness, prevent stock from going negative.
+                                console.warn(`Stock for ${item.productName} would go negative. Setting to 0. Order: ${order.id}, Item: ${item.productId}`);
+                                batch.update(productRef, { stock: 0, updatedAt: Timestamp.now(), isLowStockAlertIgnored: false });
+                                // Optionally, update item.quantityDelivered to currentStock if partially delivering due to shortage
+                                // item.quantityDelivered = currentStock; // This would require updating the order item in the batch too.
+                            } else {
+                                batch.update(productRef, { stock: newStock, updatedAt: Timestamp.now(), isLowStockAlertIgnored: false });
+                            }
+                        } else {
+                            console.error(`Product with ID ${item.productId} not found during delivery for order ${order.id}`);
+                            // Consider how to handle if a product is missing; maybe throw an error to stop the batch.
+                            // For now, it will skip stock update for this missing product.
+                        }
+                    }
+                }
+
+                // 2. Update order status and deliveryDate
+                // If any item's quantityDelivered was adjusted above due to stock shortage,
+                // ensure the 'order.items' array reflects that before updating the order.
+                // For this example, we assume quantityDelivered in the 'order' object is final.
+                batch.update(orderRef, { status: 'delivered', deliveryDate: Timestamp.now(), updatedAt: Timestamp.now() });
+                
+                // 3. Create delivery records
+                order.items.forEach(item => {
+                    if (item.quantityDelivered > 0) { 
+                        const deliveryRecordRef = doc(collection(db, `/artifacts/${firestoreAppId}/public/data/deliveryRecords`));
+                        batch.set(deliveryRecordRef, {
+                            orderId: order.id, productId: item.productId, productName: item.productName,
+                            quantityDelivered: item.quantityDelivered, unit: item.unit, section: order.section,
+                            deliveredAt: Timestamp.now() 
+                        });
+                    }
+                });
+                
+                await batch.commit(); // Commit all stock updates, order status, and delivery records
+
+                showToast("toastOrderDeliveredAndRecorded", "success", {orderId: order.id.substring(0,6)});
+                await addNotification(order.section, `Your order #${order.id.substring(0,6)} has been delivered.`);
+            } catch (error) {
+                console.error("Error marking order delivered and updating stock: ", error);
+                showToast("toastOrderDeliverError", "error"); // You might want a more specific error message here
+            }
+        }
+        
+        async function cancelOrder(order) { 
+            const confirmModal = document.getElementById('customConfirmModal');
+            const confirmMessage = document.getElementById('customConfirmMessage');
+            confirmMessage.textContent = translations[currentLanguage].toastOrderCancelConfirm
+                .replace("{orderId}", order.id.substring(0,6))
+                .replace("{section}", translations[currentLanguage][`filter${order.section}`] || order.section);
+            document.querySelector('#customConfirmModal h3').textContent = translations[currentLanguage].confirmTitle;
+            document.getElementById('customConfirmYes').textContent = translations[currentLanguage].confirmYes;
+            document.getElementById('customConfirmNo').textContent = translations[currentLanguage].confirmNo;
+
+            confirmModal.classList.remove('hidden');
+            document.getElementById('customConfirmYes').onclick = async () => {
+                confirmModal.classList.add('hidden');
+                const orderRef = doc(db, `/artifacts/${firestoreAppId}/public/data/orders`, order.id);
+                try {
+                    const batch = writeBatch(db);
+
+                    // Only return stock if the order was previously in a state where stock was deducted (delivered or partially delivered)
+                    if (order.status === 'delivered' || order.status === 'partially_delivered') {
+                        for (const item of order.items) {
+                            const quantityToReturn = parseFloat(item.quantityDelivered); // Use the quantity that was actually delivered
+                            if (quantityToReturn > 0) {
+                                const productRef = doc(db, `/artifacts/${firestoreAppId}/public/data/products`, item.productId);
+                                const productDoc = await getDoc(productRef); // Read before batch update
+                                if (productDoc.exists()) {
+                                    const currentStock = parseFloat(productDoc.data().stock);
+                                    batch.update(productRef, { stock: currentStock + quantityToReturn, updatedAt: Timestamp.now() });
+                                }
+                            }
+                        }
+                    }
+
+                    // Update order status and items to reflect cancellation (all items quantityDelivered = 0)
+                    batch.update(orderRef, { 
+                        status: 'cancelled', 
+                        items: order.items.map(i => ({...i, quantityDelivered: 0})), 
+                        updatedAt: Timestamp.now() 
+                    }); 
+                    
+                    await batch.commit();
+                    showToast("toastOrderCancelled", "success", {orderId: order.id.substring(0,6)});
+                    await addNotification(order.section, `Your order #${order.id.substring(0,6)} has been cancelled by admin.`);
+                } catch (error) {
+                    console.error("Error cancelling order: ", error);
+                    showToast("toastOrderCancelError", "error");
+                }
+            };
+            document.getElementById('customConfirmNo').onclick = () => confirmModal.classList.add('hidden');
+        }
+
+        async function handleCancellationRequest(orderId, itemId, approve) { 
+            const orderRef = doc(db, `/artifacts/${firestoreAppId}/public/data/orders`, orderId);
+            try {
+                const orderDoc = await getDoc(orderRef);
+                if (!orderDoc.exists()) { showToast("toastOrderNotFound", "error"); return; }
+                let orderData = orderDoc.data();
+                let itemToCancel = orderData.items.find(item => item.productId === itemId);
+                // Find the specific pending request. If multiple requests for same item (not typical), this needs refinement.
+                let request = orderData.cancellationRequests.find(req => req.itemId === itemId && req.status === 'pending');
+
+
+                if (!itemToCancel || !request) { showToast("toastCancellationRequestNotFound", "error"); return; }
+                
+                const batch = writeBatch(db);
+
+                if (approve) {
+                    // If the item was actually delivered (stock was deducted for it), then return its stock.
+                    const quantityActuallyDeliveredForItem = parseFloat(itemToCancel.quantityDelivered);
+                    if (quantityActuallyDeliveredForItem > 0) {
+                        const productRef = doc(db, `/artifacts/${firestoreAppId}/public/data/products`, itemToCancel.productId);
+                        const productDocSnap = await getDoc(productRef); // Read before batch update
+                        if (productDocSnap.exists()) {
+                            const currentStock = parseFloat(productDocSnap.data().stock);
+                            batch.update(productRef, { stock: currentStock + quantityActuallyDeliveredForItem, updatedAt: Timestamp.now() });
+                        }
+                    }
+                    
+                    itemToCancel.quantityDelivered = 0; // Mark as not delivered due to cancellation
+                    request.status = 'approved';
+                    await addNotification(orderData.section, `Cancellation request for ${itemToCancel.productName} in order #${orderId.substring(0,6)} has been approved.`);
+                    showToast("toastCancellationRequestApproved", "success", {productName: itemToCancel.productName});
+                } else { // Reject
+                    request.status = 'rejected';
+                    await addNotification(orderData.section, `Cancellation request for ${itemToCancel.productName} in order #${orderId.substring(0,6)} has been rejected.`);
+                    showToast("toastCancellationRequestRejected", "info", {productName: itemToCancel.productName});
+                }
+                
+                const updatedItems = orderData.items.map(i => i.productId === itemId ? itemToCancel : i);
+                const updatedRequests = orderData.cancellationRequests.map(r => (r.itemId === request.itemId && r.requestedAt.isEqual(request.requestedAt)) ? request : r); // Match by itemId & timestamp to be sure
+
+                let newOrderStatus = orderData.status;
+                // Recalculate order status based on remaining items
+                const allItemsNowEffectivelyZeroDelivered = updatedItems.every(i => i.quantityDelivered === 0);
+                
+                if (allItemsNowEffectivelyZeroDelivered) {
+                    newOrderStatus = 'cancelled'; // If all items in the order end up with zero delivered quantity
+                } else {
+                    // Check if any items remain delivered (i.e., quantityDelivered > 0)
+                    const someItemsRemainDelivered = updatedItems.some(i => i.quantityDelivered > 0);
+                    // Check if there are items that were ordered but now have quantityDelivered = 0 (due to this or previous cancellations)
+                    const hasOrderedItemsNotDelivered = updatedItems.some(i => i.quantityOrdered > 0 && i.quantityDelivered === 0);
+
+                    if (someItemsRemainDelivered && hasOrderedItemsNotDelivered) {
+                        newOrderStatus = 'partially_delivered';
+                    } else if (someItemsRemainDelivered && !hasOrderedItemsNotDelivered) {
+                        newOrderStatus = 'delivered'; // All originally ordered items that weren't cancelled are delivered
+                    } else if (!someItemsRemainDelivered && hasOrderedItemsNotDelivered) {
+                        // This implies all items that were potentially delivered are now cancelled, and others might still be pending/processing
+                        // but if all quantityDelivered is 0, it should be 'cancelled' (handled by first if) or 'partially_cancelled'
+                        // The original logic was:
+                        // else if (updatedItems.some(i => i.quantityDelivered < i.quantityOrdered && i.quantityDelivered > 0)) newOrderStatus = 'partially_delivered'; 
+                        // else if (updatedItems.some(i => i.quantityDelivered === 0 && i.quantityOrdered > 0)) newOrderStatus = 'partially_cancelled';
+                        // Let's use the original robust logic for status update:
+                        if (updatedItems.some(i => i.quantityDelivered > 0)) { // If anything is still marked as delivered
+                           if (updatedItems.some(i => i.quantityOrdered > i.quantityDelivered && i.quantityDelivered === 0 )) { // And some ordered items are now 0 delivered
+                               newOrderStatus = 'partially_delivered';
+                           } else if (updatedItems.every(i => i.quantityOrdered === i.quantityDelivered || i.quantityDelivered > 0 )) { // All ordered items are fully delivered (those not cancelled)
+                               newOrderStatus = 'delivered';
+                           } else {
+                               newOrderStatus = 'partially_delivered'; // Default for mixed cases
+                           }
+                        } else if (updatedItems.some(i => i.quantityOrdered > 0 && i.quantityDelivered === 0)) { // Nothing delivered, but some items were ordered and now not delivered
+                            newOrderStatus = 'partially_cancelled'; // Or if order was 'processing', remains 'processing' with some items zeroed.
+                                                                // If original status was 'processing' and now some items are cancelled, it's still effectively 'processing' for remaining.
+                                                                // This needs care. For now, using the original logic which seemed to cover these.
+                            const allOriginalItemsHadPositiveOrderQty = orderData.items.every(origItem => origItem.quantityOrdered > 0);
+                            const currentAllDeliverableItemsZeroed = updatedItems.filter(updItem => orderData.items.find(oi => oi.productId === updItem.productId && oi.quantityOrdered > 0 )).every( fi => fi.quantityDelivered === 0);
+
+                            if(currentAllDeliverableItemsZeroed && orderData.status !== 'pending' && orderData.status !== 'processing'){
+                                // If it was delivered/partially and now all are zeroed by cancellation, it's cancelled.
+                                newOrderStatus = 'cancelled';
+                            } else if (updatedItems.some(i => i.quantityOrdered > 0 && i.quantityDelivered === 0)) {
+                                newOrderStatus = 'partially_cancelled'; // If original order had items and now some are cancelled, making them 0 delivered
+                            }
+                        }
+
+
+                        // Simplified re-check based on original code's intent:
+                        const _allItemsEffectivelyCancelled = updatedItems.every(i => i.quantityDelivered === 0);
+                        if (_allItemsEffectivelyCancelled) {
+                            newOrderStatus = 'cancelled';
+                        } else if (updatedItems.some(i => i.quantityDelivered > 0 && i.quantityDelivered < i.quantityOrdered)) {
+                             newOrderStatus = 'partially_delivered';
+                        } else if (updatedItems.some(i => i.quantityDelivered === 0 && i.quantityOrdered > 0 && updatedItems.some(j => j.quantityDelivered > 0))) {
+                            // Some delivered, some ordered but now zero (cancelled)
+                            newOrderStatus = 'partially_delivered';
+                        } else if (updatedItems.some(i => i.quantityDelivered === 0 && i.quantityOrdered > 0)) {
+                            // No items delivered, but some originally ordered items now zeroed (cancelled), others may still be pending processing
+                            if (orderData.status === 'pending' || orderData.status === 'processing') {
+                                newOrderStatus = orderData.status; // Remains in processing/pending if other items are still to be handled
+                                if (updatedItems.every(i => i.quantityOrdered === 0 || i.quantityDelivered === 0)) { // If all remaining items are either not ordered or cancelled
+                                    newOrderStatus = 'partially_cancelled'; // Or fully 'cancelled' if no items were ordered in the first place
+                                }
+                            } else {
+                               newOrderStatus = 'partially_cancelled';
+                            }
+                        } else if (updatedItems.every(i=> i.quantityOrdered === i.quantityDelivered && i.quantityDelivered > 0)) {
+                            newOrderStatus = 'delivered'; // All ordered items are delivered
+                        }
+                        // Fallback to original logic structure for safety:
+                        const finalCheckItems = updatedItems.filter(i => orderData.items.find(orig => orig.productId === i.productId && orig.quantityOrdered > 0)); // only consider items that were actually ordered
+                        if (finalCheckItems.every(i => i.quantityDelivered === 0)) {
+                            newOrderStatus = 'cancelled';
+                        } else if (finalCheckItems.some(i => i.quantityDelivered > 0 && i.quantityDelivered < i.quantityOrdered)) {
+                            newOrderStatus = 'partially_delivered';
+                        } else if (finalCheckItems.some(i => i.quantityDelivered === 0 && i.quantityOrdered > 0) && finalCheckItems.some(j => j.quantityDelivered > 0) ) {
+                           newOrderStatus = 'partially_delivered'; // some delivered, some ordered but cancelled (now 0 delivered)
+                        } else if (finalCheckItems.some(i => i.quantityDelivered === 0 && i.quantityOrdered > 0)) {
+                           newOrderStatus = 'partially_cancelled'; // No items delivered, but some originally ordered items cancelled
+                        } else if (finalCheckItems.every(i => i.quantityDelivered > 0 && i.quantityDelivered === i.quantityOrdered)) {
+                           newOrderStatus = 'delivered'; // All ordered items (that weren't cancelled to 0 qty ordered) are delivered
+                        }
+
+
+                    }
+                }
+
+
+                batch.update(orderRef, { items: updatedItems, cancellationRequests: updatedRequests, status: newOrderStatus, updatedAt: Timestamp.now() });
+                await batch.commit();
+            } catch (error) {
+                console.error("Error handling cancellation request: ", error);
+                showToast("toastCancellationRequestHandleError", "error");
+            }
+        }
+
+        // renderUserOrdersTable
+        // ... (previous code) ...
+
+        // openUserCancelItemModal
+        // ... (previous code) ...
+
+        // handleUserSubmitCancelRequest
+        // ... (previous code) ...
+
+        // renderLowStockTable
+        // ... (previous code) ...
+
+        // ignoreLowStockAlert
+        // ... (previous code) ...
+
+        // addNotification
+        // ... (previous code) ...
+
+        // renderNotifications
+        // ... (previous code) ...
+
+        // markNotificationAsRead
+        // ... (previous code) ...
+
+        // renderUserProducts
+        // ... (previous code) ...
+
+        // addToCart
+        // ... (previous code) ...
+
+        // removeFromCart
+        // ... (previous code) ...
+
+        // updateCartQuantity
+        // ... (previous code) ...
+
+        // renderShoppingCart
+        // ... (previous code) ...
+
+        // populateMonthFilter
+        // ... (previous code) ...
+
+        // loadDeliveryReports
+        // ... (previous code) ...
+
+        // renderDeliveryReportTable
+        // ... (previous code) ...
+
+        // cleanupOldDeliveryRecords
+        // ... (previous code) ...
+
+        // translateStatus and setStatusBadgeColor
+        // ... (previous code) ...
+
+        // cleanupListeners
+        // ... (previous code) ...
+
+        // loadAdminData
+        // ... (previous code) ...
+
+        // loadUserData
+        // ... (previous code) ...
+        
+        // Event listeners for nav links and modals
+        // ... (previous code) ...
