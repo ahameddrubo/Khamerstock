@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="ar"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Management App</title>
+    <title data-en="Khamer Store Management App" data-ar="تطبيق خمر لإدارة المخزون">Khamer Store Management App</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -18,8 +17,13 @@
             background-color: #f8f9fa; /* Light grey background */
             color: #343a40; /* Dark grey text */
             line-height: 1.6;
+            direction: rtl; /* Default to RTL for Arabic */
+            text-align: right; /* Default to right-align for Arabic */
         }
-
+        body.en {
+            direction: ltr; /* LTR for English */
+            text-align: left; /* Left-align for English */
+        }
         .container {
             max-width: 1200px;
             margin: 20px auto;
@@ -49,6 +53,30 @@
             margin: 0;
             font-size: 2.5em;
             font-weight: 600;
+        }
+        .app-credit {
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: #d1e7dd; /* Lighter color for credit */
+        }
+
+        /* Language Toggle */
+        #language-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            z-index: 1000;
+            text-align: center;
+        }
+        body.en #language-toggle {
+            left: 15px;
+            right: auto;
         }
 
         /* Navigation Styles */
@@ -115,6 +143,14 @@
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 1em;
+        }
+        body.ar .input-field, body.ar select {
+            text-align: right;
+            direction: rtl;
+        }
+        body.en .input-field, body.en select {
+            text-align: left;
+            direction: ltr;
         }
 
         /* Button Styles */
@@ -204,6 +240,11 @@
             list-style-type: disc;
             padding-left: 20px;
             margin-top: 10px;
+        }
+        body.ar .order-item ul, body.ar .user-order-item ul {
+            list-style-type: arabic-indic;
+            padding-right: 20px;
+            padding-left: 0;
         }
 
         .order-item li, .user-order-item li {
@@ -358,6 +399,79 @@
             display: block; /* Active section is shown */
         }
 
+        /* Navigation for all pages */
+        .global-nav {
+            background-color: #495057; /* Darker grey for global nav */
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .global-nav button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .global-nav button:hover {
+            background-color: #5a6268;
+        }
+
+        /* Order Edit Specific Styles */
+        .editable-order-item ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .editable-order-item li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .editable-order-item li:last-child {
+            border-bottom: none;
+        }
+        .editable-order-item .edit-quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .editable-order-item .edit-quantity-control input {
+            width: 50px;
+            text-align: center;
+            margin: 0 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .editable-order-item .edit-quantity-control button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .editable-order-item .delete-item-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        body.ar .editable-order-item .delete-item-btn {
+             margin-right: 10px;
+             margin-left: 0;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -393,42 +507,50 @@
         }
     </style>
 </head>
-<body>
+<body class="ar"> <div id="language-toggle" data-en="اللغة العربية" data-ar="English">English</div>
     <div class="container">
         <header>
-            <h1>Store Management App</h1>
+            <h1 data-en="Khamer Store Management App" data-ar="تطبيق خمر لإدارة المخزون">Khamer Store Management App</h1>
+            <p class="app-credit" data-en="This system Created by Amdadul" data-ar="تم إنشاء هذا النظام بواسطة امدادول">This system Created by Amdadul</p>
         </header>
 
         <main>
+            <nav id="global-navigation" class="global-nav" style="display: none;">
+                <button id="nav-login-btn" data-en="Login" data-ar="تسجيل الدخول">Login</button>
+                <button id="nav-admin-dashboard-btn" data-en="Admin Dashboard" data-ar="لوحة تحكم المسؤول">Admin Dashboard</button>
+                <button id="nav-user-panel-btn" data-en="User Panel" data-ar="لوحة المستخدم">User Panel</button>
+            </nav>
+
+
             <section id="login-section" class="login-form active-section">
-                <h2>লগইন</h2>
+                <h2 data-en="Login" data-ar="تسجيل الدخول">تسجيل الدخول</h2>
                 <form id="login-form">
-                    <input type="email" id="login-email" placeholder="ইমেইল (অ্যাডমিন)" class="input-field">
-                    <input type="password" id="login-password" placeholder="পাসওয়ার্ড (অ্যাডমিন)" class="input-field">
-                    <button type="submit" class="button-success">অ্যাডমিন লগইন</button>
+                    <input type="email" id="login-email" data-en-placeholder="Email (Admin)" data-ar-placeholder="البريد الإلكتروني (المسؤول)" placeholder="البريد الإلكتروني (المسؤول)" class="input-field">
+                    <input type="password" id="login-password" data-en-placeholder="Password (Admin)" data-ar-placeholder="كلمة المرور (المسؤول)" placeholder="كلمة المرور (المسؤول)" class="input-field">
+                    <button type="submit" class="button-success" data-en="Admin Login" data-ar="تسجيل دخول المسؤول">تسجيل دخول المسؤول</button>
                 </form>
                 <div id="login-message-area" class="message-area"></div>
 
                 <div class="button-group" style="margin-top: 30px;">
-                    <button type="button" id="kitchen-login-btn" class="button-info">কিচেন লগইন</button>
-                    <button type="button" id="men-login-btn" class="button-info">পুরুষ বিভাগ লগইন</button>
-                    <button type="button" id="women-login-btn" class="button-info">মহিলা বিভাগ লগইন</button>
+                    <button type="button" id="kitchen-login-btn" class="button-info" data-en="Kitchen Login" data-ar="تسجيل دخول المطبخ">تسجيل دخول المطبخ</button>
+                    <button type="button" id="men-login-btn" class="button-info" data-en="Men's Section Login" data-ar="تسجيل دخول قسم الرجال">تسجيل دخول قسم الرجال</button>
+                    <button type="button" id="women-login-btn" class="button-info" data-en="Women's Section Login" data-ar="تسجيل دخول قسم النساء">تسجيل دخول قسم النساء</button>
                 </div>
             </section>
 
             <section id="admin-dashboard-section" class="admin-dashboard content-section">
-                <h2>অ্যাডমিন ড্যাশবোর্ড</h2>
-                <nav>
-                    <button id="admin-dashboard-btn">অর্ডার ড্যাশবোর্ড</button>
-                    <button id="add-product-btn">পণ্য অ্যাড করুন</button>
-                    <button id="low-stock-btn">লো-স্টক এলার্ট</button>
-                    <button id="total-order-report-btn">টোটাল অর্ডার রিপোর্ট</button>
-                    <button id="stock-restock-btn">স্টক ও রি-স্টক</button>
-                    <button id="order-return-btn">অর্ডার রিটার্ন</button>
-                    <button id="admin-logout-btn" class="button-danger">লগআউট</button>
+                <h2 data-en="Admin Dashboard" data-ar="لوحة تحكم المسؤول">لوحة تحكم المسؤول</h2>
+                <nav class="sub-nav">
+                    <button id="admin-dashboard-btn" data-en="Order Dashboard" data-ar="لوحة الطلبات">لوحة الطلبات</button>
+                    <button id="add-product-btn" data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</button>
+                    <button id="low-stock-btn" data-en="Low Stock Alert" data-ar="تنبيه المخزون المنخفض">تنبيه المخزون المنخفض</button>
+                    <button id="total-order-report-btn" data-en="Total Order Report" data-ar="تقرير الطلبات الكلي">تقرير الطلبات الكلي</button>
+                    <button id="stock-restock-btn" data-en="Stock & Re-stock" data-ar="المخزون وإعادة التخزين">المخزون وإعادة التخزين</button>
+                    <button id="order-return-btn" data-en="Order Return" data-ar="إرجاع الطلب">إرجاع الطلب</button>
+                    <button id="admin-logout-btn" class="button-danger" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
                 </nav>
                 <div id="admin-dashboard-content" style="margin-top: 20px;">
-                    <h3>পেন্ডিং অর্ডার</h3>
+                    <h3 data-en="Pending Orders" data-ar="الطلبات المعلقة">الطلبات المعلقة</h3>
                     <div id="pending-orders-list">
                         </div>
                 </div>
@@ -436,48 +558,48 @@
             </section>
 
             <section id="add-product-section" class="product-add-form content-section">
-                <h2>পণ্য অ্যাড করুন</h2>
+                <h2 data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</h2>
                 <form id="add-product-form">
-                    <input type="text" id="product-name-en" placeholder="পণ্যের নাম (ইংরেজি)" class="input-field" required>
-                    <input type="text" id="product-name-ar" placeholder="পণ্যের নাম (আরবি)" class="input-field" required>
-                    <input type="number" id="product-quantity" placeholder="সংখ্যা (বর্তমান স্টক)" class="input-field" required min="0">
-                    <input type="number" id="low-stock-alert-quantity" placeholder="লো-স্টক এলার্ট সংখ্যা" class="input-field" required min="0">
+                    <input type="text" id="product-name-en" data-en-placeholder="Product Name (English)" data-ar-placeholder="اسم المنتج (الإنجليزية)" placeholder="اسم المنتج (الإنجليزية)" class="input-field" required>
+                    <input type="text" id="product-name-ar" data-en-placeholder="Product Name (Arabic)" data-ar-placeholder="اسم المنتج (العربية)" placeholder="اسم المنتج (العربية)" class="input-field" required>
+                    <input type="number" id="product-quantity" data-en-placeholder="Quantity (Current Stock)" data-ar-placeholder="الكمية (المخزون الحالي)" placeholder="الكمية (المخزون الحالي)" class="input-field" required min="0">
+                    <input type="number" id="low-stock-alert-quantity" data-en-placeholder="Low Stock Alert Quantity" data-ar-placeholder="كمية تنبيه المخزون المنخفض" placeholder="كمية تنبيه المخزون المنخفض" class="input-field" required min="0">
                     <select id="product-category" class="input-field" required>
-                        <option value="">বিভাগ নির্বাচন করুন</option>
-                        <option value="kitchen">কিচেন</option>
-                        <option value="men">পুরুষ বিভাগ</option>
-                        <option value="women">মহিলা বিভাগ</option>
+                        <option value="" data-en="Select Category" data-ar="اختر الفئة">اختر الفئة</option>
+                        <option value="kitchen" data-en="Kitchen" data-ar="المطبخ">المطبخ</option>
+                        <option value="men" data-en="Men's Section" data-ar="قسم الرجال">قسم الرجال</option>
+                        <option value="women" data-en="Women's Section" data-ar="قسم النساء">قسم النساء</option>
                     </select>
                     <select id="quantity-type" class="input-field" required>
-                        <option value="">পরিমাণের ধরন নির্বাচন করুন</option>
-                        <option value="piece">পিস</option>
-                        <option value="kg">কেজি</option>
-                        <option value="liter">লিটার</option>
-                        <option value="carton">কার্টন</option>
+                        <option value="" data-en="Select Quantity Type" data-ar="اختر نوع الكمية">اختر نوع الكمية</option>
+                        <option value="piece" data-en="Piece" data-ar="قطعة">قطعة</option>
+                        <option value="kg" data-en="KG" data-ar="كيلوغرام">كيلوغرام</option>
+                        <option value="liter" data-en="Liter" data-ar="لتر">لتر</option>
+                        <option value="carton" data-en="Carton" data-ar="كرتون">كرتون</option>
                     </select>
-                    <button type="submit" class="button-success" style="width: 100%;">পণ্য যোগ করুন</button>
+                    <button type="submit" class="button-success" style="width: 100%;" data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</button>
                 </form>
                 <div id="add-product-message-area" class="message-area"></div>
             </section>
 
             <section id="low-stock-alert-section" class="low-stock-alert-section content-section">
-                <h2>লো-স্টক এলার্ট</h2>
+                <h2 data-en="Low Stock Alert" data-ar="تنبيه المخزون المنخفض">تنبيه المخزون المنخفض</h2>
                 <div id="low-stock-products-list">
                     </div>
                 <div id="low-stock-message-area" class="message-area"></div>
             </section>
 
             <section id="total-order-report-section" class="total-order-report content-section">
-                <h2>টোটাল অর্ডার রিপোর্ট (গত ৩ মাস)</h2>
+                <h2 data-en="Total Order Report (Last 3 Months)" data-ar="تقرير الطلبات الكلي (آخر 3 أشهر)">تقرير الطلبات الكلي (آخر 3 أشهر)</h2>
                 <div id="report-filters" style="margin-bottom: 20px;">
-                    <label for="report-category" style="font-weight: bold; margin-right: 10px;">বিভাগ:</label>
+                    <label for="report-category" style="font-weight: bold; margin-right: 10px;" data-en="Category:" data-ar="الفئة:">الفئة:</label>
                     <select id="report-category" class="input-field" style="width: auto; display: inline-block;">
-                        <option value="all">সকল</option>
-                        <option value="kitchen">কিচেন</option>
-                        <option value="men">পুরুষ বিভাগ</option>
-                        <option value="women">মহিলা বিভাগ</option>
+                        <option value="all" data-en="All" data-ar="الكل">الكل</option>
+                        <option value="kitchen" data-en="Kitchen" data-ar="المطبخ">المطبخ</option>
+                        <option value="men" data-en="Men's Section" data-ar="قسم الرجال">قسم الرجال</option>
+                        <option value="women" data-en="Women's Section" data-ar="قسم النساء">قسم النساء</option>
                     </select>
-                    <button id="generate-report-btn" class="button-info" style="margin-left: 10px;">রিপোর্ট দেখান</button>
+                    <button id="generate-report-btn" class="button-info" style="margin-left: 10px;" data-en="Show Report" data-ar="عرض التقرير">عرض التقرير</button>
                 </div>
                 <div id="total-order-report-content">
                     </div>
@@ -485,40 +607,40 @@
             </section>
 
             <section id="stock-restock-section" class="stock-restock-section content-section">
-                <h2>স্টক ও রি-স্টক</h2>
+                <h2 data-en="Stock & Re-stock" data-ar="المخزون وإعادة التخزين">المخزون وإعادة التخزين</h2>
                 <div id="current-stock-list">
                     </div>
                 <div id="stock-message-area" class="message-area"></div>
             </section>
 
             <section id="order-return-section" class="order-return-section content-section">
-                <h2>অর্ডার রিটার্ন</h2>
+                <h2 data-en="Order Return" data-ar="إرجاع الطلب">إرجاع الطلب</h2>
                 <form id="return-product-form">
                     <select id="return-product-select" class="input-field" required>
-                        <option value="">পণ্য নির্বাচন করুন</option>
+                        <option value="" data-en="Select Product" data-ar="اختر المنتج">اختر المنتج</option>
                         </select>
-                    <input type="number" id="return-quantity" placeholder="ফেরত সংখ্যা" class="input-field" required min="1">
-                    <button type="submit" class="button-danger" style="width: 100%;">পণ্য রিটার্ন করুন</button>
+                    <input type="number" id="return-quantity" data-en-placeholder="Return Quantity" data-ar-placeholder="كمية الإرجاع" placeholder="كمية الإرجاع" class="input-field" required min="1">
+                    <button type="submit" class="button-danger" style="width: 100%;" data-en="Return Product" data-ar="إرجاع المنتج">إرجاع المنتج</button>
                 </form>
                 <div id="return-message-area" class="message-area"></div>
             </section>
 
             <section id="user-panel-section" class="user-panel content-section">
-                <h2 id="user-panel-title">ব্যবহারকারী প্যানেল</h2>
-                <button id="user-logout-btn" class="button-danger" style="margin-bottom: 20px;">লগআউট</button>
+                <h2 id="user-panel-title" data-en="User Panel" data-ar="لوحة المستخدم">لوحة المستخدم</h2>
+                <button id="user-logout-btn" class="button-danger" style="margin-bottom: 20px;" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
 
-                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-bottom: 10px;">অর্ডার করার জন্য পণ্য</h3>
+                <h3 data-en="Products to Order" data-ar="المنتجات للطلب">المنتجات للطلب</h3>
                 <div id="product-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                     </div>
 
-                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-top: 20px; padding-bottom: 10px;">আপনার কার্ট</h3>
+                <h3 data-en="Your Cart" data-ar="سلتك">سلتك</h3>
                 <div id="user-cart-summary" style="margin-bottom: 20px;">
                     </div>
-                <button id="place-order-btn" class="button-success" style="width: 100%; margin-top: 10px;">অর্ডার প্লেস করুন</button>
+                <button id="place-order-btn" class="button-success" style="width: 100%; margin-top: 10px;" data-en="Place Order" data-ar="تقديم الطلب">تقديم الطلب</button>
                 <div id="user-order-message-area" class="message-area"></div>
 
 
-                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-top: 30px; padding-bottom: 10px;">আপনার পূর্ববর্তী অর্ডার</h3>
+                <h3 data-en="Your Previous Orders" data-ar="طلباتك السابقة">طلباتك السابقة</h3>
                 <div id="user-orders-list">
                     </div>
             </section>
@@ -555,7 +677,7 @@
         const loginForm = document.getElementById('login-form');
         const loginEmailInput = document.getElementById('login-email');
         const loginPasswordInput = document.getElementById('login-password');
-        const loginMessageArea = document.getElementById('login-message-area'); // New message area for login
+        const loginMessageArea = document.getElementById('login-message-area');
 
         const kitchenLoginBtn = document.getElementById('kitchen-login-btn');
         const menLoginBtn = document.getElementById('men-login-btn');
@@ -586,30 +708,372 @@
         const userPanelTitle = document.getElementById('user-panel-title');
         const userOrderMessageArea = document.getElementById('user-order-message-area');
 
+        const globalNavigation = document.getElementById('global-navigation');
+        const navLoginBtn = document.getElementById('nav-login-btn');
+        const navAdminDashboardBtn = document.getElementById('nav-admin-dashboard-btn');
+        const navUserPanelBtn = document.getElementById('nav-user-panel-btn');
+
         // --- Global Variables ---
-        let currentUserCategory = null; // 'admin', 'kitchen', 'men', 'women'
-        let userCart = {}; // User's cart
+        let currentUserCategory = null;
+        let userCart = {};
+
+        // --- Language Management ---
+        let currentLanguage = 'ar'; // Default language
+
+        const translations = {
+            'en': {
+                'Khamer Store Management App': 'Khamer Store Management App',
+                'This system Created by Amdadul': 'This system Created by Amdadul',
+                'Login': 'Login',
+                'Email (Admin)': 'Email (Admin)',
+                'Password (Admin)': 'Password (Admin)',
+                'Admin Login': 'Admin Login',
+                'Kitchen Login': 'Kitchen Login',
+                'Men\'s Section Login': 'Men\'s Section Login',
+                'Women\'s Section Login': 'Women\'s Section Login',
+                'Order Dashboard': 'Order Dashboard',
+                'Add Product': 'Add Product',
+                'Low Stock Alert': 'Low Stock Alert',
+                'Total Order Report': 'Total Order Report',
+                'Stock & Re-stock': 'Stock & Re-stock',
+                'Order Return': 'Order Return',
+                'Logout': 'Logout',
+                'Pending Orders': 'Pending Orders',
+                'Loading Orders...': 'Loading Orders...',
+                'No pending orders.': 'No pending orders.',
+                'Department:': 'Department:',
+                'Order ID:': 'Order ID:',
+                'Order Date:': 'Order Date:',
+                'Delivered': 'Delivered',
+                'Cancel': 'Cancel',
+                'Error loading orders:': 'Error loading orders:',
+                'Order successfully delivered and stock updated.': 'Order successfully delivered and stock updated.',
+                'Failed to deliver order.': 'Failed to deliver order.',
+                'Order successfully cancelled.': 'Order successfully cancelled.',
+                'Failed to cancel order.': 'Failed to cancel order.',
+                'Product Name (English)': 'Product Name (English)',
+                'Product Name (Arabic)': 'Product Name (Arabic)',
+                'Quantity (Current Stock)': 'Quantity (Current Stock)',
+                'Low Stock Alert Quantity': 'Low Stock Alert Quantity',
+                'Select Category': 'Select Category',
+                'Kitchen': 'Kitchen',
+                'Men\'s Section': 'Men\'s Section',
+                'Women\'s Section': 'Women\'s Section',
+                'Select Quantity Type': 'Select Quantity Type',
+                'Piece': 'Piece',
+                'KG': 'KG',
+                'Liter': 'Liter',
+                'Carton': 'Carton',
+                'Add Product': 'Add Product',
+                'Please fill all fields correctly.': 'Please fill all fields correctly.',
+                'Product already exists in this category.': 'Product already exists in this category.',
+                'Product successfully added.': 'Product successfully added.',
+                'Failed to add product.': 'Failed to add product.',
+                'Loading Low Stock Alerts...': 'Loading Low Stock Alerts...',
+                'No low stock alerts.': 'No low stock alerts.',
+                'Current Stock:': 'Current Stock:',
+                'Alert Quantity:': 'Alert Quantity:',
+                'Remove Alert (Display Only)': 'Remove Alert (Display Only)',
+                'Alert successfully removed (display only).': 'Alert successfully removed (display only).',
+                'Error loading low stock alerts:': 'Error loading low stock alerts:',
+                'Total Order Report (Last 3 Months)': 'Total Order Report (Last 3 Months)',
+                'Category:': 'Category:',
+                'All': 'All',
+                'Show Report': 'Show Report',
+                'Loading Report...': 'Loading Report...',
+                'No delivered order reports found.': 'No delivered order reports found.',
+                'Order ID:': 'Order ID:',
+                'Delivery Date:': 'Delivery Date:',
+                'Share/Download PDF': 'Share/Download PDF',
+                'Report load successful.': 'Report load successful.',
+                'Failed to load report:': 'Failed to load report:',
+                'Report content not found.': 'Report content not found.',
+                'Generating PDF...': 'Generating PDF...',
+                'PDF successfully downloaded.': 'PDF successfully downloaded.',
+                'Loading Stock...': 'Loading Stock...',
+                'No stock items.': 'No stock items.',
+                'Remaining Stock:': 'Remaining Stock:',
+                'Re-stock Quantity': 'Re-stock Quantity',
+                'Re-stock': 'Re-stock',
+                'Failed to load stock:': 'Failed to load stock:',
+                'Stock successfully updated.': 'Stock successfully updated.',
+                'Failed to re-stock:': 'Failed to re-stock:',
+                'Select Product': 'Select Product',
+                'No products available': 'No products available',
+                'Return Quantity': 'Return Quantity',
+                'Return Product': 'Return Product',
+                'Please select product and valid quantity.': 'Please select product and valid quantity.',
+                'Product being returned...': 'Product being returned...',
+                'Cannot return more than current stock.': 'Cannot return more than current stock.',
+                'Product successfully returned and stock updated.': 'Product successfully returned and stock updated.',
+                'Product not found.': 'Product not found.',
+                'Failed to return product:': 'Failed to return product:',
+                'User Panel': 'User Panel',
+                'Products to Order': 'Products to Order',
+                'Loading Products...': 'Loading Products...',
+                'No products in this category.': 'No products in this category.',
+                'Available:': 'Available:',
+                'Your Cart': 'Your Cart',
+                'Your cart is empty.': 'Your cart is empty.',
+                'Place Order': 'Place Order',
+                'Added to cart.': 'Added to cart.',
+                'Out of stock, cannot add more.': 'Out of stock, cannot add more.',
+                'Removed from cart.': 'Removed from cart.',
+                'Your cart is empty.': 'Your cart is empty.',
+                'Order being placed...': 'Order being placed...',
+                'Sorry, insufficient stock for': 'Sorry, insufficient stock for',
+                'Please check your cart.': 'Please check your cart.',
+                'Order successfully placed.': 'Order successfully placed.',
+                'Failed to place order:': 'Failed to place order:',
+                'Your Previous Orders': 'Your Previous Orders',
+                'Loading your orders...': 'Loading your orders...',
+                'You have no orders.': 'You have no orders.',
+                'Status:': 'Status:',
+                'Cancel Order': 'Cancel Order',
+                'Order cancelled successfully.': 'Order cancelled successfully.',
+                'Failed to cancel order:': 'Failed to cancel order:',
+                'Problem fetching your data:': 'Problem fetching your data:',
+                'Unknown user category. Please log in again.': 'Unknown user category. Please log in again.',
+                'Login in progress... please wait.': 'Login in progress... please wait.',
+                'Login successful.': 'Login successful.',
+                'Login failed:': 'Login failed:',
+                'Email and password required.': 'Email and password required.',
+                'Form elements not loaded.': 'Form elements not loaded.',
+                'Admin setup error:': 'Admin setup error:',
+                'Admin user document created. Role set to admin.': 'Admin user document created. Role set to admin.',
+                'Logout successful.': 'Logout successful.',
+                'Warning:': 'Warning:',
+                'is out of stock.': 'is out of stock.',
+                'Language Arabic': 'Language Arabic',
+                'Order Update': 'Order Update',
+                'Update Order': 'Update Order',
+                'Order successfully updated.': 'Order successfully updated.',
+                'Failed to update order.': 'Failed to update order.'
+            },
+            'ar': {
+                'Khamer Store Management App': 'تطبيق خمر لإدارة المخزون',
+                'This system Created by Amdadul': 'تم إنشاء هذا النظام بواسطة امدادول',
+                'Login': 'تسجيل الدخول',
+                'Email (Admin)': 'البريد الإلكتروني (المسؤول)',
+                'Password (Admin)': 'كلمة المرور (المسؤول)',
+                'Admin Login': 'تسجيل دخول المسؤول',
+                'Kitchen Login': 'تسجيل دخول المطبخ',
+                'Men\'s Section Login': 'تسجيل دخول قسم الرجال',
+                'Women\'s Section Login': 'تسجيل دخول قسم النساء',
+                'Order Dashboard': 'لوحة الطلبات',
+                'Add Product': 'إضافة منتج',
+                'Low Stock Alert': 'تنبيه المخزون المنخفض',
+                'Total Order Report': 'تقرير الطلبات الكلي',
+                'Stock & Re-stock': 'المخزون وإعادة التخزين',
+                'Order Return': 'إرجاع الطلب',
+                'Logout': 'تسجيل الخروج',
+                'Pending Orders': 'الطلبات المعلقة',
+                'Loading Orders...': 'جارٍ تحميل الطلبات...',
+                'No pending orders.': 'لا توجد طلبات معلقة.',
+                'Department:': 'القسم:',
+                'Order ID:': 'رقم الطلب:',
+                'Order Date:': 'تاريخ الطلب:',
+                'Delivered': 'تم التوصيل',
+                'Cancel': 'إلغاء',
+                'Error loading orders:': 'خطأ في تحميل الطلبات:',
+                'Order successfully delivered and stock updated.': 'تم توصيل الطلب وتحديث المخزون بنجاح.',
+                'Failed to deliver order.': 'فشل في توصيل الطلب.',
+                'Order successfully cancelled.': 'تم إلغاء الطلب بنجاح.',
+                'Failed to cancel order.': 'فشل في إلغاء الطلب.',
+                'Product Name (English)': 'اسم المنتج (الإنجليزية)',
+                'Product Name (Arabic)': 'اسم المنتج (العربية)',
+                'Quantity (Current Stock)': 'الكمية (المخزون الحالي)',
+                'Low Stock Alert Quantity': 'كمية تنبيه المخزون المنخفض',
+                'Select Category': 'اختر الفئة',
+                'Kitchen': 'المطبخ',
+                'Men\'s Section': 'قسم الرجال',
+                'Women\'s Section': 'قسم النساء',
+                'Select Quantity Type': 'اختر نوع الكمية',
+                'Piece': 'قطعة',
+                'KG': 'كيلوغرام',
+                'Liter': 'لتر',
+                'Carton': 'كرتون',
+                'Add Product': 'إضافة منتج',
+                'Please fill all fields correctly.': 'يرجى ملء جميع الحقول بشكل صحيح.',
+                'Product already exists in this category.': 'المنتج موجود بالفعل في هذه الفئة.',
+                'Product successfully added.': 'تمت إضافة المنتج بنجاح.',
+                'Failed to add product.': 'فشل في إضافة المنتج.',
+                'Loading Low Stock Alerts...': 'جارٍ تحميل تنبيهات المخزون المنخفض...',
+                'No low stock alerts.': 'لا توجد تنبيهات مخزون منخفض.',
+                'Current Stock:': 'المخزون الحالي:',
+                'Alert Quantity:': 'كمية التنبيه:',
+                'Remove Alert (Display Only)': 'إزالة التنبيه (للعرض فقط)',
+                'Alert successfully removed (display only).': 'تمت إزالة التنبيه بنجاح (للعرض فقط).',
+                'Error loading low stock alerts:': 'خطأ في تحميل تنبيهات المخزون المنخفض:',
+                'Total Order Report (Last 3 Months)': 'تقرير الطلبات الكلي (آخر 3 أشهر)',
+                'Category:': 'الفئة:',
+                'All': 'الكل',
+                'Show Report': 'عرض التقرير',
+                'Loading Report...': 'جارٍ تحميل التقرير...',
+                'No delivered order reports found.': 'لم يتم العثور على تقارير طلبات تم تسليمها.',
+                'Order ID:': 'رقم الطلب:',
+                'Delivery Date:': 'تاريخ التسليم:',
+                'Share/Download PDF': 'مشاركة/تنزيل PDF',
+                'Report load successful.': 'تم تحميل التقرير بنجاح.',
+                'Failed to load report:': 'فشل في تحميل التقرير:',
+                'Report content not found.': 'لم يتم العثور على محتوى التقرير.',
+                'Generating PDF...': 'جارٍ إنشاء PDF...',
+                'PDF successfully downloaded.': 'تم تنزيل PDF بنجاح.',
+                'Loading Stock...': 'جارٍ تحميل المخزون...',
+                'No stock items.': 'لا توجد عناصر في المخزون.',
+                'Remaining Stock:': 'المخزون المتبقي:',
+                'Re-stock Quantity': 'كمية إعادة التخزين',
+                'Re-stock': 'إعادة التخزين',
+                'Failed to load stock:': 'فشل في تحميل المخزون:',
+                'Stock successfully updated.': 'تم تحديث المخزون بنجاح.',
+                'Failed to re-stock:': 'فشل في إعادة التخزين:',
+                'Select Product': 'اختر المنتج',
+                'No products available': 'لا توجد منتجات متاحة',
+                'Return Quantity': 'كمية الإرجاع',
+                'Return Product': 'إرجاع المنتج',
+                'Please select product and valid quantity.': 'الرجاء تحديد المنتج وكمية صالحة.',
+                'Product being returned...': 'جارٍ إرجاع المنتج...',
+                'Cannot return more than current stock.': 'لا يمكن إرجاع كمية أكبر من المخزون الحالي.',
+                'Product successfully returned and stock updated.': 'تم إرجاع المنتج بنجاح وتحديث المخزون.',
+                'Product not found.': 'لم يتم العثور على المنتج.',
+                'Failed to return product:': 'فشل في إرجاع المنتج:',
+                'User Panel': 'لوحة المستخدم',
+                'Products to Order': 'المنتجات للطلب',
+                'Loading Products...': 'جارٍ تحميل المنتجات...',
+                'No products in this category.': 'لا توجد منتجات في هذه الفئة.',
+                'Available:': 'متاح:',
+                'Your Cart': 'سلتك',
+                'Your cart is empty.': 'سلتك فارغة.',
+                'Place Order': 'تقديم الطلب',
+                'Added to cart.': 'تمت الإضافة إلى السلة.',
+                'Out of stock, cannot add more.': 'المخزون غير كافٍ، لا يمكن إضافة المزيد.',
+                'Removed from cart.': 'تمت الإزالة من السلة.',
+                'Your cart is empty.': 'سلتك فارغة.',
+                'Order being placed...': 'جارٍ تقديم الطلب...',
+                'Sorry, insufficient stock for': 'عذرًا، المخزون غير كافٍ لـ',
+                'Please check your cart.': 'يرجى مراجعة سلتك.',
+                'Order successfully placed.': 'تم تقديم الطلب بنجاح.',
+                'Failed to place order:': 'فشل في تقديم الطلب:',
+                'Your Previous Orders': 'طلباتك السابقة',
+                'Loading your orders...': 'جارٍ تحميل طلباتك...',
+                'You have no orders.': 'ليس لديك طلبات.',
+                'Status:': 'الحالة:',
+                'Cancel Order': 'إلغاء الطلب',
+                'Order cancelled successfully.': 'تم إلغاء الطلب بنجاح.',
+                'Failed to cancel order:': 'فشل في إلغاء الطلب:',
+                'Problem fetching your data:': 'مشكلة في جلب بياناتك:',
+                'Unknown user category. Please log in again.': 'فئة مستخدم غير معروفة. يرجى تسجيل الدخول مرة أخرى.',
+                'Login in progress... please wait.': 'جارٍ تسجيل الدخول... يرجى الانتظار.',
+                'Login successful.': 'تم تسجيل الدخول بنجاح.',
+                'Login failed:': 'فشل تسجيل الدخول:',
+                'Email and password required.': 'البريد الإلكتروني وكلمة المرور مطلوبان.',
+                'Form elements not loaded.': 'لم يتم تحميل عناصر النموذج.',
+                'Admin setup error:': 'خطأ في إعداد المسؤول:',
+                'Admin user document created. Role set to admin.': 'تم إنشاء مستند مستخدم المسؤول. تم تعيين الدور للمسؤول.',
+                'Logout successful.': 'تم تسجيل الخروج بنجاح.',
+                'Warning:': 'تحذير:',
+                'is out of stock.': 'نفد المخزون.',
+                'Language Arabic': 'اللغة العربية',
+                'Order Update': 'تحديث الطلب',
+                'Update Order': 'تحديث الطلب',
+                'Order successfully updated.': 'تم تحديث الطلب بنجاح.',
+                'Failed to update order.': 'فشل في تحديث الطلب.'
+            }
+        };
+
+        const translatableElements = document.querySelectorAll('[data-en], [data-ar-placeholder]');
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.body.className = lang; // Set class for RTL/LTR and font-family
+            document.querySelector('html').lang = lang; // Set HTML lang attribute
+
+            translatableElements.forEach(el => {
+                const enText = el.dataset.en;
+                const arText = el.dataset.ar;
+                const enPlaceholder = el.dataset.enPlaceholder;
+                const arPlaceholder = el.dataset.arPlaceholder;
+
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    if (lang === 'en' && enPlaceholder) {
+                        el.placeholder = enPlaceholder;
+                    } else if (lang === 'ar' && arPlaceholder) {
+                        el.placeholder = arPlaceholder;
+                    }
+                } else if (enText && arText) {
+                    el.textContent = lang === 'en' ? enText : arText;
+                }
+            });
+            // Update selected option texts if needed (for select elements)
+            document.querySelectorAll('select option').forEach(option => {
+                if (option.value === "") {
+                    option.textContent = lang === 'en' ? translations.en['Select Category'] : translations.ar['اختر الفئة'];
+                } else if (option.value === "kitchen") {
+                    option.textContent = lang === 'en' ? translations.en['Kitchen'] : translations.ar['المطبخ'];
+                } else if (option.value === "men") {
+                    option.textContent = lang === 'en' ? translations.en['Men\'s Section'] : translations.ar['قسم الرجال'];
+                } else if (option.value === "women") {
+                    option.textContent = lang === 'en' ? translations.en['Women\'s Section'] : translations.ar['قسم النساء'];
+                } else if (option.value === "piece") {
+                    option.textContent = lang === 'en' ? translations.en['Piece'] : translations.ar['قطعة'];
+                } else if (option.value === "kg") {
+                    option.textContent = lang === 'en' ? translations.en['KG'] : translations.ar['كيلوغرام'];
+                } else if (option.value === "liter") {
+                    option.textContent = lang === 'en' ? translations.en['Liter'] : translations.ar['لتر'];
+                } else if (option.value === "carton") {
+                    option.textContent = lang === 'en' ? translations.en['Carton'] : translations.ar['كرتون'];
+                }
+            });
+
+            // Update specific dynamic texts like user panel title
+            if (currentUserCategory) {
+                const panelTitleKey = currentUserCategory.charAt(0).toUpperCase() + currentUserCategory.slice(1) + ' Panel';
+                userPanelTitle.textContent = lang === 'en' ? translations.en['User Panel'] : translations.ar['لوحة المستخدم'];
+                // Optionally refine userPanelTitle for specific categories if needed.
+            }
+        }
+
+        // Language toggle button
+        const languageToggleButton = document.getElementById('language-toggle');
+        if (languageToggleButton) {
+            languageToggleButton.addEventListener('click', () => {
+                const newLang = currentLanguage === 'ar' ? 'en' : 'ar';
+                setLanguage(newLang);
+                localStorage.setItem('appLang', newLang); // Save preference
+                languageToggleButton.textContent = newLang === 'ar' ? languageToggleButton.dataset.ar : languageToggleButton.dataset.en;
+            });
+        }
+        // Load language preference from localStorage
+        const savedLang = localStorage.getItem('appLang');
+        if (savedLang) {
+            setLanguage(savedLang);
+            languageToggleButton.textContent = savedLang === 'ar' ? languageToggleButton.dataset.ar : languageToggleButton.dataset.en;
+        } else {
+            setLanguage('ar'); // Default to Arabic
+        }
+
 
         // --- Utility Functions ---
 
         // Function: Display Messages in UI
-        function displayMessage(areaElement, message, type) {
+        function displayMessage(areaElement, messageKey, type) {
             if (!areaElement) {
                 console.error("Message area element not found:", areaElement);
                 return;
             }
+            const message = translations[currentLanguage][messageKey] || messageKey; // Translate if key exists
             areaElement.textContent = message;
             areaElement.className = `message-area ${type}`;
             areaElement.style.display = 'block';
             setTimeout(() => {
                 areaElement.style.display = 'none';
                 areaElement.textContent = '';
-            }, 5000); // Hide after 5 seconds
+            }, 5000);
         }
 
         // Function: Hide and Show Sections
         function showSection(sectionToShow) {
-            console.log("Attempting to show section:", sectionToShow.id);
+            console.log("Attempting to show section:", sectionToShow ? sectionToShow.id : "null");
             const sections = [
                 loginSection, adminDashboardSection, userPanelSection, addProductSection,
                 lowStockAlertSection, totalOrderReportSection, stockRestockSection, orderReturnSection
@@ -619,6 +1083,11 @@
             });
             if (sectionToShow) {
                 sectionToShow.classList.add('active-section');
+                if (sectionToShow === loginSection) {
+                    globalNavigation.style.display = 'none';
+                } else {
+                    globalNavigation.style.display = 'flex';
+                }
             } else {
                 console.error("Section to show is null:", sectionToShow);
             }
@@ -627,39 +1096,35 @@
         // --- Firebase Collection Initialization ---
         async function initializeFirebaseCollections() {
             console.log("Checking Firebase collections for initialization...");
-            const collections = ['products', 'orders', 'stock', 'returns', 'users']; // 'alerts' is implicit or future
+            const collections = ['products', 'orders', 'stock', 'returns', 'users'];
             for (const collectionName of collections) {
                 try {
-                    // Try to add a dummy document and immediately delete it to ensure collection exists
                     const docRef = db.collection(collectionName).doc('__init__');
                     await docRef.set({ initialized: true });
                     await docRef.delete();
                     console.log(`Collection '${collectionName}' initialized successfully.`);
                 } catch (error) {
-                    console.log(`Collection '${collectionName}' might already exist or error during init (likely permission or already exists):`, error.message);
+                    console.log(`Collection '${collectionName}' might already exist or error during init:`, error.message);
                 }
             }
         }
 
         // --- Auth State Change Handler ---
-        // This function runs whenever the user's login state changes (login, logout, page load)
         auth.onAuthStateChanged(async (user) => {
             console.log("Firebase Auth State Changed. Current user:", user ? user.uid : "None");
             if (user) {
-                // User is logged in
                 const userDocRef = db.collection('users').doc(user.uid);
                 let userDoc;
                 try {
                     userDoc = await userDocRef.get();
                 } catch (error) {
                     console.error("Error fetching user document from Firestore:", error);
-                    displayMessage(loginMessageArea, `আপনার তথ্য আনতে সমস্যা হচ্ছে: ${error.message}`, 'error');
-                    auth.signOut(); // Log out if we can't fetch user data
+                    displayMessage(loginMessageArea, 'Problem fetching your data:', 'error');
+                    auth.signOut();
                     return;
                 }
 
                 if (userDoc.exists) {
-                    // User document exists, get their role
                     currentUserCategory = userDoc.data().role;
                     console.log(`User ${user.email || user.uid} logged in. Role: ${currentUserCategory}`);
 
@@ -668,50 +1133,44 @@
                         loadAdminDashboard();
                     } else {
                         showSection(userPanelSection);
-                        userPanelTitle.textContent = `${currentUserCategory.charAt(0).toUpperCase() + currentUserCategory.slice(1)} প্যানেল`;
+                        userPanelTitle.textContent = translations[currentLanguage]['User Panel']; // Update title based on language
                         loadUserProducts(currentUserCategory);
                         loadUserOrders(user.uid);
                         updateCartSummary();
                     }
                 } else {
-                    // User document does NOT exist. This is likely a first-time login for this UID.
                     console.log(`User document for ${user.uid} not found. Attempting to create it.`);
-
-                    if (!user.isAnonymous) { // This user signed in with email/password (likely admin)
-                        // This is the first time an email/password user logs in.
-                        // Create their document with 'admin' role.
+                    if (!user.isAnonymous) {
                         try {
                             await userDocRef.set({
-                                role: 'admin', // Explicitly set 'admin' role
+                                role: 'admin',
                                 email: user.email,
                                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
                             currentUserCategory = 'admin';
                             console.log(`Admin user document created for ${user.email}. Role set to 'admin'.`);
-                            displayMessage(loginMessageArea, 'অ্যাডমিন হিসেবে সফলভাবে লগইন করা হয়েছে।', 'success');
+                            displayMessage(loginMessageArea, 'Admin user document created. Role set to admin.', 'success');
                             showSection(adminDashboardSection);
                             loadAdminDashboard();
                         } catch (error) {
                             console.error("Error creating admin user document on first login:", error);
-                            displayMessage(loginMessageArea, `অ্যাডমিন সেটআপে সমস্যা: ${error.message}`, 'error');
-                            auth.signOut(); // Log out if document creation failed
+                            displayMessage(loginMessageArea, 'Admin setup error:', 'error');
+                            auth.signOut();
                         }
-                    } else { // This user signed in anonymously
-                        // If we reach here for an anonymous user, it means handleAnonymousLogin failed to set their role.
+                    } else {
                         console.warn("Anonymous user logged in but no role document found. Logging out.");
-                        displayMessage(loginMessageArea, 'অজানা ব্যবহারকারী বিভাগ। অনুগ্রহ করে আবার লগইন করুন।', 'error');
-                        auth.signOut(); // Log out if role wasn't set (should be handled by handleAnonymousLogin)
+                        displayMessage(loginMessageArea, 'Unknown user category. Please log in again.', 'error');
+                        auth.signOut();
                     }
                 }
             } else {
-                // User is logged out, show login section
                 console.log("No user logged in. Showing login section.");
                 showSection(loginSection);
                 currentUserCategory = null;
-                userCart = {}; // Clear cart on logout
-                updateCartSummary(); // Clear cart display
-                loginEmailInput.value = ''; // Clear login form
-                loginPasswordInput.value = ''; // Clear login form
+                userCart = {};
+                updateCartSummary();
+                if (loginEmailInput) loginEmailInput.value = '';
+                if (loginPasswordInput) loginPasswordInput.value = '';
             }
         });
 
@@ -723,7 +1182,7 @@
 
                 if (!loginEmailInput || !loginPasswordInput) {
                     console.error("Login input elements not found in DOM!");
-                    displayMessage(loginMessageArea, "ফর্মের উপাদান লোড হয়নি।", 'error');
+                    displayMessage(loginMessageArea, 'Form elements not loaded.', 'error');
                     return;
                 }
 
@@ -731,58 +1190,51 @@
                 const password = loginPasswordInput.value;
 
                 if (!email || !password) {
-                    displayMessage(loginMessageArea, "ইমেইল এবং পাসওয়ার্ড লিখুন।", 'error');
+                    displayMessage(loginMessageArea, 'Email and password required.', 'error');
                     return;
                 }
 
                 console.log("Attempting admin login with email:", email);
-                displayMessage(loginMessageArea, 'লগইন হচ্ছে... অপেক্ষা করুন।', 'info');
+                displayMessage(loginMessageArea, 'Login in progress... please wait.', 'info');
 
                 try {
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log("Firebase Auth successful! UID:", userCredential.user.uid);
-                    // onAuthStateChanged will handle the rest.
                 } catch (error) {
                     console.error("Firebase Login Error:", error);
-                    displayMessage(loginMessageArea, `লগইন ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(loginMessageArea, `Login failed: ${error.message}`, 'error');
                 }
             });
-        } else {
-            console.error("Login form element not found!");
         }
-
 
         // Anonymous Login Handler
         async function handleAnonymousLogin(category, expectedPassword) {
-            const password = prompt(`${category.charAt(0).toUpperCase() + category.slice(1)} পাসওয়ার্ড দিন:`);
-            if (password === null) { // User clicked cancel
-                displayMessage(loginMessageArea, "লগইন বাতিল করা হয়েছে।", 'info');
+            const password = prompt(translations[currentLanguage][`${category} Login`]); // Prompt in chosen language
+            if (password === null) {
+                displayMessage(loginMessageArea, 'Login cancelled.', 'info');
                 return;
             }
             if (password === expectedPassword) {
                 console.log(`Attempting anonymous login for category: ${category}`);
-                displayMessage(loginMessageArea, 'লগইন হচ্ছে... অপেক্ষা করুন।', 'info');
+                displayMessage(loginMessageArea, 'Login in progress... please wait.', 'info');
                 try {
                     const userCredential = await auth.signInAnonymously();
                     const user = userCredential.user;
                     console.log("Anonymous Auth successful! UID:", user.uid);
 
-                    // Set user's role in Firestore immediately
                     const userDocRef = db.collection('users').doc(user.uid);
                     await userDocRef.set({
                         role: category,
-                        email: 'anonymous', // Anonymous user's email
+                        email: 'anonymous',
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     console.log(`Anonymous user role '${category}' set in Firestore.`);
-
-                    // onAuthStateChanged will handle the rest of the UI update
                 } catch (error) {
                     console.error("Anonymous login error:", error);
-                    displayMessage(loginMessageArea, `লগইন ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(loginMessageArea, `Login failed: ${error.message}`, 'error');
                 }
             } else {
-                displayMessage(loginMessageArea, 'ভুল পাসওয়ার্ড।', 'error');
+                displayMessage(loginMessageArea, 'Wrong password.', 'error');
             }
         }
 
@@ -794,13 +1246,13 @@
         if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', async () => {
             console.log("Admin logout button clicked.");
             await auth.signOut();
-            displayMessage(loginMessageArea, "সফলভাবে লগআউট করা হয়েছে।", 'success');
+            displayMessage(loginMessageArea, 'Logout successful.', 'success');
         });
 
         if (userLogoutBtn) userLogoutBtn.addEventListener('click', async () => {
             console.log("User logout button clicked.");
             await auth.signOut();
-            displayMessage(loginMessageArea, "সফলভাবে লগআউট করা হয়েছে।", 'success');
+            displayMessage(loginMessageArea, 'Logout successful.', 'success');
         });
 
         // --- Admin Panel Functionality ---
@@ -808,30 +1260,29 @@
         // Load Dashboard (Pending Orders)
         async function loadAdminDashboard() {
             console.log("Loading admin dashboard (pending orders)...");
-            pendingOrdersList.innerHTML = '<p>লোডিং অর্ডার...</p>';
+            pendingOrdersList.innerHTML = `<p>${translations[currentLanguage]['Loading Orders...']}</p>`;
             db.collection('orders').where('status', '==', 'pending').orderBy('orderDate', 'desc')
                 .onSnapshot(snapshot => {
                     pendingOrdersList.innerHTML = '';
                     if (snapshot.empty) {
-                        pendingOrdersList.innerHTML = '<p>কোনো পেন্ডিং অর্ডার নেই।</p>';
+                        pendingOrdersList.innerHTML = `<p>${translations[currentLanguage]['No pending orders.']}</p>`;
                         return;
                     }
                     snapshot.forEach(doc => {
                         const order = doc.data();
-                        const orderId = doc.id;
+                        const orderId = doc.id; // Still needed internally for operations
                         const orderItemDiv = document.createElement('div');
                         orderItemDiv.classList.add('order-item');
                         orderItemDiv.innerHTML = `
-                            <h4>বিভাগ: ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</h4>
-                            <p><strong>অর্ডার আইডি:</strong> ${orderId}</p>
-                            <p><strong>অর্ডারের তারিখ:</strong> ${order.orderDate.toDate().toLocaleString()}</p>
+                            <h4>${translations[currentLanguage]['Department:']} ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</h4>
+                            <p><strong>${translations[currentLanguage]['Order Date:']}</strong> ${order.orderDate.toDate().toLocaleString()}</p>
                             <ul>
                                 ${Object.keys(order.products).map(productId => `
-                                    <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
+                                    <li>${currentLanguage === 'en' ? order.products[productId].name_en : order.products[productId].name_ar}: <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
                                 `).join('')}
                             </ul>
-                            <button class="button-success deliver-order-btn" data-order-id="${orderId}">ডেলিভারড</button>
-                            <button class="button-danger cancel-order-btn" data-order-id="${orderId}" style="margin-left: 10px;">ক্যান্সেল</button>
+                            <button class="button-success deliver-order-btn" data-order-id="${orderId}">${translations[currentLanguage]['Delivered']}</button>
+                            <button class="button-danger cancel-order-btn" data-order-id="${orderId}" style="margin-left: 10px;">${translations[currentLanguage]['Cancel']}</button>
                         `;
                         pendingOrdersList.appendChild(orderItemDiv);
                     });
@@ -844,7 +1295,7 @@
                     });
                 }, error => {
                     console.error("Error loading pending orders:", error);
-                    displayMessage(document.getElementById('admin-message-area'), `অর্ডার লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(document.getElementById('admin-message-area'), `${translations[currentLanguage]['Error loading orders:']} ${error.message}`, 'error');
                 });
         }
 
@@ -852,11 +1303,11 @@
         async function handleDeliverOrder(event) {
             const orderId = event.target.dataset.orderId;
             const orderRef = db.collection('orders').doc(orderId);
-            const confirmDelivery = confirm("আপনি কি নিশ্চিত এই অর্ডারটি ডেলিভারড হিসেবে চিহ্নিত করতে চান এবং স্টক আপডেট করতে চান?");
+            const confirmDelivery = confirm(currentLanguage === 'en' ? "Are you sure you want to mark this order as delivered and update stock?" : "هل أنت متأكد أنك تريد وضع علامة على هذا الطلب كمُسلم وتحديث المخزون؟");
             if (!confirmDelivery) return;
 
             console.log("Handling deliver order for ID:", orderId);
-            displayMessage(document.getElementById('admin-message-area'), 'অর্ডার ডেলিভার করা হচ্ছে...', 'info');
+            displayMessage(document.getElementById('admin-message-area'), 'Order being delivered...', 'info');
 
             try {
                 const orderDoc = await orderRef.get();
@@ -867,45 +1318,45 @@
                     for (const productId in order.products) {
                         const productOrder = order.products[productId];
                         const productRef = db.collection('stock').doc(productId);
-                        const stockDoc = await productRef.get(); // Check if product exists in stock
+                        const stockDoc = await productRef.get();
                         if (stockDoc.exists) {
                             batch.update(productRef, {
                                 quantity: firebase.firestore.FieldValue.increment(-productOrder.quantity)
                             });
                         } else {
                             console.warn(`Product ${productId} not found in stock. Skipping stock update for this item.`);
-                            displayMessage(document.getElementById('admin-message-area'), `সতর্কতা: ${productOrder.name_en} স্টক এ নেই।`, 'info');
+                            displayMessage(document.getElementById('admin-message-area'), `${translations[currentLanguage]['Warning:']} ${currentLanguage === 'en' ? productOrder.name_en : productOrder.name_ar} ${translations[currentLanguage]['is out of stock.']}`, 'info');
                         }
                     }
 
                     batch.update(orderRef, { status: 'delivered', deliveredAt: firebase.firestore.FieldValue.serverTimestamp() });
                     await batch.commit();
-                    displayMessage(document.getElementById('admin-message-area'), 'অর্ডার সফলভাবে ডেলিভারড হয়েছে এবং স্টক আপডেট করা হয়েছে।', 'success');
+                    displayMessage(document.getElementById('admin-message-area'), 'Order successfully delivered and stock updated.', 'success');
                 }
             } catch (error) {
                 console.error("Error delivering order:", error);
-                displayMessage(document.getElementById('admin-message-area'), `অর্ডার ডেলিভার করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('admin-message-area'), `${translations[currentLanguage]['Failed to deliver order:']} ${error.message}`, 'error');
             }
         }
 
         // Order Cancel Handler (Admin Panel)
         async function handleCancelOrder(event) {
             const orderId = event.target.dataset.orderId;
-            const confirmCancel = confirm("আপনি কি নিশ্চিত এই অর্ডারটি বাতিল করতে চান?");
+            const confirmCancel = confirm(currentLanguage === 'en' ? "Are you sure you want to cancel this order?" : "هل أنت متأكد أنك تريد إلغاء هذا الطلب؟");
             if (!confirmCancel) return;
 
             console.log("Handling cancel order for ID:", orderId);
-            displayMessage(document.getElementById('admin-message-area'), 'অর্ডার বাতিল করা হচ্ছে...', 'info');
+            displayMessage(document.getElementById('admin-message-area'), 'Order being cancelled...', 'info');
 
             try {
                 await db.collection('orders').doc(orderId).update({
                     status: 'cancelled',
                     cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                displayMessage(document.getElementById('admin-message-area'), 'অর্ডার সফলভাবে বাতিল করা হয়েছে।', 'success');
+                displayMessage(document.getElementById('admin-message-area'), 'Order successfully cancelled.', 'success');
             } catch (error) {
                 console.error("Error canceling order:", error);
-                displayMessage(document.getElementById('admin-message-area'), `অর্ডার বাতিল করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('admin-message-area'), `${translations[currentLanguage]['Failed to cancel order:']} ${error.message}`, 'error');
             }
         }
 
@@ -923,21 +1374,20 @@
                 const quantityType = document.getElementById('quantity-type').value;
 
                 if (!nameEn || !nameAr || isNaN(quantity) || quantity < 0 || isNaN(lowStockAlertQuantity) || lowStockAlertQuantity < 0 || !category || !quantityType) {
-                    displayMessage(addProductMessageArea, 'অনুগ্রহ করে সকল ফিল্ড সঠিক ভাবে পূরণ করুন।', 'error');
+                    displayMessage(addProductMessageArea, 'Please fill all fields correctly.', 'error');
                     return;
                 }
 
-                displayMessage(addProductMessageArea, 'পণ্য যোগ করা হচ্ছে...', 'info');
+                displayMessage(addProductMessageArea, 'Product being added...', 'info');
 
                 try {
-                    // Check if product with same English name and category already exists
                     const existingProductSnapshot = await db.collection('products')
                                                     .where('name_en', '==', nameEn)
                                                     .where('category', '==', category)
                                                     .limit(1).get();
 
                     if (!existingProductSnapshot.empty) {
-                        displayMessage(addProductMessageArea, 'এই বিভাগে এই নামের একটি পণ্য ইতিমধ্যেই বিদ্যমান।', 'error');
+                        displayMessage(addProductMessageArea, 'Product already exists in this category.', 'error');
                         return;
                     }
 
@@ -961,20 +1411,19 @@
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    displayMessage(addProductMessageArea, 'পণ্য সফলভাবে যোগ করা হয়েছে।', 'success');
+                    displayMessage(addProductMessageArea, 'Product successfully added.', 'success');
                     addProductForm.reset();
                 } catch (error) {
                     console.error("Error adding product:", error);
-                    displayMessage(addProductMessageArea, `পণ্য যোগ করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(addProductMessageArea, `Failed to add product: ${error.message}`, 'error');
                 }
             });
         }
 
-
         // Load Low-Stock Alerts
         async function loadLowStockAlerts() {
             console.log("Loading low stock alerts...");
-            lowStockProductsList.innerHTML = '<p>লোডিং লো-স্টক এলার্ট...</p>';
+            lowStockProductsList.innerHTML = `<p>${translations[currentLanguage]['Loading Low Stock Alerts...']}</p>`;
             db.collection('stock').onSnapshot(snapshot => {
                 lowStockProductsList.innerHTML = '';
                 let hasLowStock = false;
@@ -985,40 +1434,39 @@
                         const alertItemDiv = document.createElement('div');
                         alertItemDiv.classList.add('alert-item');
                         alertItemDiv.innerHTML = `
-                            <p><strong>${product.name_en} (${product.name_ar})</strong></p>
-                            <p>বর্তমান স্টক: ${product.quantity} ${product.quantity_type}</p>
-                            <p>এলার্ট সংখ্যা: ${product.lowStockAlert}</p>
-                            <button class="button-info remove-alert-btn" data-product-id="${doc.id}">এলার্ট রিমুভ করুন (শুধু ডিসপ্লে থেকে)</button>
+                            <p><strong>${currentLanguage === 'en' ? product.name_en : product.name_ar}</strong></p>
+                            <p>${translations[currentLanguage]['Current Stock:']} ${product.quantity} ${product.quantity_type}</p>
+                            <p>${translations[currentLanguage]['Alert Quantity:']} ${product.lowStockAlert}</p>
+                            <button class="button-info remove-alert-btn" data-product-id="${doc.id}">${translations[currentLanguage]['Remove Alert (Display Only)']}</button>
                         `;
                         lowStockProductsList.appendChild(alertItemDiv);
                     }
                 });
                 if (!hasLowStock) {
-                    lowStockProductsList.innerHTML = '<p>কোনো লো-স্টক এলার্ট নেই।</p>';
+                    lowStockProductsList.innerHTML = `<p>${translations[currentLanguage]['No low stock alerts.']}</p>`;
                 }
             }, error => {
                 console.error("Error loading low stock alerts:", error);
-                displayMessage(document.getElementById('low-stock-message-area'), `লো-স্টক এলার্ট লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('low-stock-message-area'), `${translations[currentLanguage]['Error loading low stock alerts:']} ${error.message}`, 'error');
             });
         }
 
-        // Remove Alert Handler (Removes only from display, not from DB's quantity logic)
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('remove-alert-btn')) {
                 console.log("Remove alert button clicked.");
                 e.target.closest('.alert-item').remove();
-                displayMessage(document.getElementById('low-stock-message-area'), 'এলার্ট সফলভাবে রিমুভ করা হয়েছে (শুধুমাত্র ডিসপ্লে থেকে)।', 'success');
+                displayMessage(document.getElementById('low-stock-message-area'), 'Alert successfully removed (display only).', 'success');
             }
         });
 
         // Load Total Order Report
         async function loadTotalOrderReport(category = 'all') {
             console.log("Loading total order report for category:", category);
-            totalOrderReportContent.innerHTML = '<p>লোডিং রিপোর্ট...</p>';
-            displayMessage(document.getElementById('report-message-area'), 'রিপোর্ট লোড করা হচ্ছে...', 'info');
+            totalOrderReportContent.innerHTML = `<p>${translations[currentLanguage]['Loading Report...']}</p>`;
+            displayMessage(document.getElementById('report-message-area'), 'Loading Report...', 'info');
 
             const today = new Date();
-            let startDate = new Date(today.getFullYear(), today.getMonth() - 2, 20); // Get data from 3 months before the 20th
+            let startDate = new Date(today.getFullYear(), today.getMonth() - 2, 20);
 
             let query = db.collection('orders').where('status', '==', 'delivered').where('deliveredAt', '>=', startDate);
 
@@ -1034,8 +1482,8 @@
                 });
 
                 if (orders.length === 0) {
-                    totalOrderReportContent.innerHTML = '<p>কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।</p>';
-                    displayMessage(document.getElementById('report-message-area'), 'কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।', 'info');
+                    totalOrderReportContent.innerHTML = `<p>${translations[currentLanguage]['No delivered order reports found.']}</p>`;
+                    displayMessage(document.getElementById('report-message-area'), 'No delivered order reports found.', 'info');
                     return;
                 }
 
@@ -1044,7 +1492,7 @@
                     if (order.deliveredAt) {
                         const deliveredDate = order.deliveredAt.toDate();
                         const year = deliveredDate.getFullYear();
-                        let month = deliveredDate.getMonth(); // 0-11
+                        let month = deliveredDate.getMonth();
                         const day = deliveredDate.getDate();
 
                         let reportMonthKey;
@@ -1071,8 +1519,8 @@
                 const sortedMonthKeys = Object.keys(groupedOrders).sort();
 
                 if (sortedMonthKeys.length === 0) {
-                    totalOrderReportContent.innerHTML = '<p>কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।</p>';
-                    displayMessage(document.getElementById('report-message-area'), 'কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।', 'info');
+                    totalOrderReportContent.innerHTML = `<p>${translations[currentLanguage]['No delivered order reports found.']}</p>`;
+                    displayMessage(document.getElementById('report-message-area'), 'No delivered order reports found.', 'info');
                     return;
                 }
 
@@ -1083,23 +1531,23 @@
                     groupedOrders[monthKey].forEach(order => {
                         reportHtml += `
                             <li>
-                                <p><strong>অর্ডার আইডি:</strong> ${order.id}</p>
-                                <p><strong>বিভাগ:</strong> ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</p>
-                                <p><strong>ডেলিভারির তারিখ:</strong> ${order.deliveredAt.toDate().toLocaleString()}</p>
+                                <p><strong>${translations[currentLanguage]['Order ID:']}</strong> ${order.id}</p>
+                                <p><strong>${translations[currentLanguage]['Department:']}</strong> ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</p>
+                                <p><strong>${translations[currentLanguage]['Delivery Date:']}</strong> ${order.deliveredAt.toDate().toLocaleString()}</p>
                                 <ul>
                                     ${Object.keys(order.products).map(productId => `
-                                        <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
+                                        <li>${currentLanguage === 'en' ? order.products[productId].name_en : order.products[productId].name_ar}: <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
                                     `).join('')}
                                 </ul>
                             </li>
                         `;
                     });
                     reportHtml += `</ul>`;
-                    reportHtml += `<button class="button-info share-report-btn" data-month-key="${monthKey}">শেয়ার/ডাউনলোড PDF</button><hr>`;
+                    reportHtml += `<button class="button-info share-report-btn" data-month-key="${monthKey}">${translations[currentLanguage]['Share/Download PDF']}</button><hr>`;
                     reportHtml += `</div>`;
                 });
                 totalOrderReportContent.innerHTML = reportHtml;
-                displayMessage(document.getElementById('report-message-area'), 'রিপোর্ট লোড সফল।', 'success');
+                displayMessage(document.getElementById('report-message-area'), 'Report load successful.', 'success');
 
                 document.querySelectorAll('.share-report-btn').forEach(button => {
                     button.addEventListener('click', handleShareReport);
@@ -1107,7 +1555,7 @@
 
             } catch (error) {
                 console.error("Error loading total order report:", error);
-                displayMessage(document.getElementById('report-message-area'), `রিপোর্ট লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('report-message-area'), `${translations[currentLanguage]['Failed to load report:']} ${error.message}`, 'error');
             }
         }
 
@@ -1117,12 +1565,12 @@
             const reportElement = document.getElementById(`report-section-${monthKey.replace('-', '_')}`);
 
             if (!reportElement) {
-                displayMessage(document.getElementById('report-message-area'), "রিপোর্ট কন্টেন্ট পাওয়া যায়নি।", 'error');
+                displayMessage(document.getElementById('report-message-area'), 'Report content not found.', 'error');
                 return;
             }
 
             console.log("Generating PDF for report section:", monthKey);
-            displayMessage(document.getElementById('report-message-area'), 'PDF তৈরি হচ্ছে...', 'info');
+            displayMessage(document.getElementById('report-message-area'), 'Generating PDF...', 'info');
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -1134,7 +1582,7 @@
             doc.html(clonedReport.outerHTML, {
                 callback: function (doc) {
                     doc.save(`Order_Report_${monthKey}.pdf`);
-                    displayMessage(document.getElementById('report-message-area'), 'PDF সফলভাবে ডাউনলোড হয়েছে।', 'success');
+                    displayMessage(document.getElementById('report-message-area'), 'PDF successfully downloaded.', 'success');
                 },
                 x: 10,
                 y: 10,
@@ -1146,11 +1594,11 @@
         // Load Stock and Restock
         async function loadStockAndRestock() {
             console.log("Loading stock and restock section...");
-            currentStockList.innerHTML = '<p>লোডিং স্টক...</p>';
+            currentStockList.innerHTML = `<p>${translations[currentLanguage]['Loading Stock...']}</p>`;
             db.collection('stock').onSnapshot(snapshot => {
                 currentStockList.innerHTML = '';
                 if (snapshot.empty) {
-                    currentStockList.innerHTML = '<p>কোনো স্টক আইটেম নেই।</p>';
+                    currentStockList.innerHTML = `<p>${translations[currentLanguage]['No stock items.']}</p>`;
                     return;
                 }
                 snapshot.forEach(doc => {
@@ -1158,11 +1606,16 @@
                     const stockItemDiv = document.createElement('div');
                     stockItemDiv.classList.add('stock-item');
                     stockItemDiv.innerHTML = `
-                        <p><strong>${product.name_en} (${product.name_ar})</strong> - অবশিষ্ট স্টক: <strong>${product.quantity}</strong> ${product.quantity_type}</p>
-                        <input type="number" class="input-field restock-quantity" placeholder="রি-স্টক সংখ্যা" data-product-id="${doc.id}" min="1">
-                        <button class="button-info restock-btn" data-product-id="${doc.id}">রি-স্টক</button>
+                        <p><strong>${currentLanguage === 'en' ? product.name_en : product.name_ar}</strong> - ${translations[currentLanguage]['Remaining Stock:']} <strong>${product.quantity}</strong> ${product.quantity_type}</p>
+                        <input type="number" class="input-field restock-quantity" data-en-placeholder="Re-stock Quantity" data-ar-placeholder="كمية إعادة التخزين" placeholder="${currentLanguage === 'en' ? translations.en['Re-stock Quantity'] : translations.ar['كمية إعادة التخزين']}" data-product-id="${doc.id}" min="1">
+                        <button class="button-info restock-btn" data-product-id="${doc.id}">${translations[currentLanguage]['Re-stock']}</button>
                     `;
                     currentStockList.appendChild(stockItemDiv);
+                     // Update placeholder text dynamically
+                    const restockInput = stockItemDiv.querySelector('.restock-quantity');
+                    if (restockInput) {
+                        restockInput.placeholder = currentLanguage === 'en' ? translations.en['Re-stock Quantity'] : translations.ar['كمية إعادة التخزين'];
+                    }
                 });
 
                 document.querySelectorAll('.restock-btn').forEach(button => {
@@ -1170,7 +1623,7 @@
                 });
             }, error => {
                 console.error("Error loading stock:", error);
-                displayMessage(document.getElementById('stock-message-area'), `স্টক লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('stock-message-area'), `${translations[currentLanguage]['Failed to load stock:']} ${error.message}`, 'error');
             });
         }
 
@@ -1181,36 +1634,36 @@
             const restockQuantity = parseInt(quantityInput.value);
 
             if (isNaN(restockQuantity) || restockQuantity <= 0) {
-                displayMessage(document.getElementById('stock-message-area'), 'বৈধ সংখ্যা দিন।', 'error');
+                displayMessage(document.getElementById('stock-message-area'), 'Please enter a valid quantity.', 'error');
                 return;
             }
 
             console.log(`Restocking product ${productId} with quantity ${restockQuantity}.`);
-            displayMessage(document.getElementById('stock-message-area'), 'স্টক আপডেট হচ্ছে...', 'info');
+            displayMessage(document.getElementById('stock-message-area'), 'Stock being updated...', 'info');
 
             try {
                 await db.collection('stock').doc(productId).update({
                     quantity: firebase.firestore.FieldValue.increment(restockQuantity),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                displayMessage(document.getElementById('stock-message-area'), 'স্টক সফলভাবে আপডেট করা হয়েছে।', 'success');
+                displayMessage(document.getElementById('stock-message-area'), 'Stock successfully updated.', 'success');
                 quantityInput.value = '';
             } catch (error) {
                 console.error("Error restocking:", error);
-                displayMessage(document.getElementById('stock-message-area'), `রি-স্টক করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('stock-message-area'), `${translations[currentLanguage]['Failed to re-stock:']} ${error.message}`, 'error');
             }
         }
 
         // Load Order Return Products
         async function loadOrderReturnProducts() {
             console.log("Loading products for order return section...");
-            returnProductSelect.innerHTML = '<option value="">পণ্য নির্বাচন করুন</option>';
+            returnProductSelect.innerHTML = `<option value="">${translations[currentLanguage]['Select Product']}</option>`;
             try {
                 const snapshot = await db.collection('stock').get();
                 if (snapshot.empty) {
                     const option = document.createElement('option');
                     option.value = '';
-                    option.textContent = 'কোনো পণ্য নেই';
+                    option.textContent = translations[currentLanguage]['No products available'];
                     option.disabled = true;
                     returnProductSelect.appendChild(option);
                 }
@@ -1218,12 +1671,12 @@
                     const product = doc.data();
                     const option = document.createElement('option');
                     option.value = doc.id;
-                    option.textContent = `${product.name_en} (${product.name_ar}) - বর্তমান স্টক: ${product.quantity} ${product.quantity_type}`;
+                    option.textContent = `${currentLanguage === 'en' ? product.name_en : product.name_ar} - ${translations[currentLanguage]['Remaining Stock:']} ${product.quantity} ${product.quantity_type}`;
                     returnProductSelect.appendChild(option);
                 });
             } catch (error) {
                 console.error("Error loading return products:", error);
-                displayMessage(document.getElementById('return-message-area'), `রিটার্ন করার জন্য পণ্য লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(document.getElementById('return-message-area'), `${translations[currentLanguage]['Failed to load return products:']} ${error.message}`, 'error');
             }
         }
 
@@ -1237,11 +1690,11 @@
                 const returnQuantity = parseInt(document.getElementById('return-quantity').value);
 
                 if (!productId || isNaN(returnQuantity) || returnQuantity <= 0) {
-                    displayMessage(document.getElementById('return-message-area'), 'অনুগ্রহ করে পণ্য এবং বৈধ সংখ্যা নির্বাচন করুন।', 'error');
+                    displayMessage(document.getElementById('return-message-area'), 'Please select product and valid quantity.', 'error');
                     return;
                 }
 
-                displayMessage(document.getElementById('return-message-area'), 'পণ্য রিটার্ন করা হচ্ছে...', 'info');
+                displayMessage(document.getElementById('return-message-area'), 'Product being returned...', 'info');
 
                 try {
                     const productRef = db.collection('stock').doc(productId);
@@ -1250,7 +1703,7 @@
                     if (productDoc.exists) {
                         const currentQuantity = productDoc.data().quantity;
                         if (currentQuantity < returnQuantity) {
-                            displayMessage(document.getElementById('return-message-area'), 'বর্তমান স্টকের চেয়ে বেশি পণ্য ফেরত দেওয়া যাবে না।', 'error');
+                            displayMessage(document.getElementById('return-message-area'), 'Cannot return more than current stock.', 'error');
                             return;
                         }
 
@@ -1268,15 +1721,15 @@
                             returnDate: firebase.firestore.FieldValue.serverTimestamp()
                         });
 
-                        displayMessage(document.getElementById('return-message-area'), 'পণ্য সফলভাবে রিটার্ন করা হয়েছে এবং স্টক আপডেট করা হয়েছে।', 'success');
+                        displayMessage(document.getElementById('return-message-area'), 'Product successfully returned and stock updated.', 'success');
                         returnProductForm.reset();
                         loadOrderReturnProducts();
                     } else {
-                        displayMessage(document.getElementById('return-message-area'), 'পণ্য পাওয়া যায়নি।', 'error');
+                        displayMessage(document.getElementById('return-message-area'), 'Product not found.', 'error');
                     }
                 } catch (error) {
                     console.error("Error returning product:", error);
-                    displayMessage(document.getElementById('return-message-area'), `পণ্য রিটার্ন করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(document.getElementById('return-message-area'), `${translations[currentLanguage]['Failed to return product:']} ${error.message}`, 'error');
                 }
             });
         }
@@ -1286,12 +1739,12 @@
         // Load Product List for User
         async function loadUserProducts(category) {
             console.log("Loading user products for category:", category);
-            productList.innerHTML = '<p>লোডিং পণ্য...</p>';
+            productList.innerHTML = `<p>${translations[currentLanguage]['Loading Products...']}</p>`;
             db.collection('products').where('category', '==', category)
                 .onSnapshot(snapshot => {
                     productList.innerHTML = '';
                     if (snapshot.empty) {
-                        productList.innerHTML = '<p>এই বিভাগে কোনো পণ্য নেই।</p>';
+                        productList.innerHTML = `<p>${translations[currentLanguage]['No products in this category.']}</p>`;
                         return;
                     }
                     snapshot.forEach(doc => {
@@ -1300,8 +1753,8 @@
                         const productDiv = document.createElement('div');
                         productDiv.classList.add('product-item');
                         productDiv.innerHTML = `
-                            <h4>${product.name_en} (${product.name_ar})</h4>
-                            <p>উপলব্ধ: <span id="stock-${productId}">লোডিং...</span> ${product.quantity_type}</p>
+                            <h4>${currentLanguage === 'en' ? product.name_en : product.name_ar}</h4>
+                            <p>${translations[currentLanguage]['Available:']} <span id="stock-${productId}">লোডিং...</span> ${product.quantity_type}</p>
                             <div class="quantity-control">
                                 <button class="add-to-cart-btn" data-product-id="${productId}" data-product-name-en="${product.name_en}" data-product-name-ar="${product.name_ar}" data-quantity-type="${product.quantity_type}">+</button>
                                 <span id="cart-quantity-${productId}">${userCart[productId] ? userCart[productId].quantity : 0}</span>
@@ -1309,7 +1762,6 @@
                             </div>
                         `;
                         productList.appendChild(productDiv);
-                        // Real-time stock update
                         db.collection('stock').doc(productId).onSnapshot(stockDoc => {
                             const stockSpan = document.getElementById(`stock-${productId}`);
                             if (stockSpan) {
@@ -1323,7 +1775,7 @@
                     });
                 }, error => {
                     console.error("Error loading user products:", error);
-                    displayMessage(userOrderMessageArea, `পণ্য লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Failed to load products:']} ${error.message}`, 'error');
                 });
         }
 
@@ -1331,14 +1783,14 @@
         function updateCartSummary() {
             userCartSummary.innerHTML = '';
             if (Object.keys(userCart).length === 0) {
-                userCartSummary.innerHTML = '<p>আপনার কার্ট খালি।</p>';
+                userCartSummary.innerHTML = `<p>${translations[currentLanguage]['Your cart is empty.']}</p>`;
                 return;
             }
 
             let cartHtml = '<ul>';
             for (const productId in userCart) {
                 const item = userCart[productId];
-                cartHtml += `<li>${item.name_en} (${item.name_ar}): <strong>${item.quantity}</strong> ${item.type}</li>`;
+                cartHtml += `<li>${currentLanguage === 'en' ? item.name_en : item.name_ar}: <strong>${item.quantity}</strong> ${item.type}</li>`;
             }
             cartHtml += '</ul>';
             userCartSummary.innerHTML = cartHtml;
@@ -1366,9 +1818,9 @@
 
                 if (userCart[productId].quantity < currentStock) {
                     userCart[productId].quantity++;
-                    displayMessage(userOrderMessageArea, `${productNameEn} কার্টে যোগ করা হয়েছে।`, 'success');
+                    displayMessage(userOrderMessageArea, translations[currentLanguage]['Added to cart.'], 'success');
                 } else {
-                    displayMessage(userOrderMessageArea, 'স্টক শেষ, আরও যোগ করা যাবে না।', 'error');
+                    displayMessage(userOrderMessageArea, 'Out of stock, cannot add more.', 'error');
                 }
                 document.getElementById(`cart-quantity-${productId}`).textContent = userCart[productId].quantity;
                 updateCartSummary();
@@ -1380,7 +1832,7 @@
                     if (userCart[productId].quantity === 0) {
                         delete userCart[productId];
                     }
-                    displayMessage(userOrderMessageArea, `কার্ট থেকে সরানো হয়েছে।`, 'success');
+                    displayMessage(userOrderMessageArea, 'Removed from cart.', 'success');
                 }
                 updateCartSummary();
             }
@@ -1390,22 +1842,21 @@
         if (placeOrderBtn) {
             placeOrderBtn.addEventListener('click', async () => {
                 if (Object.keys(userCart).length === 0) {
-                    displayMessage(userOrderMessageArea, 'আপনার কার্ট খালি।', 'error');
+                    displayMessage(userOrderMessageArea, 'Your cart is empty.', 'error');
                     return;
                 }
 
-                const confirmOrder = confirm("আপনি কি এই অর্ডারটি প্লেস করতে চান?");
+                const confirmOrder = confirm(currentLanguage === 'en' ? "Are you sure you want to place this order?" : "هل أنت متأكد أنك تريد تقديم هذا الطلب؟");
                 if (!confirmOrder) return;
 
                 console.log("Placing order...");
-                displayMessage(userOrderMessageArea, 'অর্ডার প্লেস করা হচ্ছে...', 'info');
+                displayMessage(userOrderMessageArea, 'Order being placed...', 'info');
 
-                // Check if items in cart exceed current stock before placing order
                 for (const productId in userCart) {
                     const requestedQuantity = userCart[productId].quantity;
                     const stockDoc = await db.collection('stock').doc(productId).get();
                     if (!stockDoc.exists || stockDoc.data().quantity < requestedQuantity) {
-                        displayMessage(userOrderMessageArea, `দুঃখিত, ${userCart[productId].name_en} (${userCart[productId].name_ar}) পণ্যের পর্যাপ্ত স্টক নেই। অনুগ্রহ করে আপনার কার্ট চেক করুন।`, 'error');
+                        displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Sorry, insufficient stock for']} ${currentLanguage === 'en' ? userCart[productId].name_en : userCart[productId].name_ar}. ${translations[currentLanguage]['Please check your cart.']}`, 'error');
                         return;
                     }
                 }
@@ -1418,28 +1869,28 @@
                         orderDate: firebase.firestore.FieldValue.serverTimestamp(),
                         status: 'pending'
                     });
-                    displayMessage(userOrderMessageArea, 'অর্ডার সফলভাবে প্লেস করা হয়েছে।', 'success');
+                    displayMessage(userOrderMessageArea, 'Order successfully placed.', 'success');
                     userCart = {};
                     updateCartSummary();
                     loadUserProducts(currentUserCategory);
                     loadUserOrders(auth.currentUser.uid);
                 } catch (error) {
                     console.error("Error placing order:", error);
-                    displayMessage(userOrderMessageArea, `অর্ডার প্লেস করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(userOrderMessageArea, `Failed to place order: ${error.message}`, 'error');
                 }
             });
         }
 
 
-        // Show User Order Status
+        // Show User Order Status (with edit/delete for pending items)
         async function loadUserOrders(userId) {
             console.log("Loading user orders for UID:", userId);
-            userOrdersList.innerHTML = '<p>লোডিং আপনার অর্ডার...</p>';
+            userOrdersList.innerHTML = `<p>${translations[currentLanguage]['Loading your orders...']}</p>`;
             db.collection('orders').where('userId', '==', userId).orderBy('orderDate', 'desc')
                 .onSnapshot(snapshot => {
                     userOrdersList.innerHTML = '';
                     if (snapshot.empty) {
-                        userOrdersList.innerHTML = '<p>আপনার কোনো অর্ডার নেই।</p>';
+                        userOrdersList.innerHTML = `<p>${translations[currentLanguage]['You have no orders.']}</p>`;
                         return;
                     }
                     snapshot.forEach(doc => {
@@ -1448,15 +1899,31 @@
                         const orderItemDiv = document.createElement('div');
                         orderItemDiv.classList.add('user-order-item');
                         orderItemDiv.innerHTML = `
-                            <h4>অর্ডার আইডি: ${orderId}</h4>
-                            <p>তারিখ: ${order.orderDate.toDate().toLocaleString()}</p>
-                            <p>স্ট্যাটাস: <strong style="color: ${order.status === 'pending' ? '#ffc107' : order.status === 'delivered' ? '#28a745' : '#dc3545'};">${order.status.toUpperCase()}</strong></p>
-                            <ul>
-                                ${Object.keys(order.products).map(productId => `
-                                    <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
-                                `).join('')}
+                            <p><strong>${translations[currentLanguage]['Order Date:']}</strong> ${order.orderDate.toDate().toLocaleString()}</p>
+                            <p><strong>${translations[currentLanguage]['Status:']}</strong> <strong style="color: ${order.status === 'pending' ? '#ffc107' : order.status === 'delivered' ? '#28a745' : '#dc3545'};">${order.status.toUpperCase()}</strong></p>
+                            <ul class="editable-order-item-list">
+                                ${Object.keys(order.products).map(productId => {
+                                    const product = order.products[productId];
+                                    return `
+                                        <li data-product-id="${productId}" data-order-id="${orderId}" class="order-item-detail">
+                                            <span>${currentLanguage === 'en' ? product.name_en : product.name_ar}:</span>
+                                            <span class="quantity-display">${product.quantity} ${product.type}</span>
+                                            ${order.status === 'pending' ? `
+                                            <div class="edit-controls">
+                                                <div class="edit-quantity-control">
+                                                    <button class="edit-order-item-btn" data-action="decrease">-</button>
+                                                    <input type="number" value="${product.quantity}" min="0" class="edit-item-quantity-input">
+                                                    <button class="edit-order-item-btn" data-action="increase">+</button>
+                                                </div>
+                                                <button class="delete-item-btn" data-product-id="${productId}" data-order-id="${orderId}">${currentLanguage === 'en' ? 'Delete' : 'حذف'}</button>
+                                                <button class="save-item-edit-btn button-info" data-product-id="${productId}" data-order-id="${orderId}" style="margin-left: 5px;">${currentLanguage === 'en' ? 'Update' : 'تحديث'}</button>
+                                            </div>
+                                            ` : ''}
+                                        </li>
+                                    `;
+                                }).join('')}
                             </ul>
-                            ${order.status === 'pending' ? `<button class="button-danger cancel-user-order-btn" data-order-id="${orderId}">অর্ডার ক্যান্সেল করুন</button>` : ''}
+                            ${order.status === 'pending' ? `<button class="button-danger cancel-user-order-btn" data-order-id="${orderId}">${translations[currentLanguage]['Cancel Order']}</button>` : ''}
                         `;
                         userOrdersList.appendChild(orderItemDiv);
                     });
@@ -1464,69 +1931,193 @@
                     document.querySelectorAll('.cancel-user-order-btn').forEach(button => {
                         button.addEventListener('click', handleCancelUserOrder);
                     });
+                    document.querySelectorAll('.edit-order-item-btn').forEach(button => {
+                        button.addEventListener('click', handleEditOrderItemQuantity);
+                    });
+                     document.querySelectorAll('.delete-item-btn').forEach(button => {
+                        button.addEventListener('click', handleDeleteOrderItem);
+                    });
+                    document.querySelectorAll('.save-item-edit-btn').forEach(button => {
+                        button.addEventListener('click', handleSaveOrderItemEdit);
+                    });
+
                 }, error => {
                     console.error("Error loading user orders:", error);
-                    displayMessage(userOrderMessageArea, `আপনার অর্ডার লোড করতে ব্যর্থ: ${error.message}`, 'error');
+                    displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Failed to load your orders:']} ${error.message}`, 'error');
                 });
         }
+
+        // Handle quantity change for order item edit
+        function handleEditOrderItemQuantity(event) {
+            const button = event.target;
+            const action = button.dataset.action;
+            const input = button.closest('.edit-quantity-control').querySelector('.edit-item-quantity-input');
+            let currentValue = parseInt(input.value);
+
+            if (action === 'increase') {
+                input.value = currentValue + 1;
+            } else if (action === 'decrease' && currentValue > 0) {
+                input.value = currentValue - 1;
+            }
+        }
+
+        // Handle saving edited order item quantity
+        async function handleSaveOrderItemEdit(event) {
+            const button = event.target;
+            const orderId = button.dataset.orderId;
+            const productId = button.dataset.productId;
+            const newQuantity = parseInt(button.closest('li').querySelector('.edit-item-quantity-input').value);
+
+            if (isNaN(newQuantity) || newQuantity < 0) {
+                displayMessage(userOrderMessageArea, 'Please enter a valid quantity.', 'error');
+                return;
+            }
+
+            console.log(`Updating order ${orderId}, product ${productId} to new quantity: ${newQuantity}`);
+            displayMessage(userOrderMessageArea, 'Order being updated...', 'info');
+
+            try {
+                const orderRef = db.collection('orders').doc(orderId);
+                const orderDoc = await orderRef.get();
+                if (!orderDoc.exists) {
+                    displayMessage(userOrderMessageArea, 'Order not found!', 'error');
+                    return;
+                }
+
+                const currentOrder = orderDoc.data();
+                const products = { ...currentOrder.products }; // Create a mutable copy
+
+                if (newQuantity === 0) {
+                    // If quantity is 0, delete the item from the order
+                    delete products[productId];
+                    console.log(`Product ${productId} deleted from order ${orderId}.`);
+                } else {
+                    // Update quantity
+                    const productInStock = await db.collection('stock').doc(productId).get();
+                    const availableStock = productInStock.exists ? productInStock.data().quantity : 0;
+
+                    if (newQuantity > availableStock) {
+                        displayMessage(userOrderMessageArea, `Insufficient stock for ${currentLanguage === 'en' ? products[productId].name_en : products[productId].name_ar}. Available: ${availableStock}.`, 'error');
+                        return;
+                    }
+                    products[productId].quantity = newQuantity;
+                    console.log(`Product ${productId} quantity updated to ${newQuantity}.`);
+                }
+
+                if (Object.keys(products).length === 0) {
+                    // If all items are removed, cancel the entire order
+                    await orderRef.update({
+                        status: 'cancelled',
+                        cancelledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        products: products // Update products to empty object
+                    });
+                    displayMessage(userOrderMessageArea, 'All items removed. Order successfully cancelled.', 'success');
+                } else {
+                    // Update the order with the new products map
+                    await orderRef.update({
+                        products: products,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp() // Add an update timestamp
+                    });
+                    displayMessage(userOrderMessageArea, 'Order successfully updated.', 'success');
+                }
+            } catch (error) {
+                console.error("Error updating order item:", error);
+                displayMessage(userOrderMessageArea, `Failed to update order: ${error.message}`, 'error');
+            }
+        }
+
+        // Handle deleting an order item (sets quantity to 0 and calls save logic)
+        async function handleDeleteOrderItem(event) {
+            const button = event.target;
+            const orderId = button.dataset.orderId;
+            const productId = button.dataset.productId;
+            const confirmDelete = confirm(currentLanguage === 'en' ? "Are you sure you want to delete this item from the order?" : "هل أنت متأكد أنك تريد حذف هذا العنصر من الطلب؟");
+            if (!confirmDelete) return;
+
+            console.log(`Deleting product ${productId} from order ${orderId}.`);
+            displayMessage(userOrderMessageArea, 'Deleting item from order...', 'info');
+
+            try {
+                const orderRef = db.collection('orders').doc(orderId);
+                const orderDoc = await orderRef.get();
+                if (!orderDoc.exists) {
+                    displayMessage(userOrderMessageArea, 'Order not found!', 'error');
+                    return;
+                }
+
+                const currentOrder = orderDoc.data();
+                const products = { ...currentOrder.products }; // Create a mutable copy
+
+                delete products[productId]; // Remove the product
+
+                if (Object.keys(products).length === 0) {
+                    // If all items are removed, cancel the entire order
+                    await orderRef.update({
+                        status: 'cancelled',
+                        cancelledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        products: products // Update products to empty object
+                    });
+                    displayMessage(userOrderMessageArea, 'All items removed. Order successfully cancelled.', 'success');
+                } else {
+                    // Update the order with the new products map
+                    await orderRef.update({
+                        products: products,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    displayMessage(userOrderMessageArea, 'Order successfully updated.', 'success');
+                }
+            } catch (error) {
+                console.error("Error deleting order item:", error);
+                displayMessage(userOrderMessageArea, `Failed to delete item from order: ${error.message}`, 'error');
+            }
+        }
+
 
         // User Cancel Order Handler
         async function handleCancelUserOrder(event) {
             const orderId = event.target.dataset.orderId;
-            const confirmCancel = confirm("আপনি কি নিশ্চিত এই অর্ডারটি বাতিল করতে চান?");
+            const confirmCancel = confirm(currentLanguage === 'en' ? "Are you sure you want to cancel this order?" : "هل أنت متأكد أنك تريد إلغاء هذا الطلب؟");
             if (!confirmCancel) return;
 
             console.log("Handling user cancel order for ID:", orderId);
-            displayMessage(userOrderMessageArea, 'অর্ডার বাতিল করা হচ্ছে...', 'info');
+            displayMessage(userOrderMessageArea, 'Order being cancelled...', 'info');
 
             try {
                 await db.collection('orders').doc(orderId).update({
                     status: 'cancelled',
                     cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                displayMessage(userOrderMessageArea, 'অর্ডার সফলভাবে বাতিল করা হয়েছে।', 'success');
+                displayMessage(userOrderMessageArea, 'Order cancelled successfully.', 'success');
             } catch (error) {
                 console.error("Error canceling user order:", error);
-                displayMessage(userOrderMessageArea, `অর্ডার বাতিল করতে ব্যর্থ: ${error.message}`, 'error');
+                displayMessage(userOrderMessageArea, `Failed to cancel order: ${error.message}`, 'error');
             }
         }
 
 
-        // --- Navigation Handlers (Admin Panel) ---
-        if (adminDashboardBtn) adminDashboardBtn.addEventListener('click', () => {
-            console.log("Navigating to Admin Dashboard.");
-            showSection(adminDashboardSection);
-            document.getElementById('admin-dashboard-content').style.display = 'block';
-            loadAdminDashboard();
+        // --- Global Navigation Handlers ---
+        if (navLoginBtn) navLoginBtn.addEventListener('click', () => { showSection(loginSection); });
+        if (navAdminDashboardBtn) navAdminDashboardBtn.addEventListener('click', () => {
+            if (currentUserCategory === 'admin') {
+                showSection(adminDashboardSection);
+                loadAdminDashboard();
+            } else {
+                displayMessage(loginMessageArea, currentLanguage === 'en' ? "Access Denied. Please log in as Admin." : "الوصول مرفوض. يرجى تسجيل الدخول كمسؤول.", 'error');
+                showSection(loginSection); // Redirect to login if not admin
+            }
         });
-        if (addProductBtn) addProductBtn.addEventListener('click', () => {
-            console.log("Navigating to Add Product section.");
-            showSection(addProductSection);
+        if (navUserPanelBtn) navUserPanelBtn.addEventListener('click', () => {
+            if (currentUserCategory && currentUserCategory !== 'admin') {
+                showSection(userPanelSection);
+                userPanelTitle.textContent = translations[currentLanguage]['User Panel'];
+                loadUserProducts(currentUserCategory);
+                loadUserOrders(auth.currentUser.uid);
+            } else {
+                 displayMessage(loginMessageArea, currentLanguage === 'en' ? "Access Denied. Please log in as a regular user." : "الوصول مرفوض. يرجى تسجيل الدخول كمستخدم عادي.", 'error');
+                 showSection(loginSection); // Redirect to login if not regular user
+            }
         });
-        if (lowStockBtn) lowStockBtn.addEventListener('click', () => {
-            console.log("Navigating to Low Stock Alert section.");
-            showSection(lowStockAlertSection);
-            loadLowStockAlerts();
-        });
-        if (totalOrderReportBtn) totalOrderReportBtn.addEventListener('click', () => {
-            console.log("Navigating to Total Order Report section.");
-            showSection(totalOrderReportSection);
-            loadTotalOrderReport('all');
-        });
-        document.getElementById('generate-report-btn').addEventListener('click', () => {
-            const selectedCategory = document.getElementById('report-category').value;
-            loadTotalOrderReport(selectedCategory);
-        });
-        if (stockRestockBtn) stockRestockBtn.addEventListener('click', () => {
-            console.log("Navigating to Stock & Restock section.");
-            showSection(stockRestockSection);
-            loadStockAndRestock();
-        });
-        if (orderReturnBtn) orderReturnBtn.addEventListener('click', () => {
-            console.log("Navigating to Order Return section.");
-            showSection(orderReturnSection);
-            loadOrderReturnProducts();
-        });
+
 
         // Initialize Firebase Collections on App Load
         window.addEventListener('load', () => {
