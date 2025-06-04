@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ar"> <head>
+<html lang="ar">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-en="Khamer Store Management App" data-ar="تطبيق خمر لإدارة المخزون">Khamer Store Management App</title>
@@ -423,6 +424,53 @@
             background-color: #5a6268;
         }
 
+        /* Admin Sub-navigation Styling */
+        .admin-sub-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .admin-sub-nav button {
+            width: 100%;
+            padding: 15px 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            background-color: #007bff; /* Primary blue */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .admin-sub-nav button.logout-btn {
+            background-color: #dc3545; /* Red for logout */
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+        }
+
+        .admin-sub-nav button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .admin-sub-nav button.logout-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+            box-shadow: 0 6px 10px rgba(220, 53, 69, 0.3);
+        }
+
         /* Order Edit Specific Styles */
         .editable-order-item ul {
             list-style-type: none;
@@ -472,6 +520,26 @@
              margin-left: 0;
         }
 
+        /* Back to Admin Dashboard Button */
+        .back-to-admin-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block; /* Ensures it takes full width or is easily centered */
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .back-to-admin-btn:hover {
+            background-color: #5a6268;
+        }
+
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -504,10 +572,15 @@
                 width: 100%;
                 margin-bottom: 10px;
             }
+
+            .admin-sub-nav {
+                grid-template-columns: 1fr; /* Stack buttons vertically on small screens */
+            }
         }
     </style>
 </head>
-<body class="ar"> <div id="language-toggle" data-en="اللغة العربية" data-ar="English">English</div>
+<body class="ar">
+    <div id="language-toggle" data-en="اللغة العربية" data-ar="English">English</div>
     <div class="container">
         <header>
             <h1 data-en="Khamer Store Management App" data-ar="تطبيق خمر لإدارة المخزون">Khamer Store Management App</h1>
@@ -516,9 +589,7 @@
 
         <main>
             <nav id="global-navigation" class="global-nav" style="display: none;">
-                <button id="nav-login-btn" data-en="Login" data-ar="تسجيل الدخول">Login</button>
-                <button id="nav-admin-dashboard-btn" data-en="Admin Dashboard" data-ar="لوحة تحكم المسؤول">Admin Dashboard</button>
-                <button id="nav-user-panel-btn" data-en="User Panel" data-ar="لوحة المستخدم">User Panel</button>
+                <button id="nav-logout-btn" class="button-danger" data-en="Logout" data-ar="تسجيل الخروج">Logout</button>
             </nav>
 
 
@@ -539,15 +610,15 @@
             </section>
 
             <section id="admin-dashboard-section" class="admin-dashboard content-section">
-                <h2 data-en="Admin Dashboard" data-ar="لوحة تحكم المسؤول">لوحة تحكم المسؤول</h2>
-                <nav class="sub-nav">
-                    <button id="admin-dashboard-btn" data-en="Order Dashboard" data-ar="لوحة الطلبات">لوحة الطلبات</button>
-                    <button id="add-product-btn" data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</button>
-                    <button id="low-stock-btn" data-en="Low Stock Alert" data-ar="تنبيه المخزون المنخفض">تنبيه المخزون المنخفض</button>
-                    <button id="total-order-report-btn" data-en="Total Order Report" data-ar="تقرير الطلبات الكلي">تقرير الطلبات الكلي</button>
-                    <button id="stock-restock-btn" data-en="Stock & Re-stock" data-ar="المخزون وإعادة التخزين">المخزون وإعادة التخزين</button>
-                    <button id="order-return-btn" data-en="Order Return" data-ar="إرجاع الطلب">إرجاع الطلب</button>
-                    <button id="admin-logout-btn" class="button-danger" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
+                <h2 data-en="Admin Control Panel" data-ar="لوحة تحكم المسؤول">لوحة تحكم المسؤول</h2>
+                <nav class="admin-sub-nav">
+                    <button id="show-pending-orders-btn" data-en="Pending Orders Management" data-ar="إدارة الطلبات المعلقة">إدارة الطلبات المعلقة</button>
+                    <button id="add-product-btn" data-en="Add New Product" data-ar="إضافة منتج جديد">إضافة منتج جديد</button>
+                    <button id="low-stock-btn" data-en="Inventory Alerts" data-ar="تنبيهات المخزون">تنبيهات المخزون</button>
+                    <button id="total-order-report-btn" data-en="Comprehensive Sales Report" data-ar="تقرير المبيعات الشامل">تقرير المبيعات الشامل</button>
+                    <button id="stock-restock-btn" data-en="Manage Stock & Replenish" data-ar="إدارة وتجديد المخزون">إدارة وتجديد المخزون</button>
+                    <button id="order-return-btn" data-en="Process Returns" data-ar="معالجة الإرجاع">معالجة الإرجاع</button>
+                    <button id="admin-logout-btn" class="logout-btn" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
                 </nav>
                 <div id="admin-dashboard-content" style="margin-top: 20px;">
                     <h3 data-en="Pending Orders" data-ar="الطلبات المعلقة">الطلبات المعلقة</h3>
@@ -558,7 +629,8 @@
             </section>
 
             <section id="add-product-section" class="product-add-form content-section">
-                <h2 data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</h2>
+                <button class="back-to-admin-btn" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
+                <h2 data-en="Add New Product" data-ar="إضافة منتج جديد">إضافة منتج جديد</h2>
                 <form id="add-product-form">
                     <input type="text" id="product-name-en" data-en-placeholder="Product Name (English)" data-ar-placeholder="اسم المنتج (الإنجليزية)" placeholder="اسم المنتج (الإنجليزية)" class="input-field" required>
                     <input type="text" id="product-name-ar" data-en-placeholder="Product Name (Arabic)" data-ar-placeholder="اسم المنتج (العربية)" placeholder="اسم المنتج (العربية)" class="input-field" required>
@@ -583,14 +655,16 @@
             </section>
 
             <section id="low-stock-alert-section" class="low-stock-alert-section content-section">
-                <h2 data-en="Low Stock Alert" data-ar="تنبيه المخزون المنخفض">تنبيه المخزون المنخفض</h2>
+                <button class="back-to-admin-btn" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
+                <h2 data-en="Inventory Alerts" data-ar="تنبيهات المخزون">تنبيهات المخزون</h2>
                 <div id="low-stock-products-list">
                     </div>
                 <div id="low-stock-message-area" class="message-area"></div>
             </section>
 
             <section id="total-order-report-section" class="total-order-report content-section">
-                <h2 data-en="Total Order Report (Last 3 Months)" data-ar="تقرير الطلبات الكلي (آخر 3 أشهر)">تقرير الطلبات الكلي (آخر 3 أشهر)</h2>
+                <button class="back-to-admin-btn" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
+                <h2 data-en="Comprehensive Sales Report (Last 3 Months)" data-ar="تقرير المبيعات الشامل (آخر 3 أشهر)">تقرير المبيعات الشامل (آخر 3 أشهر)</h2>
                 <div id="report-filters" style="margin-bottom: 20px;">
                     <label for="report-category" style="font-weight: bold; margin-right: 10px;" data-en="Category:" data-ar="الفئة:">الفئة:</label>
                     <select id="report-category" class="input-field" style="width: auto; display: inline-block;">
@@ -607,14 +681,16 @@
             </section>
 
             <section id="stock-restock-section" class="stock-restock-section content-section">
-                <h2 data-en="Stock & Re-stock" data-ar="المخزون وإعادة التخزين">المخزون وإعادة التخزين</h2>
+                <button class="back-to-admin-btn" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
+                <h2 data-en="Manage Stock & Replenish" data-ar="إدارة وتجديد المخزون">إدارة وتجديد المخزون</h2>
                 <div id="current-stock-list">
                     </div>
                 <div id="stock-message-area" class="message-area"></div>
             </section>
 
             <section id="order-return-section" class="order-return-section content-section">
-                <h2 data-en="Order Return" data-ar="إرجاع الطلب">إرجاع الطلب</h2>
+                <button class="back-to-admin-btn" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
+                <h2 data-en="Process Returns" data-ar="معالجة الإرجاع">معالجة الإرجاع</h2>
                 <form id="return-product-form">
                     <select id="return-product-select" class="input-field" required>
                         <option value="" data-en="Select Product" data-ar="اختر المنتج">اختر المنتج</option>
@@ -683,7 +759,8 @@
         const menLoginBtn = document.getElementById('men-login-btn');
         const womenLoginBtn = document.getElementById('women-login-btn');
 
-        const adminDashboardBtn = document.getElementById('admin-dashboard-btn');
+        // Admin Sub-navigation Buttons
+        const showPendingOrdersBtn = document.getElementById('show-pending-orders-btn');
         const addProductBtn = document.getElementById('add-product-btn');
         const lowStockBtn = document.getElementById('low-stock-btn');
         const totalOrderReportBtn = document.getElementById('total-order-report-btn');
@@ -709,9 +786,11 @@
         const userOrderMessageArea = document.getElementById('user-order-message-area');
 
         const globalNavigation = document.getElementById('global-navigation');
-        const navLoginBtn = document.getElementById('nav-login-btn');
-        const navAdminDashboardBtn = document.getElementById('nav-admin-dashboard-btn');
-        const navUserPanelBtn = document.getElementById('nav-user-panel-btn');
+        const navLogoutBtn = document.getElementById('nav-logout-btn'); // Renamed for clarity in global nav
+
+        // All back-to-admin-dashboard buttons
+        const backToAdminBtns = document.querySelectorAll('.back-to-admin-btn');
+
 
         // --- Global Variables ---
         let currentUserCategory = null;
@@ -731,12 +810,13 @@
                 'Kitchen Login': 'Kitchen Login',
                 'Men\'s Section Login': 'Men\'s Section Login',
                 'Women\'s Section Login': 'Women\'s Section Login',
-                'Order Dashboard': 'Order Dashboard',
-                'Add Product': 'Add Product',
-                'Low Stock Alert': 'Low Stock Alert',
-                'Total Order Report': 'Total Order Report',
-                'Stock & Re-stock': 'Stock & Re-stock',
-                'Order Return': 'Order Return',
+                'Admin Control Panel': 'Admin Control Panel', // New
+                'Pending Orders Management': 'Pending Orders Management', // Changed
+                'Add New Product': 'Add New Product', // Changed
+                'Inventory Alerts': 'Inventory Alerts', // Changed
+                'Comprehensive Sales Report': 'Comprehensive Sales Report', // Changed
+                'Manage Stock & Replenish': 'Manage Stock & Replenish', // Changed
+                'Process Returns': 'Process Returns', // Changed
                 'Logout': 'Logout',
                 'Pending Orders': 'Pending Orders',
                 'Loading Orders...': 'Loading Orders...',
@@ -769,14 +849,14 @@
                 'Product already exists in this category.': 'Product already exists in this category.',
                 'Product successfully added.': 'Product successfully added.',
                 'Failed to add product.': 'Failed to add product.',
-                'Loading Low Stock Alerts...': 'Loading Low Stock Alerts...',
+                'Loading Inventory Alerts...': 'Loading Inventory Alerts...', // Changed
                 'No low stock alerts.': 'No low stock alerts.',
                 'Current Stock:': 'Current Stock:',
                 'Alert Quantity:': 'Alert Quantity:',
                 'Remove Alert (Display Only)': 'Remove Alert (Display Only)',
                 'Alert successfully removed (display only).': 'Alert successfully removed (display only).',
-                'Error loading low stock alerts:': 'Error loading low stock alerts:',
-                'Total Order Report (Last 3 Months)': 'Total Order Report (Last 3 Months)',
+                'Error loading inventory alerts:': 'Error loading inventory alerts:', // Changed
+                'Comprehensive Sales Report (Last 3 Months)': 'Comprehensive Sales Report (Last 3 Months)', // Changed
                 'Category:': 'Category:',
                 'All': 'All',
                 'Show Report': 'Show Report',
@@ -848,7 +928,13 @@
                 'Order Update': 'Order Update',
                 'Update Order': 'Update Order',
                 'Order successfully updated.': 'Order successfully updated.',
-                'Failed to update order.': 'Failed to update order.'
+                'Failed to update order.': 'Failed to update order.',
+                'Access Denied. Please log in as Admin.': 'Access Denied. Please log in as Admin.',
+                'Access Denied. Please log in as a regular user.': 'Access Denied. Please log in as a regular user.',
+                'Back to Admin Dashboard': 'Back to Admin Dashboard', // New
+                'Login cancelled.': 'Login cancelled.', // New
+                'Wrong password.': 'Wrong password.', // New
+                'Insufficient stock for': 'Insufficient stock for' // New, already implicitly translated but good to be explicit
             },
             'ar': {
                 'Khamer Store Management App': 'تطبيق خمر لإدارة المخزون',
@@ -860,12 +946,13 @@
                 'Kitchen Login': 'تسجيل دخول المطبخ',
                 'Men\'s Section Login': 'تسجيل دخول قسم الرجال',
                 'Women\'s Section Login': 'تسجيل دخول قسم النساء',
-                'Order Dashboard': 'لوحة الطلبات',
-                'Add Product': 'إضافة منتج',
-                'Low Stock Alert': 'تنبيه المخزون المنخفض',
-                'Total Order Report': 'تقرير الطلبات الكلي',
-                'Stock & Re-stock': 'المخزون وإعادة التخزين',
-                'Order Return': 'إرجاع الطلب',
+                'Admin Control Panel': 'لوحة تحكم المسؤول', // New
+                'Pending Orders Management': 'إدارة الطلبات المعلقة', // Changed
+                'Add New Product': 'إضافة منتج جديد', // Changed
+                'Inventory Alerts': 'تنبيهات المخزون', // Changed
+                'Comprehensive Sales Report': 'تقرير المبيعات الشامل', // Changed
+                'Manage Stock & Replenish': 'إدارة وتجديد المخزون', // Changed
+                'Process Returns': 'معالجة الإرجاع', // Changed
                 'Logout': 'تسجيل الخروج',
                 'Pending Orders': 'الطلبات المعلقة',
                 'Loading Orders...': 'جارٍ تحميل الطلبات...',
@@ -898,14 +985,14 @@
                 'Product already exists in this category.': 'المنتج موجود بالفعل في هذه الفئة.',
                 'Product successfully added.': 'تمت إضافة المنتج بنجاح.',
                 'Failed to add product.': 'فشل في إضافة المنتج.',
-                'Loading Low Stock Alerts...': 'جارٍ تحميل تنبيهات المخزون المنخفض...',
+                'Loading Inventory Alerts...': 'جارٍ تحميل تنبيهات المخزون...', // Changed
                 'No low stock alerts.': 'لا توجد تنبيهات مخزون منخفض.',
                 'Current Stock:': 'المخزون الحالي:',
                 'Alert Quantity:': 'كمية التنبيه:',
                 'Remove Alert (Display Only)': 'إزالة التنبيه (للعرض فقط)',
                 'Alert successfully removed (display only).': 'تمت إزالة التنبيه بنجاح (للعرض فقط).',
-                'Error loading low stock alerts:': 'خطأ في تحميل تنبيهات المخزون المنخفض:',
-                'Total Order Report (Last 3 Months)': 'تقرير الطلبات الكلي (آخر 3 أشهر)',
+                'Error loading inventory alerts:': 'خطأ في تحميل تنبيهات المخزون:', // Changed
+                'Comprehensive Sales Report (Last 3 Months)': 'تقرير المبيعات الشامل (آخر 3 أشهر)', // Changed
                 'Category:': 'الفئة:',
                 'All': 'الكل',
                 'Show Report': 'عرض التقرير',
@@ -977,7 +1064,13 @@
                 'Order Update': 'تحديث الطلب',
                 'Update Order': 'تحديث الطلب',
                 'Order successfully updated.': 'تم تحديث الطلب بنجاح.',
-                'Failed to update order.': 'فشل في تحديث الطلب.'
+                'Failed to update order.': 'فشل في تحديث الطلب.',
+                'Access Denied. Please log in as Admin.': 'الوصول مرفوض. يرجى تسجيل الدخول كمسؤول.',
+                'Access Denied. Please log in as a regular user.': 'الوصول مرفوض. يرجى تسجيل الدخول كمستخدم عادي.',
+                'Back to Admin Dashboard': 'العودة للوحة تحكم المسؤول', // New
+                'Login cancelled.': 'تم إلغاء تسجيل الدخول.', // New
+                'Wrong password.': 'كلمة مرور خاطئة.', // New
+                'Insufficient stock for': 'المخزون غير كافٍ لـ' // New
             }
         };
 
@@ -1006,31 +1099,41 @@
             });
             // Update selected option texts if needed (for select elements)
             document.querySelectorAll('select option').forEach(option => {
-                if (option.value === "") {
-                    option.textContent = lang === 'en' ? translations.en['Select Category'] : translations.ar['اختر الفئة'];
-                } else if (option.value === "kitchen") {
-                    option.textContent = lang === 'en' ? translations.en['Kitchen'] : translations.ar['المطبخ'];
-                } else if (option.value === "men") {
-                    option.textContent = lang === 'en' ? translations.en['Men\'s Section'] : translations.ar['قسم الرجال'];
-                } else if (option.value === "women") {
-                    option.textContent = lang === 'en' ? translations.en['Women\'s Section'] : translations.ar['قسم النساء'];
-                } else if (option.value === "piece") {
-                    option.textContent = lang === 'en' ? translations.en['Piece'] : translations.ar['قطعة'];
-                } else if (option.value === "kg") {
-                    option.textContent = lang === 'en' ? translations.en['KG'] : translations.ar['كيلوغرام'];
-                } else if (option.value === "liter") {
-                    option.textContent = lang === 'en' ? translations.en['Liter'] : translations.ar['لتر'];
-                } else if (option.value === "carton") {
-                    option.textContent = lang === 'en' ? translations.en['Carton'] : translations.ar['كرتون'];
+                // Check for data-en and data-ar attributes on options if they exist
+                const optionEnText = option.dataset.en;
+                const optionArText = option.dataset.ar;
+
+                if (optionEnText && optionArText) {
+                    option.textContent = lang === 'en' ? optionEnText : optionArText;
+                } else {
+                    // Fallback to direct translation for common values if data attributes are not consistently set
+                    if (option.value === "") {
+                        option.textContent = lang === 'en' ? translations.en['Select Category'] : translations.ar['اختر الفئة'];
+                    } else if (option.value === "kitchen") {
+                        option.textContent = lang === 'en' ? translations.en['Kitchen'] : translations.ar['المطبخ'];
+                    } else if (option.value === "men") {
+                        option.textContent = lang === 'en' ? translations.en['Men\'s Section'] : translations.ar['قسم الرجال'];
+                    } else if (option.value === "women") {
+                        option.textContent = lang === 'en' ? translations.en['Women\'s Section'] : translations.ar['قسم النساء'];
+                    } else if (option.value === "piece") {
+                        option.textContent = lang === 'en' ? translations.en['Piece'] : translations.ar['قطعة'];
+                    } else if (option.value === "kg") {
+                        option.textContent = lang === 'en' ? translations.en['KG'] : translations.ar['كيلوغرام'];
+                    } else if (option.value === "liter") {
+                        option.textContent = lang === 'en' ? translations.en['Liter'] : translations.ar['لتر'];
+                    } else if (option.value === "carton") {
+                        option.textContent = lang === 'en' ? translations.en['Carton'] : translations.ar['كرتون'];
+                    }
                 }
             });
 
-            // Update specific dynamic texts like user panel title
+            // Update specific dynamic texts like user panel title and restock input placeholder
             if (currentUserCategory) {
-                const panelTitleKey = currentUserCategory.charAt(0).toUpperCase() + currentUserCategory.slice(1) + ' Panel';
-                userPanelTitle.textContent = lang === 'en' ? translations.en['User Panel'] : translations.ar['لوحة المستخدم'];
-                // Optionally refine userPanelTitle for specific categories if needed.
+                userPanelTitle.textContent = translations[currentLanguage]['User Panel'];
             }
+            document.querySelectorAll('.restock-quantity').forEach(input => {
+                input.placeholder = currentLanguage === 'en' ? translations.en['Re-stock Quantity'] : translations.ar['كمية إعادة التخزين'];
+            });
         }
 
         // Language toggle button
@@ -1071,9 +1174,9 @@
             }, 5000);
         }
 
-        // Function: Hide and Show Sections
-        function showSection(sectionToShow) {
-            console.log("Attempting to show section:", sectionToShow ? sectionToShow.id : "null");
+        // Function: Hide and Show Sections with History Management
+        function showSection(sectionToShow, state = null) {
+            console.log("Attempting to show section:", sectionToShow ? sectionToShow.id : "null", "with state:", state);
             const sections = [
                 loginSection, adminDashboardSection, userPanelSection, addProductSection,
                 lowStockAlertSection, totalOrderReportSection, stockRestockSection, orderReturnSection
@@ -1081,17 +1184,77 @@
             sections.forEach(section => {
                 if (section) section.classList.remove('active-section');
             });
+
             if (sectionToShow) {
                 sectionToShow.classList.add('active-section');
+
+                // Update global navigation visibility
                 if (sectionToShow === loginSection) {
                     globalNavigation.style.display = 'none';
                 } else {
                     globalNavigation.style.display = 'flex';
                 }
+
+                // Manage browser history for back button functionality
+                const sectionId = sectionToShow.id;
+                if (history.state && history.state.sectionId === sectionId) {
+                    // Do nothing if already on this state to avoid duplicate history entries
+                } else {
+                    history.pushState({ sectionId: sectionId, category: currentUserCategory }, '', `#${sectionId}`);
+                }
             } else {
                 console.error("Section to show is null:", sectionToShow);
             }
         }
+
+        // Handle browser's back/forward button
+        window.addEventListener('popstate', (event) => {
+            console.log("Popstate event triggered. State:", event.state);
+            if (event.state && event.state.sectionId) {
+                const targetSection = document.getElementById(event.state.sectionId);
+                if (targetSection) {
+                    // Directly show the section without pushing another history state
+                    const sections = [
+                        loginSection, adminDashboardSection, userPanelSection, addProductSection,
+                        lowStockAlertSection, totalOrderReportSection, stockRestockSection, orderReturnSection
+                    ];
+                    sections.forEach(section => {
+                        if (section) section.classList.remove('active-section');
+                    });
+                    targetSection.classList.add('active-section');
+
+                    // Re-run data loading for the section if necessary
+                    if (targetSection === adminDashboardSection) {
+                        loadAdminDashboard();
+                    } else if (targetSection === addProductSection) {
+                        // Nothing specific needed here, form is static
+                    } else if (targetSection === lowStockAlertSection) {
+                        loadLowStockAlerts();
+                    } else if (targetSection === totalOrderReportSection) {
+                        loadTotalOrderReport(); // Reload with default 'all' category
+                    } else if (targetSection === stockRestockSection) {
+                        loadStockAndRestock();
+                    } else if (targetSection === orderReturnSection) {
+                        loadOrderReturnProducts();
+                    } else if (targetSection === userPanelSection && event.state.category) {
+                         currentUserCategory = event.state.category; // Restore category
+                         loadUserProducts(currentUserCategory);
+                         loadUserOrders(auth.currentUser.uid);
+                         updateCartSummary();
+                    }
+                     // Update global navigation visibility
+                    if (targetSection === loginSection) {
+                        globalNavigation.style.display = 'none';
+                    } else {
+                        globalNavigation.style.display = 'flex';
+                    }
+                }
+            } else {
+                // If no state, go back to login or default
+                showSection(loginSection);
+            }
+        });
+
 
         // --- Firebase Collection Initialization ---
         async function initializeFirebaseCollections() {
@@ -1099,12 +1262,25 @@
             const collections = ['products', 'orders', 'stock', 'returns', 'users'];
             for (const collectionName of collections) {
                 try {
-                    const docRef = db.collection(collectionName).doc('__init__');
-                    await docRef.set({ initialized: true });
-                    await docRef.delete();
-                    console.log(`Collection '${collectionName}' initialized successfully.`);
+                    // Attempt to get a dummy doc to see if collection exists
+                    const docRef = db.collection(collectionName).doc('__dummy_init__');
+                    await docRef.get(); // Just try to read, doesn't need to exist
+                    console.log(`Collection '${collectionName}' already seems to exist.`);
                 } catch (error) {
-                    console.log(`Collection '${collectionName}' might already exist or error during init:`, error.message);
+                    if (error.code === 'not-found' || error.code === 'permission-denied') {
+                        // If 'not-found' or 'permission-denied' (implying collection not there for current user),
+                        // or other errors that mean it's not initialized, then create a dummy doc and delete
+                        try {
+                            const initDocRef = db.collection(collectionName).doc('__init__');
+                            await initDocRef.set({ initialized: true });
+                            await initDocRef.delete();
+                            console.log(`Collection '${collectionName}' initialized successfully.`);
+                        } catch (initError) {
+                            console.warn(`Error during explicit initialization for '${collectionName}':`, initError.message);
+                        }
+                    } else {
+                        console.warn(`Unexpected error checking collection '${collectionName}':`, error.message);
+                    }
                 }
             }
         }
@@ -1130,7 +1306,7 @@
 
                     if (currentUserCategory === 'admin') {
                         showSection(adminDashboardSection);
-                        loadAdminDashboard();
+                        renderAdminDashboard(); // Call a function to show the default dashboard view
                     } else {
                         showSection(userPanelSection);
                         userPanelTitle.textContent = translations[currentLanguage]['User Panel']; // Update title based on language
@@ -1140,10 +1316,11 @@
                     }
                 } else {
                     console.log(`User document for ${user.uid} not found. Attempting to create it.`);
+                    // Only create a document for non-anonymous users on first login
                     if (!user.isAnonymous) {
                         try {
                             await userDocRef.set({
-                                role: 'admin',
+                                role: 'admin', // Default to admin if no doc exists for email login
                                 email: user.email,
                                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
                             });
@@ -1151,7 +1328,7 @@
                             console.log(`Admin user document created for ${user.email}. Role set to 'admin'.`);
                             displayMessage(loginMessageArea, 'Admin user document created. Role set to admin.', 'success');
                             showSection(adminDashboardSection);
-                            loadAdminDashboard();
+                            renderAdminDashboard();
                         } catch (error) {
                             console.error("Error creating admin user document on first login:", error);
                             displayMessage(loginMessageArea, 'Admin setup error:', 'error');
@@ -1171,6 +1348,8 @@
                 updateCartSummary();
                 if (loginEmailInput) loginEmailInput.value = '';
                 if (loginPasswordInput) loginPasswordInput.value = '';
+                // Clear history state when logging out
+                history.replaceState(null, '', '#login');
             }
         });
 
@@ -1200,6 +1379,8 @@
                 try {
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log("Firebase Auth successful! UID:", userCredential.user.uid);
+                    // The auth.onAuthStateChanged listener will handle redirection
+                    displayMessage(loginMessageArea, 'Login successful.', 'success');
                 } catch (error) {
                     console.error("Firebase Login Error:", error);
                     displayMessage(loginMessageArea, `Login failed: ${error.message}`, 'error');
@@ -1225,7 +1406,7 @@
                     const userDocRef = db.collection('users').doc(user.uid);
                     await userDocRef.set({
                         role: category,
-                        email: 'anonymous',
+                        email: 'anonymous', // Store 'anonymous' as email for identification
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     console.log(`Anonymous user role '${category}' set in Firestore.`);
@@ -1243,19 +1424,24 @@
         if (womenLoginBtn) womenLoginBtn.addEventListener('click', () => handleAnonymousLogin('women', 'KhamerF'));
 
         // --- Logout Handlers ---
-        if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', async () => {
-            console.log("Admin logout button clicked.");
+        async function handleLogout() {
+            console.log("Logout button clicked.");
             await auth.signOut();
             displayMessage(loginMessageArea, 'Logout successful.', 'success');
-        });
-
-        if (userLogoutBtn) userLogoutBtn.addEventListener('click', async () => {
-            console.log("User logout button clicked.");
-            await auth.signOut();
-            displayMessage(loginMessageArea, 'Logout successful.', 'success');
-        });
+            // auth.onAuthStateChanged will handle showing login section
+        }
+        if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
+        if (userLogoutBtn) userLogoutBtn.addEventListener('click', handleLogout);
+        if (navLogoutBtn) navLogoutBtn.addEventListener('click', handleLogout); // Global logout
 
         // --- Admin Panel Functionality ---
+
+        // Function to render the main admin dashboard content (pending orders)
+        function renderAdminDashboard() {
+            loadAdminDashboard(); // This loads pending orders
+            // Ensure the pending orders content div is visible
+            document.getElementById('admin-dashboard-content').style.display = 'block';
+        }
 
         // Load Dashboard (Pending Orders)
         async function loadAdminDashboard() {
@@ -1423,7 +1609,7 @@
         // Load Low-Stock Alerts
         async function loadLowStockAlerts() {
             console.log("Loading low stock alerts...");
-            lowStockProductsList.innerHTML = `<p>${translations[currentLanguage]['Loading Low Stock Alerts...']}</p>`;
+            lowStockProductsList.innerHTML = `<p>${translations[currentLanguage]['Loading Inventory Alerts...']}</p>`;
             db.collection('stock').onSnapshot(snapshot => {
                 lowStockProductsList.innerHTML = '';
                 let hasLowStock = false;
@@ -1447,7 +1633,7 @@
                 }
             }, error => {
                 console.error("Error loading low stock alerts:", error);
-                displayMessage(document.getElementById('low-stock-message-area'), `${translations[currentLanguage]['Error loading low stock alerts:']} ${error.message}`, 'error');
+                displayMessage(document.getElementById('low-stock-message-area'), `${translations[currentLanguage]['Error loading inventory alerts:']} ${error.message}`, 'error');
             });
         }
 
@@ -1496,16 +1682,17 @@
                         const day = deliveredDate.getDate();
 
                         let reportMonthKey;
+                        // Logic for reporting period (20th to 19th of next month)
                         if (day >= 20) {
                             let nextMonth = month + 1;
                             let nextYear = year;
-                            if (nextMonth > 11) { nextMonth = 0; nextYear++; }
+                            if (nextMonth > 11) { nextMonth = 0; nextYear++; } // January is 0, so nextMonth 12 becomes 0 (Jan)
                             reportMonthKey = `${nextYear}-${(nextMonth + 1).toString().padStart(2, '0')}`;
                         } else {
-                            let prevMonth = month - 1;
+                            // If before 20th, it belongs to the previous reporting month
+                            let prevMonth = month; // Current month (0-11)
                             let prevYear = year;
-                            if (prevMonth < 0) { prevMonth = 11; prevYear--; }
-                            reportMonthKey = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}`;
+                            reportMonthKey = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}`; // Use current month for reporting
                         }
 
                         if (!groupedOrders[reportMonthKey]) {
@@ -1516,6 +1703,7 @@
                 });
 
                 let reportHtml = '';
+                // Sort month keys correctly (e.g., "2024-11", "2024-12", "2025-01")
                 const sortedMonthKeys = Object.keys(groupedOrders).sort();
 
                 if (sortedMonthKeys.length === 0) {
@@ -1576,8 +1764,13 @@
             const doc = new jsPDF();
 
             const clonedReport = reportElement.cloneNode(true);
-            clonedReport.querySelectorAll('button').forEach(btn => btn.remove());
-            clonedReport.querySelector('hr').remove();
+            clonedReport.querySelectorAll('button').forEach(btn => btn.remove()); // Remove buttons from cloned content
+            clonedReport.querySelector('hr').remove(); // Remove hr from cloned content
+
+            // Set font for Arabic characters if needed, this is a basic example
+            // For full Arabic support, you might need a custom font loaded into jsPDF
+            // doc.setFont('Amiri-Regular'); // Example for a font like Amiri, must be loaded first
+            // doc.addFont('Amiri-Regular.ttf', 'Amiri-Regular', 'normal');
 
             doc.html(clonedReport.outerHTML, {
                 callback: function (doc) {
@@ -1587,7 +1780,7 @@
                 x: 10,
                 y: 10,
                 width: 190,
-                windowWidth: clonedReport.scrollWidth || 700
+                windowWidth: clonedReport.scrollWidth || 700 // Estimate content width
             });
         }
 
@@ -1702,13 +1895,13 @@
 
                     if (productDoc.exists) {
                         const currentQuantity = productDoc.data().quantity;
-                        if (currentQuantity < returnQuantity) {
-                            displayMessage(document.getElementById('return-message-area'), 'Cannot return more than current stock.', 'error');
-                            return;
-                        }
+                        // No direct check for currentQuantity < returnQuantity here as it's a "return"
+                        // If it's a return that *adds* to stock, the logic below is fine.
+                        // If it's a return from customer (deducting from *customer's* imagined stock)
+                        // then the business logic might be different. Assuming it adds to warehouse stock for now.
 
                         await productRef.update({
-                            quantity: firebase.firestore.FieldValue.increment(-returnQuantity),
+                            quantity: firebase.firestore.FieldValue.increment(returnQuantity), // Increment as it's a return *to* stock
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
 
@@ -1820,7 +2013,7 @@
                     userCart[productId].quantity++;
                     displayMessage(userOrderMessageArea, translations[currentLanguage]['Added to cart.'], 'success');
                 } else {
-                    displayMessage(userOrderMessageArea, 'Out of stock, cannot add more.', 'error');
+                    displayMessage(userOrderMessageArea, translations[currentLanguage]['Out of stock, cannot add more.'], 'error');
                 }
                 document.getElementById(`cart-quantity-${productId}`).textContent = userCart[productId].quantity;
                 updateCartSummary();
@@ -1832,7 +2025,7 @@
                     if (userCart[productId].quantity === 0) {
                         delete userCart[productId];
                     }
-                    displayMessage(userOrderMessageArea, 'Removed from cart.', 'success');
+                    displayMessage(userOrderMessageArea, translations[currentLanguage]['Removed from cart.'], 'success');
                 }
                 updateCartSummary();
             }
@@ -1842,7 +2035,7 @@
         if (placeOrderBtn) {
             placeOrderBtn.addEventListener('click', async () => {
                 if (Object.keys(userCart).length === 0) {
-                    displayMessage(userOrderMessageArea, 'Your cart is empty.', 'error');
+                    displayMessage(userOrderMessageArea, translations[currentLanguage]['Your cart is empty.'], 'error');
                     return;
                 }
 
@@ -1852,12 +2045,13 @@
                 console.log("Placing order...");
                 displayMessage(userOrderMessageArea, 'Order being placed...', 'info');
 
+                // Pre-check stock before placing order
                 for (const productId in userCart) {
                     const requestedQuantity = userCart[productId].quantity;
                     const stockDoc = await db.collection('stock').doc(productId).get();
                     if (!stockDoc.exists || stockDoc.data().quantity < requestedQuantity) {
                         displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Sorry, insufficient stock for']} ${currentLanguage === 'en' ? userCart[productId].name_en : userCart[productId].name_ar}. ${translations[currentLanguage]['Please check your cart.']}`, 'error');
-                        return;
+                        return; // Stop if any item has insufficient stock
                     }
                 }
 
@@ -1870,13 +2064,13 @@
                         status: 'pending'
                     });
                     displayMessage(userOrderMessageArea, 'Order successfully placed.', 'success');
-                    userCart = {};
+                    userCart = {}; // Clear cart after placing order
                     updateCartSummary();
                     loadUserProducts(currentUserCategory);
                     loadUserOrders(auth.currentUser.uid);
                 } catch (error) {
                     console.error("Error placing order:", error);
-                    displayMessage(userOrderMessageArea, `Failed to place order: ${error.message}`, 'error');
+                    displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Failed to place order:']} ${error.message}`, 'error');
                 }
             });
         }
@@ -1997,7 +2191,7 @@
                     const availableStock = productInStock.exists ? productInStock.data().quantity : 0;
 
                     if (newQuantity > availableStock) {
-                        displayMessage(userOrderMessageArea, `Insufficient stock for ${currentLanguage === 'en' ? products[productId].name_en : products[productId].name_ar}. Available: ${availableStock}.`, 'error');
+                        displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Insufficient stock for']} ${currentLanguage === 'en' ? products[productId].name_en : products[productId].name_ar}. ${translations[currentLanguage]['Available:']} ${availableStock}.`, 'error');
                         return;
                     }
                     products[productId].quantity = newQuantity;
@@ -2022,7 +2216,7 @@
                 }
             } catch (error) {
                 console.error("Error updating order item:", error);
-                displayMessage(userOrderMessageArea, `Failed to update order: ${error.message}`, 'error');
+                displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Failed to update order.']} ${error.message}`, 'error');
             }
         }
 
@@ -2090,32 +2284,50 @@
                 displayMessage(userOrderMessageArea, 'Order cancelled successfully.', 'success');
             } catch (error) {
                 console.error("Error canceling user order:", error);
-                displayMessage(userOrderMessageArea, `Failed to cancel order: ${error.message}`, 'error');
+                displayMessage(userOrderMessageArea, `${translations[currentLanguage]['Failed to cancel order:']} ${error.message}`, 'error');
             }
         }
 
 
-        // --- Global Navigation Handlers ---
-        if (navLoginBtn) navLoginBtn.addEventListener('click', () => { showSection(loginSection); });
-        if (navAdminDashboardBtn) navAdminDashboardBtn.addEventListener('click', () => {
-            if (currentUserCategory === 'admin') {
-                showSection(adminDashboardSection);
-                loadAdminDashboard();
-            } else {
-                displayMessage(loginMessageArea, currentLanguage === 'en' ? "Access Denied. Please log in as Admin." : "الوصول مرفوض. يرجى تسجيل الدخول كمسؤول.", 'error');
-                showSection(loginSection); // Redirect to login if not admin
-            }
+        // --- Admin Sub-Navigation Button Click Handlers ---
+        // These will now trigger showSection and load relevant data
+        if (showPendingOrdersBtn) showPendingOrdersBtn.addEventListener('click', () => {
+            showSection(adminDashboardSection);
+            renderAdminDashboard(); // Ensure pending orders are shown
+            document.getElementById('admin-dashboard-content').style.display = 'block'; // Make sure content div is visible
         });
-        if (navUserPanelBtn) navUserPanelBtn.addEventListener('click', () => {
-            if (currentUserCategory && currentUserCategory !== 'admin') {
-                showSection(userPanelSection);
-                userPanelTitle.textContent = translations[currentLanguage]['User Panel'];
-                loadUserProducts(currentUserCategory);
-                loadUserOrders(auth.currentUser.uid);
-            } else {
-                 displayMessage(loginMessageArea, currentLanguage === 'en' ? "Access Denied. Please log in as a regular user." : "الوصول مرفوض. يرجى تسجيل الدخول كمستخدم عادي.", 'error');
-                 showSection(loginSection); // Redirect to login if not regular user
-            }
+        if (addProductBtn) addProductBtn.addEventListener('click', () => {
+            showSection(addProductSection);
+        });
+        if (lowStockBtn) lowStockBtn.addEventListener('click', () => {
+            showSection(lowStockAlertSection);
+            loadLowStockAlerts();
+        });
+        if (totalOrderReportBtn) totalOrderReportBtn.addEventListener('click', () => {
+            showSection(totalOrderReportSection);
+            loadTotalOrderReport(document.getElementById('report-category').value); // Load report based on current filter
+        });
+        if (stockRestockBtn) stockRestockBtn.addEventListener('click', () => {
+            showSection(stockRestockSection);
+            loadStockAndRestock();
+        });
+        if (orderReturnBtn) orderReturnBtn.addEventListener('click', () => {
+            showSection(orderReturnSection);
+            loadOrderReturnProducts();
+        });
+
+        // Add event listener for the "Show Report" button within the report section
+        document.getElementById('generate-report-btn').addEventListener('click', () => {
+            const selectedCategory = document.getElementById('report-category').value;
+            loadTotalOrderReport(selectedCategory);
+        });
+
+        // Event listeners for "Back to Admin Dashboard" buttons
+        backToAdminBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                showSection(adminDashboardSection);
+                renderAdminDashboard(); // Re-render the main dashboard view
+            });
         });
 
 
@@ -2123,6 +2335,29 @@
         window.addEventListener('load', () => {
             console.log("Window loaded. Initializing Firebase collections.");
             initializeFirebaseCollections();
+
+            // Handle initial load based on URL hash (if any)
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash) {
+                const targetSection = document.getElementById(initialHash);
+                if (targetSection) {
+                    showSection(targetSection);
+                    // Manually trigger data load for that section if it's an admin section
+                    if (initialHash === 'admin-dashboard-section') renderAdminDashboard();
+                    else if (initialHash === 'add-product-section') {} // No data load needed
+                    else if (initialHash === 'low-stock-alert-section') loadLowStockAlerts();
+                    else if (initialHash === 'total-order-report-section') loadTotalOrderReport();
+                    else if (initialHash === 'stock-restock-section') loadStockAndRestock();
+                    else if (initialHash === 'order-return-section') loadOrderReturnProducts();
+                    else if (initialHash === 'user-panel-section' && auth.currentUser) {
+                        // This might be tricky if user isn't logged in yet on page load
+                        // Auth state change handler will eventually call loadUserProducts/Orders
+                    }
+                }
+            } else {
+                // If no hash, default to login (Auth state change will also handle this)
+                showSection(loginSection);
+            }
         });
 
     </script>
