@@ -1,284 +1,1401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock Management System</title>
-<style>
-body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
-#login-section { max-width: 400px; margin: auto; }
-#login-section input, #login-section select { width: 100%; margin: 5px 0; padding: 8px; }
-#admin-panel, #user-panel { display: none; max-width: 800px; margin: auto; }
-h1, h2, h3 { text-align: center; }
-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-table, th, td { border: 1px solid #ccc; }
-th, td { padding: 8px; text-align: center; }
-button { padding: 6px 12px; margin: 4px; }
-.low-stock { background: #fdd; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa; /* Light grey background */
+            color: #343a40; /* Dark grey text */
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #007bff; /* Blue header */
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+
+        /* Navigation Styles */
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #343a40; /* Dark grey navigation */
+            padding: 15px 0;
+            border-radius: 0 0 8px 8px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        }
+
+        nav button {
+            background-color: #6c757d; /* Light grey button */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px; /* Adjust margin for wrapping */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        nav button:hover {
+            background-color: #5a6268; /* Darker on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+
+        /* Section Styles */
+        .content-section {
+            padding: 30px;
+            border-top: 1px solid #dee2e6; /* Light border */
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .content-section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #007bff; /* Blue heading */
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Form Styles */
+        form {
+            background-color: #f0f2f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-field, select {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da; /* Light border */
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            flex: 1;
+            margin: 5px;
+        }
+
+        .button-success {
+            background-color: #28a745; /* Green */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        .button-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .button-danger {
+            background-color: #dc3545; /* Red */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        .button-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .button-info {
+            background-color: #17a2b8; /* Teal */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        .button-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+        }
+
+        /* Order Item Styles */
+        .order-item, .user-order-item {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .order-item:hover, .user-order-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .order-item h4, .user-order-item h4 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .order-item ul, .user-order-item ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .order-item li, .user-order-item li {
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        /* Product Item Styles for User Panel */
+        .product-item {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .product-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .product-item h4 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .product-item p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .product-item .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .product-item .quantity-control button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 50%; /* Make it round */
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 0 8px;
+        }
+
+        .product-item .quantity-control button:hover {
+            background-color: #0056b3;
+        }
+
+        .product-item .quantity-control span {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        /* Low Stock Alert Styles */
+        .alert-item {
+            border: 2px solid #dc3545; /* Stronger red border */
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fdedee; /* Very light red background */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-item p {
+            font-weight: 500;
+            color: #dc3545;
+        }
+
+        /* Stock and Restock Styles */
+        .stock-item {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stock-item p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .stock-item input {
+            margin-bottom: 10px;
+            width: calc(100% - 24px);
+        }
+
+        /* Login Form Specific */
+        .login-form {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .login-form h2 {
+            color: #007bff;
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        #login-error {
+            color: #dc3545;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Utility classes for display control */
+        .login-form, .admin-dashboard, .user-panel, .product-add-form, .low-stock-alert-section, .total-order-report, .stock-restock-section, .order-return-section {
+            display: none; /* Hidden by default */
+        }
+        .active-section {
+            display: block; /* Active section is shown */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            nav button {
+                padding: 8px 15px;
+                margin: 5px; /* Adjust margin for wrapping */
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .content-section h2 {
+                font-size: 1.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Store Management App</h1>
+        </header>
 
-<div id="login-section">
-  <h1>স্টক ম্যানেজমেন্ট সিস্টেম</h1>
-  <h2>অ্যাডমিন লগইন</h2>
-  <input type="email" id="adminEmail" placeholder="ইমেইল"/>
-  <input type="password" id="adminPass" placeholder="পাসওয়ার্ড"/>
-  <button id="adminLoginBtn">লগইন</button>
-  <hr>
-  <h2>ইউজার প্যানেল (পাসওয়ার্ড)</h2>
-  <select id="userCat">
-    <option value="Kitchen">Kitchen (KhamerK)</option>
-    <option value="Men">Men (KhamerM)</option>
-    <option value="Women">Women (KhamerF)</option>
-  </select>
-  <input type="password" id="userPass" placeholder="পাসওয়ার্ড"/>
-  <button id="userLoginBtn">সাইন ইন</button>
-</div>
+        <main>
+            <section id="login-section" class="login-form active-section">
+                <h2>লগইন</h2>
+                <form id="login-form">
+                    <input type="email" id="login-email" placeholder="ইমেইল (অ্যাডমিন)" class="input-field">
+                    <input type="password" id="login-password" placeholder="পাসওয়ার্ড (অ্যাডমিন)" class="input-field">
+                    <button type="submit" class="button-success">অ্যাডমিন লগইন</button>
+                </form>
+                <p id="login-error" style="color: red; margin-top: 15px;"></p>
 
-<div id="admin-panel">
-  <h1>অ্যাডমিন ড্যাশবোর্ড</h1>
-  <h2>অর্ডারসমূহ</h2>
-  <table id="orderTable">
-    <tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>
-  </table>
-  <h2>পণ্যসমূহ</h2>
-  <table id="productTable">
-    <tr><th>Product ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr>
-  </table>
-  <h3>Add Product</h3>
-  <input type="text" id="prodName" placeholder="পণ্যের নাম"/>
-  <input type="number" id="prodPrice" placeholder="মূল্য"/>
-  <input type="number" id="prodStock" placeholder="স্টক"/>
-  <select id="prodCat">
-    <option value="Kitchen">Kitchen</option>
-    <option value="Men">Men</option>
-    <option value="Women">Women</option>
-  </select>
-  <button id="addProdBtn">Add Product</button>
-  <h3>Monthly Report</h3>
-  <button id="genReportBtn">Generate PDF Report</button>
-</div>
+                <div class="button-group" style="margin-top: 30px;">
+                    <button type="button" id="kitchen-login-btn" class="button-info">কিচেন লগইন</button>
+                    <button type="button" id="men-login-btn" class="button-info">পুরুষ বিভাগ লগইন</button>
+                    <button type="button" id="women-login-btn" class="button-info">মহিলা বিভাগ লগইন</button>
+                </div>
+            </section>
 
-<div id="user-panel">
-  <h1 id="userTitle">User Panel</h1>
-  <h2>Products</h2>
-  <div id="prodList"></div>
-  <h2>My Orders</h2>
-  <table id="myOrdersTable">
-    <tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>
-  </table>
-</div>
+            <section id="admin-dashboard-section" class="admin-dashboard content-section">
+                <h2>অ্যাডমিন ড্যাশবোর্ড</h2>
+                <nav>
+                    <button id="admin-dashboard-btn">অর্ডার ড্যাশবোর্ড</button>
+                    <button id="add-product-btn">পণ্য অ্যাড করুন</button>
+                    <button id="low-stock-btn">লো-স্টক এলার্ট</button>
+                    <button id="total-order-report-btn">টোটাল অর্ডার রিপোর্ট</button>
+                    <button id="stock-restock-btn">স্টক ও রি-স্টক</button>
+                    <button id="order-return-btn">অর্ডার রিটার্ন</button>
+                    <button id="admin-logout-btn" class="button-danger">লগআউট</button>
+                </nav>
+                <div id="admin-dashboard-content" style="margin-top: 20px;">
+                    <h3>পেন্ডিং অর্ডার</h3>
+                    <div id="pending-orders-list">
+                        </div>
+                </div>
+            </section>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<!-- jsPDF for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+            <section id="add-product-section" class="product-add-form content-section">
+                <h2>পণ্য অ্যাড করুন</h2>
+                <form id="add-product-form">
+                    <input type="text" id="product-name-en" placeholder="পণ্যের নাম (ইংরেজি)" class="input-field" required>
+                    <input type="text" id="product-name-ar" placeholder="পণ্যের নাম (আরবি)" class="input-field" required>
+                    <input type="number" id="product-quantity" placeholder="সংখ্যা (বর্তমান স্টক)" class="input-field" required min="0">
+                    <input type="number" id="low-stock-alert-quantity" placeholder="লো-স্টক এলার্ট সংখ্যা" class="input-field" required min="0">
+                    <select id="product-category" class="input-field" required>
+                        <option value="">বিভাগ নির্বাচন করুন</option>
+                        <option value="kitchen">কিচেন</option>
+                        <option value="men">পুরুষ বিভাগ</option>
+                        <option value="women">মহিলা বিভাগ</option>
+                    </select>
+                    <select id="quantity-type" class="input-field" required>
+                        <option value="">পরিমাণের ধরন নির্বাচন করুন</option>
+                        <option value="piece">পিস</option>
+                        <option value="kg">কেজি</option>
+                        <option value="liter">লিটার</option>
+                        <option value="carton">কার্টন</option>
+                    </select>
+                    <button type="submit" class="button-success" style="width: 100%;">পণ্য যোগ করুন</button>
+                </form>
+            </section>
 
-<script>
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBnvcS8kpOrebq66LzQ2hz5Kvv_z_pu5p4",
-  authDomain: "stock-5d278.firebaseapp.com",
-  projectId: "stock-5d278",
-  storageBucket: "stock-5d278.firebasestorage.app",
-  messagingSenderId: "730697386577",
-  appId: "1:730697386577:web:8b7ef78adac14ee5990670",
-  measurementId: "G-CFNVGX1S4W"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+            <section id="low-stock-alert-section" class="low-stock-alert-section content-section">
+                <h2>লো-স্টক এলার্ট</h2>
+                <div id="low-stock-products-list">
+                    </div>
+            </section>
 
-let currentUserCategory = null;
+            <section id="total-order-report-section" class="total-order-report content-section">
+                <h2>টোটাল অর্ডার রিপোর্ট (গত ৩ মাস)</h2>
+                <div id="report-filters" style="margin-bottom: 20px;">
+                    <label for="report-category" style="font-weight: bold; margin-right: 10px;">বিভাগ:</label>
+                    <select id="report-category" class="input-field" style="width: auto; display: inline-block;">
+                        <option value="all">সকল</option>
+                        <option value="kitchen">কিচেন</option>
+                        <option value="men">পুরুষ বিভাগ</option>
+                        <option value="women">মহিলা বিভাগ</option>
+                    </select>
+                    <button id="generate-report-btn" class="button-info" style="margin-left: 10px;">রিপোর্ট দেখান</button>
+                </div>
+                <div id="total-order-report-content">
+                    </div>
+            </section>
 
-// অ্যাডমিন লগইন
-document.getElementById('adminLoginBtn').addEventListener('click', function(){
-  const email = document.getElementById('adminEmail').value;
-  const pass = document.getElementById('adminPass').value;
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(userCredential => {
-      document.getElementById('login-section').style.display = 'none';
-      document.getElementById('admin-panel').style.display = 'block';
-      loadOrders();
-      loadProducts();
-    })
-    .catch(err => alert('Login Failed: ' + err.message));
-});
+            <section id="stock-restock-section" class="stock-restock-section content-section">
+                <h2>স্টক ও রি-স্টক</h2>
+                <div id="current-stock-list">
+                    </div>
+            </section>
 
-// ইউজার লগইন (স্ট্যাটিক পাস)
-document.getElementById('userLoginBtn').addEventListener('click', function(){
-  const cat = document.getElementById('userCat').value;
-  const pass = document.getElementById('userPass').value;
-  if((cat=='Kitchen' && pass=='KhamerK') ||
-     (cat=='Men' && pass=='KhamerM') ||
-     (cat=='Women' && pass=='KhamerF')) {
-    currentUserCategory = cat;
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('user-panel').style.display = 'block';
-    document.getElementById('userTitle').innerText = cat + ' Panel';
-    loadProductsForCategory(cat);
-    loadMyOrders(cat);
-  } else {
-    alert('অবৈধ পাসওয়ার্ড বা বিভাগ');
-  }
-});
+            <section id="order-return-section" class="order-return-section content-section">
+                <h2>অর্ডার রিটার্ন</h2>
+                <form id="return-product-form">
+                    <select id="return-product-select" class="input-field" required>
+                        <option value="">পণ্য নির্বাচন করুন</option>
+                        </select>
+                    <input type="number" id="return-quantity" placeholder="ফেরত সংখ্যা" class="input-field" required min="1">
+                    <button type="submit" class="button-danger" style="width: 100%;">পণ্য রিটার্ন করুন</button>
+                </form>
+            </section>
 
-// নতুন পণ্য যোগ
-document.getElementById('addProdBtn').addEventListener('click', function(){
-  const name = document.getElementById('prodName').value;
-  const price = parseFloat(document.getElementById('prodPrice').value);
-  const stock = parseInt(document.getElementById('prodStock').value);
-  const category = document.getElementById('prodCat').value;
-  if(name && !isNaN(price) && !isNaN(stock)) {
-    db.collection('products').add({ name, price, stock, category });
-    loadProducts();
-  }
-});
+            <section id="user-panel-section" class="user-panel content-section">
+                <h2 id="user-panel-title">ব্যবহারকারী প্যানেল</h2>
+                <button id="user-logout-btn" class="button-danger" style="margin-bottom: 20px;">লগআউট</button>
 
-// অ্যাডমিন প্যানেলে পণ্য লোড
-function loadProducts() {
-  const table = document.getElementById('productTable');
-  table.innerHTML = '<tr><th>Product ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr>';
-  db.collection('products').get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const row = table.insertRow(-1);
-      row.insertCell(0).innerText = doc.id;
-      row.insertCell(1).innerText = data.name;
-      row.insertCell(2).innerText = data.category;
-      row.insertCell(3).innerText = data.price;
-      const stockCell = row.insertCell(4);
-      stockCell.innerText = data.stock;
-      if(data.stock <= 5) row.classList.add('low-stock');
-    });
-  });
-}
+                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-bottom: 10px;">অর্ডার করার জন্য পণ্য</h3>
+                <div id="product-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    </div>
 
-// অ্যাডমিন প্যানেলে অর্ডার লোড
-function loadOrders() {
-  const table = document.getElementById('orderTable');
-  table.innerHTML = '<tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>';
-  db.collection('orders').get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const row = table.insertRow(-1);
-      row.insertCell(0).innerText = doc.id;
-      row.insertCell(1).innerText = data.productName || '';
-      row.insertCell(2).innerText = data.qty;
-      row.insertCell(3).innerText = data.status;
-      const actionCell = row.insertCell(4);
-      if(data.status === 'Ordered') {
-        const btnDeliver = document.createElement('button');
-        btnDeliver.innerText = 'Deliver';
-        btnDeliver.onclick = () => updateOrderStatus(doc.id, 'Delivered', data);
-        actionCell.appendChild(btnDeliver);
-        const btnCancel = document.createElement('button');
-        btnCancel.innerText = 'Cancel';
-        btnCancel.onclick = () => updateOrderStatus(doc.id, 'Cancelled');
-        actionCell.appendChild(btnCancel);
-      }
-    });
-  });
-}
+                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-top: 20px; padding-bottom: 10px;">আপনার কার্ট</h3>
+                <div id="user-cart-summary" style="margin-bottom: 20px;">
+                    </div>
+                <button id="place-order-btn" class="button-success" style="width: 100%; margin-top: 10px;">অর্ডার প্লেস করুন</button>
 
-// অর্ডার স্ট্যাটাস আপডেট
-function updateOrderStatus(orderId, status, orderData) {
-  db.collection('orders').doc(orderId).update({ status });
-  if(status === 'Delivered' && orderData) {
-    const prodRef = db.collection('products').doc(orderData.productId);
-    prodRef.get().then(doc => {
-      if(doc.exists) {
-        const newStock = doc.data().stock - orderData.qty;
-        prodRef.update({ stock: newStock });
-        loadProducts();
-      }
-    });
-  }
-  loadOrders();
-}
+                <h3 style="color: #007bff; border-bottom: 1px dashed #dee2e6; padding-top: 30px; padding-bottom: 10px;">আপনার পূর্ববর্তী অর্ডার</h3>
+                <div id="user-orders-list">
+                    </div>
+            </section>
+        </main>
+    </div>
 
-// নির্দিষ্ট বিভাগ থেকে পণ্য দেখানো (ইউজার প্যানেল)
-function loadProductsForCategory(cat) {
-  const listDiv = document.getElementById('prodList');
-  listDiv.innerHTML = '';
-  db.collection('products').where('category','==',cat).get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if(data.stock > 0) {
-        const div = document.createElement('div');
-        div.innerHTML = `<strong>${data.name}</strong> (৳${data.price}) - Stock: ${data.stock} 
-          <input type="number" id="qty_${doc.id}" min="1" max="${data.stock}" value="1" style="width:60px;"> 
-          <button onclick="placeOrder('${doc.id}','${data.name}', ${data.stock})">Order</button>`;
-        listDiv.appendChild(div);
-      }
-    });
-  });
-}
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnvcS8kpOrebq66LzQ2hz5Kvv_z_pu5p4",
+            authDomain: "stock-5d278.firebaseapp.com",
+            projectId: "stock-5d278",
+            storageBucket: "stock-5d278.firebasestorage.app",
+            messagingSenderId: "730697386577",
+            appId: "1:730697386577:web:8b7ef78adac14ee5990670",
+            measurementId: "G-CFNVGX1S4W"
+        };
 
-// অর্ডার করা (ইউজার প্যানেল)
-function placeOrder(prodId, prodName, stock) {
-  const qty = parseInt(document.getElementById('qty_' + prodId).value);
-  if(qty > 0 && qty <= stock) {
-    db.collection('orders').add({
-      productId: prodId,
-      productName: prodName,
-      qty: qty,
-      status: 'Ordered',
-      userCategory: currentUserCategory,
-      timestamp: firebase.firestore.Timestamp.now()
-    });
-    loadMyOrders(currentUserCategory);
-    alert('অর্ডার করা হয়েছে');
-  }
-}
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-// ইউজারের অর্ডার দেখানো
-function loadMyOrders(cat) {
-  const table = document.getElementById('myOrdersTable');
-  table.innerHTML = '<tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>';
-  db.collection('orders').where('userCategory','==',cat).get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const row = table.insertRow(-1);
-      row.insertCell(0).innerText = doc.id;
-      row.insertCell(1).innerText = data.productName;
-      row.insertCell(2).innerText = data.qty;
-      row.insertCell(3).innerText = data.status;
-      const actionCell = row.insertCell(4);
-      if(data.status === 'Ordered') {
-        const btnCancel = document.createElement('button');
-        btnCancel.innerText = 'Cancel';
-        btnCancel.onclick = () => db.collection('orders').doc(doc.id)
-                              .update({status:'Cancelled'})
-                              .then(()=>loadMyOrders(cat));
-        actionCell.appendChild(btnCancel);
-      }
-    });
-  });
-}
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const adminDashboardSection = document.getElementById('admin-dashboard-section');
+        const userPanelSection = document.getElementById('user-panel-section');
+        const addProductSection = document.getElementById('add-product-section');
+        const lowStockAlertSection = document.getElementById('low-stock-alert-section');
+        const totalOrderReportSection = document.getElementById('total-order-report-section');
+        const stockRestockSection = document.getElementById('stock-restock-section');
+        const orderReturnSection = document.getElementById('order-return-section');
 
-// মাসিক রিপোর্ট জেনারেট (jsPDF ব্যবহার)
-document.getElementById('genReportBtn').addEventListener('click', async function(){
-  const { jsPDF } = window.jspdf;
-  const docPDF = new jsPDF();
-  docPDF.setFontSize(16);
-  docPDF.text("Monthly Orders Report", 20, 20);
-  let y = 30;
-  const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
-  const snapshot = await db.collection('orders')
-                       .orderBy('timestamp','desc')
-                       .where('timestamp','>=', firebase.firestore.Timestamp.fromDate(threeMonthsAgo)).get();
-  snapshot.forEach(orderDoc => {
-    const d = orderDoc.data();
-    docPDF.text(`Order ${orderDoc.id}: ${d.productName}, Qty: ${d.qty}, Status: ${d.status}`, 20, y);
-    y += 10;
-  });
-  docPDF.save('report.pdf');
-});
-</script>
+        const loginForm = document.getElementById('login-form');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const loginError = document.getElementById('login-error');
 
+        const kitchenLoginBtn = document.getElementById('kitchen-login-btn');
+        const menLoginBtn = document.getElementById('men-login-btn');
+        const womenLoginBtn = document.getElementById('women-login-btn');
+
+        const adminDashboardBtn = document.getElementById('admin-dashboard-btn');
+        const addProductBtn = document.getElementById('add-product-btn');
+        const lowStockBtn = document.getElementById('low-stock-btn');
+        const totalOrderReportBtn = document.getElementById('total-order-report-btn');
+        const stockRestockBtn = document.getElementById('stock-restock-btn');
+        const orderReturnBtn = document.getElementById('order-return-btn');
+        const adminLogoutBtn = document.getElementById('admin-logout-btn');
+        const userLogoutBtn = document.getElementById('user-logout-btn');
+
+        const pendingOrdersList = document.getElementById('pending-orders-list');
+        const addProductForm = document.getElementById('add-product-form');
+        const lowStockProductsList = document.getElementById('low-stock-products-list');
+        const totalOrderReportContent = document.getElementById('total-order-report-content');
+        const currentStockList = document.getElementById('current-stock-list');
+        const returnProductForm = document.getElementById('return-product-form');
+        const returnProductSelect = document.getElementById('return-product-select');
+
+        const productList = document.getElementById('product-list');
+        const userCartSummary = document.getElementById('user-cart-summary'); // New element for cart summary
+        const userOrdersList = document.getElementById('user-orders-list');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        const userPanelTitle = document.getElementById('user-panel-title');
+
+        let currentUserCategory = null; // 'admin', 'kitchen', 'men', 'women'
+        let userCart = {}; // User's cart
+
+        // Function: Hide and Show Sections
+        function showSection(sectionToShow) {
+            const sections = [loginSection, adminDashboardSection, userPanelSection, addProductSection, lowStockAlertSection, totalOrderReportSection, stockRestockSection, orderReturnSection];
+            sections.forEach(section => {
+                section.classList.remove('active-section');
+            });
+            sectionToShow.classList.add('active-section');
+        }
+
+        // --- Firebase Collection Initialization ---
+        // This function will be called when the app first loads
+        async function initializeFirebaseCollections() {
+            console.log("Checking Firebase collections...");
+            const collections = ['products', 'orders', 'stock', 'returns', 'alerts', 'users']; // 'users' collection is also needed
+            for (const collectionName of collections) {
+                try {
+                    // Check if collection exists by trying to add a dummy document and immediately deleting it
+                    const docRef = db.collection(collectionName).doc('__init__');
+                    await docRef.set({ initialized: true });
+                    await docRef.delete();
+                    console.log(`Collection '${collectionName}' initialized successfully.`);
+                } catch (error) {
+                    // If it errors, it might mean the collection already exists or there's a permission issue.
+                    // For initial setup, we assume success if no explicit error regarding existence.
+                    console.log(`Collection '${collectionName}' might already exist or error during init:`, error.message);
+                }
+            }
+        }
+
+        // --- Auth State Change Handler ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User is logged in
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    currentUserCategory = userDoc.data().role;
+                    if (currentUserCategory === 'admin') {
+                        showSection(adminDashboardSection);
+                        loadAdminDashboard();
+                    } else {
+                        showSection(userPanelSection);
+                        userPanelTitle.textContent = `${currentUserCategory.charAt(0).toUpperCase() + currentUserCategory.slice(1)} প্যানেল`;
+                        loadUserProducts(currentUserCategory);
+                        loadUserOrders(user.uid);
+                        updateCartSummary(); // Update cart display on login
+                    }
+                } else {
+                    // This could be a new admin or an anonymous user
+                    if (user.isAnonymous) {
+                         // Anonymous users for specific categories
+                        // Note: Real anonymous UIDs cannot be predefined. This is a logic placeholder.
+                        // In a real app, you'd associate the anonymous user with a role after they pass the password check.
+                        // For simplicity here, we'll try to find their role based on the password used to sign in anonymously.
+                        // A more robust solution involves Firebase Cloud Functions and Custom Tokens.
+                        // For this example, we assume the anonymous user's role is set immediately after password check.
+                        // Let's assume if an anonymous user reaches here, their role was already set in the password check function.
+                        console.log("Anonymous user detected, role needs to be re-evaluated or was already set.");
+                        // If somehow the role isn't set, redirect to login
+                        auth.signOut();
+                        showSection(loginSection);
+                        loginError.textContent = 'অজানা ব্যবহারকারী বিভাগ। অনুগ্রহ করে আবার লগইন করুন।';
+
+                    } else {
+                        // Likely a new admin, set their role
+                        await db.collection('users').doc(user.uid).set({
+                            role: 'admin',
+                            email: user.email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        currentUserCategory = 'admin';
+                        showSection(adminDashboardSection);
+                        loadAdminDashboard();
+                    }
+                }
+            } else {
+                // User is logged out, show login section
+                showSection(loginSection);
+                currentUserCategory = null;
+                userCart = {}; // Clear cart on logout
+            }
+        });
+
+        // --- Login Handlers ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                loginError.textContent = ''; // Clear error on successful login
+            } catch (error) {
+                loginError.textContent = `লগইন ব্যর্থ: ${error.message}`;
+                console.error("Login error:", error);
+            }
+        });
+
+        // Anonymous Login Handler
+        async function handleAnonymousLogin(category, expectedPassword) {
+            const password = prompt(`${category.charAt(0).toUpperCase() + category.slice(1)} পাসওয়ার্ড দিন:`);
+            if (password === expectedPassword) {
+                try {
+                    const userCredential = await auth.signInAnonymously();
+                    const user = userCredential.user;
+
+                    // Store user's role in Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        role: category,
+                        email: 'anonymous', // Anonymous user's email
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Set current user category and update UI
+                    currentUserCategory = category;
+                    showSection(userPanelSection);
+                    userPanelTitle.textContent = `${category.charAt(0).toUpperCase() + category.slice(1)} প্যানেল`;
+                    loadUserProducts(category);
+                    loadUserOrders(user.uid);
+                    updateCartSummary(); // Update cart display
+
+                } catch (error) {
+                    loginError.textContent = `লগইন ব্যর্থ: ${error.message}`;
+                    console.error("Anonymous login error:", error);
+                }
+            } else if (password !== null) { // If user didn't cancel the prompt
+                loginError.textContent = 'ভুল পাসওয়ার্ড।';
+            }
+        }
+
+        kitchenLoginBtn.addEventListener('click', () => handleAnonymousLogin('kitchen', 'KhamerK'));
+        menLoginBtn.addEventListener('click', () => handleAnonymousLogin('men', 'KhamerM'));
+        womenLoginBtn.addEventListener('click', () => handleAnonymousLogin('women', 'KhamerF'));
+
+        // --- Logout Handlers ---
+        adminLogoutBtn.addEventListener('click', async () => {
+            await auth.signOut();
+            showSection(loginSection);
+        });
+
+        userLogoutBtn.addEventListener('click', async () => {
+            await auth.signOut();
+            showSection(loginSection);
+            userCart = {}; // Clear cart
+            updateCartSummary(); // Clear cart display
+        });
+
+        // --- Admin Panel Functionality ---
+
+        // Load Dashboard (Pending Orders)
+        async function loadAdminDashboard() {
+            pendingOrdersList.innerHTML = '<p>লোডিং অর্ডার...</p>';
+            db.collection('orders').where('status', '==', 'pending').orderBy('orderDate', 'desc')
+                .onSnapshot(snapshot => {
+                    pendingOrdersList.innerHTML = '';
+                    if (snapshot.empty) {
+                        pendingOrdersList.innerHTML = '<p>কোনো পেন্ডিং অর্ডার নেই।</p>';
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const order = doc.data();
+                        const orderId = doc.id;
+                        const orderItemDiv = document.createElement('div');
+                        orderItemDiv.classList.add('order-item');
+                        orderItemDiv.innerHTML = `
+                            <h4>বিভাগ: ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</h4>
+                            <p><strong>অর্ডার আইডি:</strong> ${orderId}</p>
+                            <p><strong>অর্ডারের তারিখ:</strong> ${order.orderDate.toDate().toLocaleString()}</p>
+                            <ul>
+                                ${Object.keys(order.products).map(productId => `
+                                    <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
+                                `).join('')}
+                            </ul>
+                            <button class="button-success deliver-order-btn" data-order-id="${orderId}">ডেলিভারড</button>
+                            <button class="button-danger cancel-order-btn" data-order-id="${orderId}" style="margin-left: 10px;">ক্যান্সেল</button>
+                        `;
+                        pendingOrdersList.appendChild(orderItemDiv);
+                    });
+
+                    // Add event listeners for Deliver and Cancel buttons
+                    document.querySelectorAll('.deliver-order-btn').forEach(button => {
+                        button.addEventListener('click', handleDeliverOrder);
+                    });
+                    document.querySelectorAll('.cancel-order-btn').forEach(button => {
+                        button.addEventListener('click', handleCancelOrder);
+                    });
+                });
+        }
+
+        // Order Delivered Handler
+        async function handleDeliverOrder(event) {
+            const orderId = event.target.dataset.orderId;
+            const orderRef = db.collection('orders').doc(orderId);
+            const confirmDelivery = confirm("আপনি কি নিশ্চিত এই অর্ডারটি ডেলিভারড হিসেবে চিহ্নিত করতে চান এবং স্টক আপডেট করতে চান?");
+
+            if (!confirmDelivery) return;
+
+            try {
+                const orderDoc = await orderRef.get();
+                if (orderDoc.exists) {
+                    const order = orderDoc.data();
+                    const batch = db.batch();
+
+                    for (const productId in order.products) {
+                        const productOrder = order.products[productId];
+                        const productRef = db.collection('stock').doc(productId);
+                        // Check if product exists in stock to avoid errors
+                        const stockDoc = await productRef.get();
+                        if (stockDoc.exists) {
+                            batch.update(productRef, {
+                                quantity: firebase.firestore.FieldValue.increment(-productOrder.quantity)
+                            });
+                        } else {
+                            console.warn(`Product ${productId} not found in stock. Skipping stock update for this item.`);
+                            // Optionally, you might want to log this or notify admin
+                        }
+                    }
+
+                    batch.update(orderRef, { status: 'delivered', deliveredAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    await batch.commit();
+                    alert('অর্ডার সফলভাবে ডেলিভারড হয়েছে এবং স্টক আপডেট করা হয়েছে।');
+                }
+            } catch (error) {
+                console.error("Error delivering order:", error);
+                alert('অর্ডার ডেলিভার করতে ব্যর্থ। ত্রুটি: ' + error.message);
+            }
+        }
+
+        // Order Cancel Handler (Admin Panel)
+        async function handleCancelOrder(event) {
+            const orderId = event.target.dataset.orderId;
+            const confirmCancel = confirm("আপনি কি নিশ্চিত এই অর্ডারটি বাতিল করতে চান?");
+            if (confirmCancel) {
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'cancelled',
+                        cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('অর্ডার সফলভাবে বাতিল করা হয়েছে।');
+                } catch (error) {
+                    console.error("Error canceling order:", error);
+                    alert('অর্ডার বাতিল করতে ব্যর্থ। ত্রুটি: ' + error.message);
+                }
+            }
+        }
+
+        // Add Product
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nameEn = document.getElementById('product-name-en').value.trim();
+            const nameAr = document.getElementById('product-name-ar').value.trim();
+            const quantity = parseInt(document.getElementById('product-quantity').value);
+            const lowStockAlertQuantity = parseInt(document.getElementById('low-stock-alert-quantity').value);
+            const category = document.getElementById('product-category').value;
+            const quantityType = document.getElementById('quantity-type').value;
+
+            if (!nameEn || !nameAr || isNaN(quantity) || quantity < 0 || isNaN(lowStockAlertQuantity) || lowStockAlertQuantity < 0 || !category || !quantityType) {
+                alert('অনুগ্রহ করে সকল ফিল্ড সঠিক ভাবে পূরণ করুন।');
+                return;
+            }
+
+            try {
+                // Check if product with same English name and category already exists
+                const existingProductSnapshot = await db.collection('products')
+                                                .where('name_en', '==', nameEn)
+                                                .where('category', '==', category)
+                                                .limit(1).get();
+
+                if (!existingProductSnapshot.empty) {
+                    alert('এই বিভাগে এই নামের একটি পণ্য ইতিমধ্যেই বিদ্যমান।');
+                    return;
+                }
+
+
+                const newProductRef = db.collection('products').doc(); // Generate a new document ID for product
+                await newProductRef.set({
+                    name_en: nameEn,
+                    name_ar: nameAr,
+                    category: category,
+                    quantity_type: quantityType,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Add entry to stock collection using the same product ID
+                await db.collection('stock').doc(newProductRef.id).set({
+                    productId: newProductRef.id,
+                    name_en: nameEn,
+                    name_ar: nameAr,
+                    quantity: quantity,
+                    lowStockAlert: lowStockAlertQuantity,
+                    category: category,
+                    quantity_type: quantityType,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('পণ্য সফলভাবে যোগ করা হয়েছে।');
+                addProductForm.reset();
+            } catch (error) {
+                console.error("Error adding product:", error);
+                alert('পণ্য যোগ করতে ব্যর্থ। ত্রুটি: ' + error.message);
+            }
+        });
+
+        // Load Low-Stock Alerts
+        async function loadLowStockAlerts() {
+            lowStockProductsList.innerHTML = '<p>লোডিং লো-স্টক এলার্ট...</p>';
+            db.collection('stock').onSnapshot(snapshot => {
+                lowStockProductsList.innerHTML = '';
+                let hasLowStock = false;
+                snapshot.forEach(doc => {
+                    const product = doc.data();
+                    if (product.quantity <= product.lowStockAlert && product.quantity > 0) { // Only show if stock > 0
+                        hasLowStock = true;
+                        const alertItemDiv = document.createElement('div');
+                        alertItemDiv.classList.add('alert-item');
+                        alertItemDiv.innerHTML = `
+                            <p><strong>${product.name_en} (${product.name_ar})</strong></p>
+                            <p>বর্তমান স্টক: ${product.quantity} ${product.quantity_type}</p>
+                            <p>এলার্ট সংখ্যা: ${product.lowStockAlert}</p>
+                            <button class="button-info remove-alert-btn" data-product-id="${doc.id}">এলার্ট রিমুভ করুন (শুধু ডিসপ্লে থেকে)</button>
+                        `;
+                        lowStockProductsList.appendChild(alertItemDiv);
+                    }
+                });
+                if (!hasLowStock) {
+                    lowStockProductsList.innerHTML = '<p>কোনো লো-স্টক এলার্ট নেই।</p>';
+                }
+            }, error => {
+                console.error("Error loading low stock alerts:", error);
+                lowStockProductsList.innerHTML = '<p>লো-স্টক এলার্ট লোড করতে ব্যর্থ।</p>';
+            });
+        }
+
+        // Remove Alert Handler (Removes only from display, not from DB's quantity logic)
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('remove-alert-btn')) {
+                // For this simple implementation, 'removing' alert just hides it from view.
+                // A true alert system would involve a separate 'alerts' collection.
+                e.target.closest('.alert-item').remove();
+                alert('এলার্ট সফলভাবে রিমুভ করা হয়েছে (শুধুমাত্র ডিসপ্লে থেকে)।');
+            }
+        });
+
+        // Load Total Order Report
+        async function loadTotalOrderReport(category = 'all') {
+            totalOrderReportContent.innerHTML = '<p>লোডিং রিপোর্ট...</p>';
+            const today = new Date();
+            // Start of current month (20th) minus 3 months
+            let startDate = new Date(today.getFullYear(), today.getMonth() - 2, 20); // Corrected to get 3 months of data
+
+            let query = db.collection('orders').where('status', '==', 'delivered').where('deliveredAt', '>=', startDate);
+
+            if (category !== 'all') {
+                query = query.where('category', '==', category);
+            }
+
+            try {
+                const snapshot = await query.orderBy('deliveredAt', 'desc').get();
+                const orders = [];
+                snapshot.forEach(doc => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (orders.length === 0) {
+                    totalOrderReportContent.innerHTML = '<p>কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।</p>';
+                    return;
+                }
+
+                // Group data by reporting period (20th to 20th)
+                const groupedOrders = {};
+                orders.forEach(order => {
+                    if (order.deliveredAt) {
+                        const deliveredDate = order.deliveredAt.toDate();
+                        const year = deliveredDate.getFullYear();
+                        let month = deliveredDate.getMonth(); // 0-11
+                        const day = deliveredDate.getDate();
+
+                        let reportMonthKey;
+                        if (day >= 20) {
+                            // Current month 20th to next month 19th
+                            let nextMonth = month + 1;
+                            let nextYear = year;
+                            if (nextMonth > 11) { // If it's December, next month is January of next year
+                                nextMonth = 0;
+                                nextYear++;
+                            }
+                            reportMonthKey = `${nextYear}-${(nextMonth + 1).toString().padStart(2, '0')}`; // Month is 1-indexed
+                        } else {
+                            // Previous month 20th to current month 19th
+                            let prevMonth = month - 1;
+                            let prevYear = year;
+                            if (prevMonth < 0) { // If it's January, prev month is December of previous year
+                                prevMonth = 11;
+                                prevYear--;
+                            }
+                            reportMonthKey = `${prevYear}-${(prevMonth + 1).toString().padStart(2, '0')}`; // Month is 1-indexed
+                        }
+
+                        if (!groupedOrders[reportMonthKey]) {
+                            groupedOrders[reportMonthKey] = [];
+                        }
+                        groupedOrders[reportMonthKey].push(order);
+                    }
+                });
+
+                let reportHtml = '';
+                // Sort month keys chronologically
+                const sortedMonthKeys = Object.keys(groupedOrders).sort();
+
+                if (sortedMonthKeys.length === 0) {
+                    totalOrderReportContent.innerHTML = '<p>কোনো ডেলিভারড অর্ডার রিপোর্ট পাওয়া যায়নি।</p>';
+                    return;
+                }
+
+                sortedMonthKeys.forEach(monthKey => {
+                    reportHtml += `<div class="report-section" id="report-section-${monthKey.replace('-', '_')}">`;
+                    reportHtml += `<h3>${monthKey}</h3>`;
+                    reportHtml += `<ul>`;
+                    groupedOrders[monthKey].forEach(order => {
+                        reportHtml += `
+                            <li>
+                                <p><strong>অর্ডার আইডি:</strong> ${order.id}</p>
+                                <p><strong>বিভাগ:</strong> ${order.category.charAt(0).toUpperCase() + order.category.slice(1)}</p>
+                                <p><strong>ডেলিভারির তারিখ:</strong> ${order.deliveredAt.toDate().toLocaleString()}</p>
+                                <ul>
+                                    ${Object.keys(order.products).map(productId => `
+                                        <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
+                                    `).join('')}
+                                </ul>
+                            </li>
+                        `;
+                    });
+                    reportHtml += `</ul>`;
+                    reportHtml += `<button class="button-info share-report-btn" data-month-key="${monthKey}">শেয়ার/ডাউনলোড PDF</button><hr>`;
+                    reportHtml += `</div>`;
+                });
+                totalOrderReportContent.innerHTML = reportHtml;
+
+                document.querySelectorAll('.share-report-btn').forEach(button => {
+                    button.addEventListener('click', handleShareReport);
+                });
+
+            } catch (error) {
+                console.error("Error loading total order report:", error);
+                totalOrderReportContent.innerHTML = '<p>রিপোর্ট লোড করতে ব্যর্থ। ত্রুটি: ' + error.message + '</p>';
+            }
+        }
+
+        // Share/Download PDF Report
+        async function handleShareReport(event) {
+            const monthKey = event.target.dataset.monthKey;
+            const reportElement = document.getElementById(`report-section-${monthKey.replace('-', '_')}`);
+
+            if (!reportElement) {
+                alert("রিপোর্ট কন্টেন্ট পাওয়া যায়নি।");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Clone the element to avoid modifying the live DOM and remove interactive elements
+            const clonedReport = reportElement.cloneNode(true);
+            clonedReport.querySelectorAll('button').forEach(btn => btn.remove()); // Remove buttons from PDF content
+            clonedReport.querySelector('hr').remove(); // Remove hr from PDF content
+
+            doc.html(clonedReport.outerHTML, {
+                callback: function (doc) {
+                    doc.save(`Order_Report_${monthKey}.pdf`);
+                },
+                x: 10,
+                y: 10,
+                width: 190, // A4 width minus margins (approx)
+                windowWidth: clonedReport.scrollWidth || 700 // Use actual width if available, otherwise default
+            });
+        }
+
+        // Load Stock and Restock
+        async function loadStockAndRestock() {
+            currentStockList.innerHTML = '<p>লোডিং স্টক...</p>';
+            db.collection('stock').onSnapshot(snapshot => {
+                currentStockList.innerHTML = '';
+                if (snapshot.empty) {
+                    currentStockList.innerHTML = '<p>কোনো স্টক আইটেম নেই।</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const product = doc.data();
+                    const stockItemDiv = document.createElement('div');
+                    stockItemDiv.classList.add('stock-item');
+                    stockItemDiv.innerHTML = `
+                        <p><strong>${product.name_en} (${product.name_ar})</strong> - অবশিষ্ট স্টক: <strong>${product.quantity}</strong> ${product.quantity_type}</p>
+                        <input type="number" class="input-field restock-quantity" placeholder="রি-স্টক সংখ্যা" data-product-id="${doc.id}" min="1">
+                        <button class="button-info restock-btn" data-product-id="${doc.id}">রি-স্টক</button>
+                    `;
+                    currentStockList.appendChild(stockItemDiv);
+                });
+
+                document.querySelectorAll('.restock-btn').forEach(button => {
+                    button.addEventListener('click', handleRestock);
+                });
+            }, error => {
+                console.error("Error loading stock:", error);
+                currentStockList.innerHTML = '<p>স্টক লোড করতে ব্যর্থ।</p>';
+            });
+        }
+
+        // Restock Handler
+        async function handleRestock(event) {
+            const productId = event.target.dataset.productId;
+            const quantityInput = event.target.previousElementSibling;
+            const restockQuantity = parseInt(quantityInput.value);
+
+            if (isNaN(restockQuantity) || restockQuantity <= 0) {
+                alert('বৈধ সংখ্যা দিন।');
+                return;
+            }
+
+            try {
+                await db.collection('stock').doc(productId).update({
+                    quantity: firebase.firestore.FieldValue.increment(restockQuantity),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('স্টক সফলভাবে আপডেট করা হয়েছে।');
+                quantityInput.value = ''; // Clear input
+            } catch (error) {
+                console.error("Error restocking:", error);
+                alert('রি-স্টক করতে ব্যর্থ। ত্রুটি: ' + error.message);
+            }
+        }
+
+        // Load Order Return Products
+        async function loadOrderReturnProducts() {
+            returnProductSelect.innerHTML = '<option value="">পণ্য নির্বাচন করুন</option>';
+            try {
+                const snapshot = await db.collection('stock').get();
+                if (snapshot.empty) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'কোনো পণ্য নেই';
+                    option.disabled = true;
+                    returnProductSelect.appendChild(option);
+                }
+                snapshot.forEach(doc => {
+                    const product = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${product.name_en} (${product.name_ar}) - বর্তমান স্টক: ${product.quantity} ${product.quantity_type}`;
+                    returnProductSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error loading return products:", error);
+                alert('রিটার্ন করার জন্য পণ্য লোড করতে ব্যর্থ।');
+            }
+        }
+
+        // Order Return Handler
+        returnProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productId = document.getElementById('return-product-select').value;
+            const returnQuantity = parseInt(document.getElementById('return-quantity').value);
+
+            if (!productId || isNaN(returnQuantity) || returnQuantity <= 0) {
+                alert('অনুগ্রহ করে পণ্য এবং বৈধ সংখ্যা নির্বাচন করুন।');
+                return;
+            }
+
+            try {
+                const productRef = db.collection('stock').doc(productId);
+                const productDoc = await productRef.get();
+
+                if (productDoc.exists) {
+                    const currentQuantity = productDoc.data().quantity;
+                    if (currentQuantity < returnQuantity) {
+                        alert('বর্তমান স্টকের চেয়ে বেশি পণ্য ফেরত দেওয়া যাবে না।');
+                        return;
+                    }
+
+                    await productRef.update({
+                        quantity: firebase.firestore.FieldValue.increment(-returnQuantity),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Add return history
+                    await db.collection('returns').add({
+                        productId: productId,
+                        productName_en: productDoc.data().name_en,
+                        productName_ar: productDoc.data().name_ar,
+                        returnQuantity: returnQuantity,
+                        quantity_type: productDoc.data().quantity_type,
+                        returnDate: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert('পণ্য সফলভাবে রিটার্ন করা হয়েছে এবং স্টক আপডেট করা হয়েছে।');
+                    returnProductForm.reset();
+                    loadOrderReturnProducts(); // Reload products to show updated stock
+                } else {
+                    alert('পণ্য পাওয়া যায়নি।');
+                }
+            } catch (error) {
+                console.error("Error returning product:", error);
+                alert('পণ্য রিটার্ন করতে ব্যর্থ। ত্রুটি: ' + error.message);
+            }
+        });
+
+        // --- User Panel Functionality ---
+
+        // Load Product List for User
+        async function loadUserProducts(category) {
+            productList.innerHTML = '<p>লোডিং পণ্য...</p>';
+            db.collection('products').where('category', '==', category)
+                .onSnapshot(snapshot => {
+                    productList.innerHTML = '';
+                    if (snapshot.empty) {
+                        productList.innerHTML = '<p>এই বিভাগে কোনো পণ্য নেই।</p>';
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const product = doc.data();
+                        const productId = doc.id;
+                        const productDiv = document.createElement('div');
+                        productDiv.classList.add('product-item');
+                        productDiv.innerHTML = `
+                            <h4>${product.name_en} (${product.name_ar})</h4>
+                            <p>উপলব্ধ: <span id="stock-${productId}">লোডিং...</span> ${product.quantity_type}</p>
+                            <div class="quantity-control">
+                                <button class="add-to-cart-btn" data-product-id="${productId}" data-product-name-en="${product.name_en}" data-product-name-ar="${product.name_ar}" data-quantity-type="${product.quantity_type}">+</button>
+                                <span id="cart-quantity-${productId}">${userCart[productId] ? userCart[productId].quantity : 0}</span>
+                                <button class="remove-from-cart-btn" data-product-id="${productId}">-</button>
+                            </div>
+                        `;
+                        productList.appendChild(productDiv);
+                        // Real-time stock update
+                        db.collection('stock').doc(productId).onSnapshot(stockDoc => {
+                            const stockSpan = document.getElementById(`stock-${productId}`);
+                            if (stockSpan) { // Check if element exists before updating
+                                if (stockDoc.exists) {
+                                    stockSpan.textContent = stockDoc.data().quantity;
+                                } else {
+                                    stockSpan.textContent = '0'; // Product not found in stock
+                                }
+                            }
+                        });
+                    });
+                }, error => {
+                    console.error("Error loading user products:", error);
+                    productList.innerHTML = '<p>পণ্য লোড করতে ব্যর্থ।</p>';
+                });
+        }
+
+        // Update Cart Summary Display
+        function updateCartSummary() {
+            userCartSummary.innerHTML = '';
+            if (Object.keys(userCart).length === 0) {
+                userCartSummary.innerHTML = '<p>আপনার কার্ট খালি।</p>';
+                return;
+            }
+
+            let cartHtml = '<ul>';
+            for (const productId in userCart) {
+                const item = userCart[productId];
+                cartHtml += `<li>${item.name_en} (${item.name_ar}): <strong>${item.quantity}</strong> ${item.type}</li>`;
+            }
+            cartHtml += '</ul>';
+            userCartSummary.innerHTML = cartHtml;
+        }
+
+
+        // Add/Remove from Cart
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                const productId = e.target.dataset.productId;
+                const productNameEn = e.target.dataset.productNameEn;
+                const productNameAr = e.target.dataset.productNameAr;
+                const quantityType = e.target.dataset.quantityType;
+
+                const stockDoc = await db.collection('stock').doc(productId).get();
+                const currentStock = stockDoc.exists ? stockDoc.data().quantity : 0;
+
+                if (!userCart[productId]) {
+                    userCart[productId] = {
+                        name_en: productNameEn,
+                        name_ar: productNameAr,
+                        quantity: 0,
+                        type: quantityType
+                    };
+                }
+
+                if (userCart[productId].quantity < currentStock) {
+                    userCart[productId].quantity++;
+                } else {
+                    alert('স্টক শেষ, আরও যোগ করা যাবে না।');
+                }
+                document.getElementById(`cart-quantity-${productId}`).textContent = userCart[productId].quantity;
+                updateCartSummary();
+            } else if (e.target.classList.contains('remove-from-cart-btn')) {
+                const productId = e.target.dataset.productId;
+                if (userCart[productId] && userCart[productId].quantity > 0) {
+                    userCart[productId].quantity--;
+                    document.getElementById(`cart-quantity-${productId}`).textContent = userCart[productId].quantity;
+                    if (userCart[productId].quantity === 0) {
+                        delete userCart[productId];
+                    }
+                }
+                updateCartSummary();
+            }
+        });
+
+        // Place Order
+        placeOrderBtn.addEventListener('click', async () => {
+            if (Object.keys(userCart).length === 0) {
+                alert('আপনার কার্ট খালি।');
+                return;
+            }
+
+            const confirmOrder = confirm("আপনি কি এই অর্ডারটি প্লেস করতে চান?");
+            if (!confirmOrder) return;
+
+            // Check if items in cart exceed current stock before placing order
+            for (const productId in userCart) {
+                const requestedQuantity = userCart[productId].quantity;
+                const stockDoc = await db.collection('stock').doc(productId).get();
+                if (!stockDoc.exists || stockDoc.data().quantity < requestedQuantity) {
+                    alert(`দুঃখিত, ${userCart[productId].name_en} (${userCart[productId].name_ar}) পণ্যের পর্যাপ্ত স্টক নেই। অনুগ্রহ করে আপনার কার্ট চেক করুন।`);
+                    return; // Stop if any item is out of stock
+                }
+            }
+
+            try {
+                await db.collection('orders').add({
+                    userId: auth.currentUser.uid,
+                    category: currentUserCategory,
+                    products: userCart,
+                    orderDate: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending' // 'pending' or 'delivered' or 'cancelled'
+                });
+                alert('অর্ডার সফলভাবে প্লেস করা হয়েছে।');
+                userCart = {}; // Clear cart
+                updateCartSummary(); // Update cart display
+                loadUserProducts(currentUserCategory); // Reload products to show updated stock (though it's real-time anyway)
+                loadUserOrders(auth.currentUser.uid); // Reload user orders
+            } catch (error) {
+                console.error("Error placing order:", error);
+                alert('অর্ডার প্লেস করতে ব্যর্থ। ত্রুটি: ' + error.message);
+            }
+        });
+
+        // Show User Order Status
+        async function loadUserOrders(userId) {
+            userOrdersList.innerHTML = '<p>লোডিং আপনার অর্ডার...</p>';
+            db.collection('orders').where('userId', '==', userId).orderBy('orderDate', 'desc')
+                .onSnapshot(snapshot => {
+                    userOrdersList.innerHTML = '';
+                    if (snapshot.empty) {
+                        userOrdersList.innerHTML = '<p>আপনার কোনো অর্ডার নেই।</p>';
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const order = doc.data();
+                        const orderId = doc.id;
+                        const orderItemDiv = document.createElement('div');
+                        orderItemDiv.classList.add('user-order-item');
+                        orderItemDiv.innerHTML = `
+                            <h4>অর্ডার আইডি: ${orderId}</h4>
+                            <p>তারিখ: ${order.orderDate.toDate().toLocaleString()}</p>
+                            <p>স্ট্যাটাস: <strong style="color: ${order.status === 'pending' ? '#ffc107' : order.status === 'delivered' ? '#28a745' : '#dc3545'};">${order.status.toUpperCase()}</strong></p>
+                            <ul>
+                                ${Object.keys(order.products).map(productId => `
+                                    <li>${order.products[productId].name_en} (${order.products[productId].name_ar}): <strong>${order.products[productId].quantity}</strong> ${order.products[productId].type}</li>
+                                `).join('')}
+                            </ul>
+                            ${order.status === 'pending' ? `<button class="button-danger cancel-user-order-btn" data-order-id="${orderId}">অর্ডার ক্যান্সেল করুন</button>` : ''}
+                        `;
+                        userOrdersList.appendChild(orderItemDiv);
+                    });
+
+                    document.querySelectorAll('.cancel-user-order-btn').forEach(button => {
+                        button.addEventListener('click', handleCancelUserOrder);
+                    });
+                }, error => {
+                    console.error("Error loading user orders:", error);
+                    userOrdersList.innerHTML = '<p>আপনার অর্ডার লোড করতে ব্যর্থ।</p>';
+                });
+        }
+
+        // User Cancel Order Handler
+        async function handleCancelUserOrder(event) {
+            const orderId = event.target.dataset.orderId;
+            const confirmCancel = confirm("আপনি কি নিশ্চিত এই অর্ডারটি বাতিল করতে চান?");
+            if (confirmCancel) {
+                try {
+                    await db.collection('orders').doc(orderId).update({
+                        status: 'cancelled',
+                        cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert('অর্ডার সফলভাবে বাতিল করা হয়েছে।');
+                } catch (error) {
+                    console.error("Error canceling user order:", error);
+                    alert('অর্ডার বাতিল করতে ব্যর্থ। ত্রুটি: ' + error.message);
+                }
+            }
+        }
+
+
+        // --- Navigation Handlers (Admin Panel) ---
+        adminDashboardBtn.addEventListener('click', () => {
+            showSection(adminDashboardSection);
+            document.getElementById('admin-dashboard-content').style.display = 'block';
+            loadAdminDashboard();
+        });
+        addProductBtn.addEventListener('click', () => {
+            showSection(addProductSection);
+        });
+        lowStockBtn.addEventListener('click', () => {
+            showSection(lowStockAlertSection);
+            loadLowStockAlerts();
+        });
+        totalOrderReportBtn.addEventListener('click', () => {
+            showSection(totalOrderReportSection);
+            loadTotalOrderReport('all'); // Default all categories
+        });
+        document.getElementById('generate-report-btn').addEventListener('click', () => {
+            const selectedCategory = document.getElementById('report-category').value;
+            loadTotalOrderReport(selectedCategory);
+        });
+        stockRestockBtn.addEventListener('click', () => {
+            showSection(stockRestockSection);
+            loadStockAndRestock();
+        });
+        orderReturnBtn.addEventListener('click', () => {
+            showSection(orderReturnSection);
+            loadOrderReturnProducts();
+        });
+
+        // Initialize Firebase Collections on App Load
+        window.addEventListener('load', initializeFirebaseCollections);
+
+    </script>
 </body>
 </html>
