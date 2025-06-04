@@ -1,1645 +1,284 @@
 <!DOCTYPE html>
-<html lang="en"> <!-- Set default language to English -->
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Management System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Using Inter for English and a common Arabic font can be added later or rely on system fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
-    <style>
-        body {
-            font-family: 'Inter', 'Noto Kufi Arabic', sans-serif; /* Added Noto Kufi Arabic as a fallback */
-            background-color: #f0f2f5;
-        }
-        .container-fluid {
-            max-width: 100%;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        .btn {
-            @apply py-2 px-4 rounded-lg font-semibold shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-opacity-50;
-        }
-        .btn-primary {
-            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
-        }
-        .btn-secondary {
-            @apply bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500;
-        }
-        .btn-danger {
-            @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
-        }
-        .btn-success {
-            @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
-        }
-        .btn-warning {
-            @apply bg-yellow-500 text-black hover:bg-yellow-600 focus:ring-yellow-400;
-        }
-        .card {
-            @apply bg-white p-4 sm:p-6 rounded-xl shadow-lg mb-6;
-        }
-        .input-field {
-            @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none;
-        }
-        .modal {
-            @apply fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50;
-        }
-        .modal-content {
-            @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md;
-        }
-        .table-responsive {
-            @apply overflow-x-auto;
-        }
-        table {
-            @apply min-w-full divide-y divide-gray-200;
-        }
-        th {
-            @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
-        }
-        td {
-            @apply px-4 py-3 whitespace-nowrap text-sm text-gray-700;
-        }
-        .badge {
-            @apply px-2.5 py-0.5 rounded-full text-xs font-semibold;
-        }
-        .badge-pending {
-            @apply bg-yellow-100 text-yellow-800;
-        }
-        .badge-delivered {
-            @apply bg-green-100 text-green-800;
-        }
-        .badge-cancelled {
-            @apply bg-red-100 text-red-800;
-        }
-        .badge-low-stock {
-            @apply bg-orange-100 text-orange-800;
-        }
-        .nav-link {
-             @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 hover:text-gray-900;
-        }
-        .nav-link-active {
-            @apply bg-blue-600 text-white hover:bg-blue-700 hover:text-white;
-        }
-        /* Custom scrollbar for webkit browsers */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        [x-cloak] { display: none !important; }
-        /* Basic RTL support for specific elements */
-        [dir="rtl"] {
-            direction: rtl;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Management System</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+#login-section { max-width: 400px; margin: auto; }
+#login-section input, #login-section select { width: 100%; margin: 5px 0; padding: 8px; }
+#admin-panel, #user-panel { display: none; max-width: 800px; margin: auto; }
+h1, h2, h3 { text-align: center; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
+button { padding: 6px 12px; margin: 4px; }
+.low-stock { background: #fdd; }
+</style>
 </head>
-<body x-data="storeApp()" x-cloak>
+<body>
+
+<div id="login-section">
+  <h1>স্টক ম্যানেজমেন্ট সিস্টেম</h1>
+  <h2>অ্যাডমিন লগইন</h2>
+  <input type="email" id="adminEmail" placeholder="ইমেইল"/>
+  <input type="password" id="adminPass" placeholder="পাসওয়ার্ড"/>
+  <button id="adminLoginBtn">লগইন</button>
+  <hr>
+  <h2>ইউজার প্যানেল (পাসওয়ার্ড)</h2>
+  <select id="userCat">
+    <option value="Kitchen">Kitchen (KhamerK)</option>
+    <option value="Men">Men (KhamerM)</option>
+    <option value="Women">Women (KhamerF)</option>
+  </select>
+  <input type="password" id="userPass" placeholder="পাসওয়ার্ড"/>
+  <button id="userLoginBtn">সাইন ইন</button>
+</div>
+
+<div id="admin-panel">
+  <h1>অ্যাডমিন ড্যাশবোর্ড</h1>
+  <h2>অর্ডারসমূহ</h2>
+  <table id="orderTable">
+    <tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>
+  </table>
+  <h2>পণ্যসমূহ</h2>
+  <table id="productTable">
+    <tr><th>Product ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr>
+  </table>
+  <h3>Add Product</h3>
+  <input type="text" id="prodName" placeholder="পণ্যের নাম"/>
+  <input type="number" id="prodPrice" placeholder="মূল্য"/>
+  <input type="number" id="prodStock" placeholder="স্টক"/>
+  <select id="prodCat">
+    <option value="Kitchen">Kitchen</option>
+    <option value="Men">Men</option>
+    <option value="Women">Women</option>
+  </select>
+  <button id="addProdBtn">Add Product</button>
+  <h3>Monthly Report</h3>
+  <button id="genReportBtn">Generate PDF Report</button>
+</div>
+
+<div id="user-panel">
+  <h1 id="userTitle">User Panel</h1>
+  <h2>Products</h2>
+  <div id="prodList"></div>
+  <h2>My Orders</h2>
+  <table id="myOrdersTable">
+    <tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>
+  </table>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBnvcS8kpOrebq66LzQ2hz5Kvv_z_pu5p4",
+  authDomain: "stock-5d278.firebaseapp.com",
+  projectId: "stock-5d278",
+  storageBucket: "stock-5d278.firebasestorage.app",
+  messagingSenderId: "730697386577",
+  appId: "1:730697386577:web:8b7ef78adac14ee5990670",
+  measurementId: "G-CFNVGX1S4W"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUserCategory = null;
+
+// অ্যাডমিন লগইন
+document.getElementById('adminLoginBtn').addEventListener('click', function(){
+  const email = document.getElementById('adminEmail').value;
+  const pass = document.getElementById('adminPass').value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(userCredential => {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('admin-panel').style.display = 'block';
+      loadOrders();
+      loadProducts();
+    })
+    .catch(err => alert('Login Failed: ' + err.message));
+});
+
+// ইউজার লগইন (স্ট্যাটিক পাস)
+document.getElementById('userLoginBtn').addEventListener('click', function(){
+  const cat = document.getElementById('userCat').value;
+  const pass = document.getElementById('userPass').value;
+  if((cat=='Kitchen' && pass=='KhamerK') ||
+     (cat=='Men' && pass=='KhamerM') ||
+     (cat=='Women' && pass=='KhamerF')) {
+    currentUserCategory = cat;
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('user-panel').style.display = 'block';
+    document.getElementById('userTitle').innerText = cat + ' Panel';
+    loadProductsForCategory(cat);
+    loadMyOrders(cat);
+  } else {
+    alert('অবৈধ পাসওয়ার্ড বা বিভাগ');
+  }
+});
+
+// নতুন পণ্য যোগ
+document.getElementById('addProdBtn').addEventListener('click', function(){
+  const name = document.getElementById('prodName').value;
+  const price = parseFloat(document.getElementById('prodPrice').value);
+  const stock = parseInt(document.getElementById('prodStock').value);
+  const category = document.getElementById('prodCat').value;
+  if(name && !isNaN(price) && !isNaN(stock)) {
+    db.collection('products').add({ name, price, stock, category });
+    loadProducts();
+  }
+});
+
+// অ্যাডমিন প্যানেলে পণ্য লোড
+function loadProducts() {
+  const table = document.getElementById('productTable');
+  table.innerHTML = '<tr><th>Product ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th></tr>';
+  db.collection('products').get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = doc.id;
+      row.insertCell(1).innerText = data.name;
+      row.insertCell(2).innerText = data.category;
+      row.insertCell(3).innerText = data.price;
+      const stockCell = row.insertCell(4);
+      stockCell.innerText = data.stock;
+      if(data.stock <= 5) row.classList.add('low-stock');
+    });
+  });
+}
+
+// অ্যাডমিন প্যানেলে অর্ডার লোড
+function loadOrders() {
+  const table = document.getElementById('orderTable');
+  table.innerHTML = '<tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>';
+  db.collection('orders').get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = doc.id;
+      row.insertCell(1).innerText = data.productName || '';
+      row.insertCell(2).innerText = data.qty;
+      row.insertCell(3).innerText = data.status;
+      const actionCell = row.insertCell(4);
+      if(data.status === 'Ordered') {
+        const btnDeliver = document.createElement('button');
+        btnDeliver.innerText = 'Deliver';
+        btnDeliver.onclick = () => updateOrderStatus(doc.id, 'Delivered', data);
+        actionCell.appendChild(btnDeliver);
+        const btnCancel = document.createElement('button');
+        btnCancel.innerText = 'Cancel';
+        btnCancel.onclick = () => updateOrderStatus(doc.id, 'Cancelled');
+        actionCell.appendChild(btnCancel);
+      }
+    });
+  });
+}
+
+// অর্ডার স্ট্যাটাস আপডেট
+function updateOrderStatus(orderId, status, orderData) {
+  db.collection('orders').doc(orderId).update({ status });
+  if(status === 'Delivered' && orderData) {
+    const prodRef = db.collection('products').doc(orderData.productId);
+    prodRef.get().then(doc => {
+      if(doc.exists) {
+        const newStock = doc.data().stock - orderData.qty;
+        prodRef.update({ stock: newStock });
+        loadProducts();
+      }
+    });
+  }
+  loadOrders();
+}
+
+// নির্দিষ্ট বিভাগ থেকে পণ্য দেখানো (ইউজার প্যানেল)
+function loadProductsForCategory(cat) {
+  const listDiv = document.getElementById('prodList');
+  listDiv.innerHTML = '';
+  db.collection('products').where('category','==',cat).get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if(data.stock > 0) {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${data.name}</strong> (৳${data.price}) - Stock: ${data.stock} 
+          <input type="number" id="qty_${doc.id}" min="1" max="${data.stock}" value="1" style="width:60px;"> 
+          <button onclick="placeOrder('${doc.id}','${data.name}', ${data.stock})">Order</button>`;
+        listDiv.appendChild(div);
+      }
+    });
+  });
+}
+
+// অর্ডার করা (ইউজার প্যানেল)
+function placeOrder(prodId, prodName, stock) {
+  const qty = parseInt(document.getElementById('qty_' + prodId).value);
+  if(qty > 0 && qty <= stock) {
+    db.collection('orders').add({
+      productId: prodId,
+      productName: prodName,
+      qty: qty,
+      status: 'Ordered',
+      userCategory: currentUserCategory,
+      timestamp: firebase.firestore.Timestamp.now()
+    });
+    loadMyOrders(currentUserCategory);
+    alert('অর্ডার করা হয়েছে');
+  }
+}
+
+// ইউজারের অর্ডার দেখানো
+function loadMyOrders(cat) {
+  const table = document.getElementById('myOrdersTable');
+  table.innerHTML = '<tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Status</th><th>Action</th></tr>';
+  db.collection('orders').where('userCategory','==',cat).get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const row = table.insertRow(-1);
+      row.insertCell(0).innerText = doc.id;
+      row.insertCell(1).innerText = data.productName;
+      row.insertCell(2).innerText = data.qty;
+      row.insertCell(3).innerText = data.status;
+      const actionCell = row.insertCell(4);
+      if(data.status === 'Ordered') {
+        const btnCancel = document.createElement('button');
+        btnCancel.innerText = 'Cancel';
+        btnCancel.onclick = () => db.collection('orders').doc(doc.id)
+                              .update({status:'Cancelled'})
+                              .then(()=>loadMyOrders(cat));
+        actionCell.appendChild(btnCancel);
+      }
+    });
+  });
+}
+
+// মাসিক রিপোর্ট জেনারেট (jsPDF ব্যবহার)
+document.getElementById('genReportBtn').addEventListener('click', async function(){
+  const { jsPDF } = window.jspdf;
+  const docPDF = new jsPDF();
+  docPDF.setFontSize(16);
+  docPDF.text("Monthly Orders Report", 20, 20);
+  let y = 30;
+  const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
+  const snapshot = await db.collection('orders')
+                       .orderBy('timestamp','desc')
+                       .where('timestamp','>=', firebase.firestore.Timestamp.fromDate(threeMonthsAgo)).get();
+  snapshot.forEach(orderDoc => {
+    const d = orderDoc.data();
+    docPDF.text(`Order ${orderDoc.id}: ${d.productName}, Qty: ${d.qty}, Status: ${d.status}`, 20, y);
+    y += 10;
+  });
+  docPDF.save('report.pdf');
+});
+</script>
 
-    <!-- Global Loading Indicator -->
-    <div x-show="isLoading" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-[100]">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-    </div>
-
-    <!-- Global Message/Alert Modal -->
-    <div x-show="globalMessage.show" class="modal" @click.away="globalMessage.show = false">
-        <div class="modal-content">
-            <h3 class="text-lg font-semibold mb-2" :class="globalMessage.type === 'error' ? 'text-red-600' : 'text-green-600'" x-text="globalMessage.title"></h3>
-            <p x-text="globalMessage.text"></p>
-            <div class="mt-4 text-right">
-                <button @click="globalMessage.show = false" class="btn btn-primary">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirm Modal -->
-    <div x-show="confirmModal.show" class="modal">
-        <div class="modal-content">
-            <h3 class="text-lg font-semibold mb-2" x-text="confirmModal.title"></h3>
-            <p x-text="confirmModal.message"></p>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button @click="confirmModal.show = false; confirmModal.onCancel()" class="btn btn-secondary">Cancel</button>
-                <button @click="confirmModal.show = false; confirmModal.onConfirm()" class="btn btn-danger" x-text="confirmModal.confirmButtonText"></button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Main Application Area -->
-    <div class="container-fluid">
-        <!-- Login View -->
-        <div x-show="currentView === 'login'" class="min-h-screen flex items-center justify-center">
-            <div class="card w-full max-w-md">
-                <h1 class="text-3xl font-bold text-center mb-6 text-blue-700">Store Management</h1>
-                <div x-show="!selectedPanelForLogin">
-                    <h2 class="text-xl font-semibold text-center mb-4">Who are you?</h2>
-                    <div class="grid grid-cols-1 gap-4">
-                        <button @click="selectedPanelForLogin = 'admin'" class="btn btn-primary w-full text-lg">Admin</button>
-                        <button @click="selectedPanelForLogin = 'kitchen'" class="btn bg-green-500 text-white hover:bg-green-600 w-full text-lg">Kitchen</button>
-                        <button @click="selectedPanelForLogin = 'men'" class="btn bg-indigo-500 text-white hover:bg-indigo-600 w-full text-lg">Men Department</button>
-                        <button @click="selectedPanelForLogin = 'women'" class="btn bg-pink-500 text-white hover:bg-pink-600 w-full text-lg">Women Department</button>
-                    </div>
-                </div>
-
-                <!-- Admin Login Form -->
-                <div x-show="selectedPanelForLogin === 'admin'">
-                    <h2 class="text-xl font-semibold text-center mb-4">Admin Login</h2>
-                    <form @submit.prevent="loginAdmin()">
-                        <div class="mb-4">
-                            <label for="adminEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" id="adminEmail" x-model="loginForm.email" class="input-field" required>
-                        </div>
-                        <div class="mb-6">
-                            <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                            <input type="password" id="adminPassword" x-model="loginForm.password" class="input-field" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full">Login</button>
-                        <button type="button" @click="selectedPanelForLogin = null" class="btn btn-secondary w-full mt-2">Back</button>
-                    </form>
-                </div>
-
-                <!-- Panel Login Form (Kitchen, Men, Women) -->
-                <div x-show="selectedPanelForLogin && selectedPanelForLogin !== 'admin'">
-                    <h2 class="text-xl font-semibold text-center mb-4 capitalize" x-text="getPanelDisplayName(selectedPanelForLogin) + ' Login'"></h2>
-                    <form @submit.prevent="loginPanel()">
-                        <div class="mb-6">
-                            <label for="panelPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                            <input type="password" id="panelPassword" x-model="loginForm.panelPassword" class="input-field" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full">Enter</button>
-                        <button type="button" @click="selectedPanelForLogin = null; loginForm.panelPassword = ''" class="btn btn-secondary w-full mt-2">Back</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main App Layout (after login) -->
-        <div x-show="currentView !== 'login' && user.id" class="flex flex-col min-h-screen">
-            <!-- Header -->
-            <header class="bg-white shadow-md sticky top-0 z-40">
-                <div class="main-container py-3 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-blue-600 mr-2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                        </svg>
-                        <h1 class="text-2xl font-bold text-blue-700">Store Management</h1>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-sm text-gray-600" x-text="user.email || getPanelDisplayName(user.panelId)"></span>
-                        <button @click="logout()" class="btn btn-danger text-sm">Logout</button>
-                    </div>
-                </div>
-                 <!-- Navigation -->
-                <nav class="bg-gray-100 border-b border-gray-200" x-show="user.role === 'admin' || user.panelId">
-                    <div class="main-container flex space-x-2 sm:space-x-4 overflow-x-auto py-2">
-                        <!-- Admin Nav -->
-                        <template x-if="user.role === 'admin'">
-                            <div>
-                                <a href="#" @click.prevent="navigateTo('admin_dashboard')" :class="{'nav-link-active': currentView === 'admin_dashboard'}" class="nav-link">Dashboard (Orders)</a>
-                                <a href="#" @click.prevent="navigateTo('admin_add_product')" :class="{'nav-link-active': currentView === 'admin_add_product'}" class="nav-link">Add Product</a>
-                                <a href="#" @click.prevent="navigateTo('admin_stock_management')" :class="{'nav-link-active': currentView === 'admin_stock_management'}" class="nav-link">Stock & Restock</a>
-                                <a href="#" @click.prevent="navigateTo('admin_low_stock')" :class="{'nav-link-active': currentView === 'admin_low_stock'}" class="nav-link">Low Stock</a>
-                                <a href="#" @click.prevent="navigateTo('admin_returns')" :class="{'nav-link-active': currentView === 'admin_returns'}" class="nav-link">Product Returns</a>
-                                <a href="#" @click.prevent="navigateTo('admin_reports')" :class="{'nav-link-active': currentView === 'admin_reports'}" class="nav-link">Reports</a>
-                            </div>
-                        </template>
-                        <!-- Panel Nav -->
-                        <template x-if="user.panelId">
-                             <div>
-                                <a href="#" @click.prevent="navigateTo('panel_order')" :class="{'nav-link-active': currentView === 'panel_order'}" class="nav-link">Order Products</a>
-                                <a href="#" @click.prevent="navigateTo('panel_my_orders')" :class="{'nav-link-active': currentView === 'panel_my_orders'}" class="nav-link">My Orders</a>
-                            </div>
-                        </template>
-                    </div>
-                </nav>
-            </header>
-
-            <!-- Page Content -->
-            <main class="flex-grow main-container py-6">
-                <!-- Admin: Dashboard (Orders) -->
-                <div x-show="currentView === 'admin_dashboard'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Orders</h2>
-                    <div class="mb-4 flex space-x-2">
-                        <select x-model="adminOrderFilter.panel" class="input-field w-auto">
-                            <option value="all">All Panels</option>
-                            <option value="kitchen">Kitchen</option>
-                            <option value="men">Men Dept.</option>
-                            <option value="women">Women Dept.</option>
-                        </select>
-                        <select x-model="adminOrderFilter.status" class="input-field w-auto">
-                            <option value="pending">Pending</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled_by_user">Cancelled (User)</option>
-                            <option value="cancelled_by_admin">Cancelled (Admin)</option>
-                            <option value="all">All Statuses</option>
-                        </select>
-                         <input type="date" x-model="adminOrderFilter.date" class="input-field w-auto">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="order in filteredAdminOrders" :key="order.id">
-                            <div class="card">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="text-lg font-semibold text-blue-600" x-text="`Order #${order.id.substring(0,8)}`"></h3>
-                                    <span class="badge" :class="getOrderStatusClass(order.status)" x-text="formatOrderStatus(order.status)"></span>
-                                </div>
-                                <p class="text-sm text-gray-500 mb-1">Panel: <span class="font-medium" x-text="getPanelDisplayName(order.panel_id)"></span></p>
-                                <p class="text-sm text-gray-500 mb-3">Order Date: <span class="font-medium" x-text="formatDate(order.order_date)"></span></p>
-                                <div class="mb-3">
-                                    <h4 class="font-medium text-gray-700 mb-1">Items:</h4>
-                                    <ul class="list-disc list-inside text-sm space-y-1">
-                                        <template x-for="item in order.items" :key="item.productId">
-                                            <li x-text="`${item.name_en} (${item.name_ar || ''}) - ${item.quantity} ${item.unit}`"></li>
-                                        </template>
-                                    </ul>
-                                </div>
-                                <div x-show="order.status === 'pending'" class="flex space-x-2 mt-4">
-                                    <button @click="markOrderDelivered(order)" class="btn btn-success text-sm">Mark Delivered</button>
-                                    <button @click="showCancelOrderModal(order, 'admin')" class="btn btn-danger text-sm">Cancel Order</button>
-                                </div>
-                                <div x-show="order.status === 'delivered' && !isOrderOlderThanADay(order.delivered_date)" class="text-sm text-green-600 mt-2">
-                                    This order has been delivered.
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="filteredAdminOrders.length === 0" class="text-gray-500 col-span-full text-center py-8">
-                            No orders found. Try changing filters.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Admin: Add Product -->
-                <div x-show="currentView === 'admin_add_product'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Add New Product</h2>
-                    <form @submit.prevent="addProduct" class="card max-w-2xl mx-auto">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="productNameEn" class="block text-sm font-medium text-gray-700 mb-1">Product Name (English)</label>
-                                <input type="text" id="productNameEn" x-model="newProduct.name_en" class="input-field" required>
-                            </div>
-                            <div>
-                                <label for="productNameAr" class="block text-sm font-medium text-gray-700 mb-1">Product Name (Arabic)</label>
-                                <input type="text" id="productNameAr" x-model="newProduct.name_ar" class="input-field" dir="rtl">
-                            </div>
-                            <div>
-                                <label for="initialStock" class="block text-sm font-medium text-gray-700 mb-1">Initial Stock</label>
-                                <input type="number" id="initialStock" x-model.number="newProduct.current_stock" min="0" class="input-field" required>
-                            </div>
-                            <div>
-                                <label for="lowStockAlert" class="block text-sm font-medium text-gray-700 mb-1">Low Stock Alert Threshold</label>
-                                <input type="number" id="lowStockAlert" x-model.number="newProduct.low_stock_threshold" min="0" class="input-field" required>
-                            </div>
-                            <div>
-                                <label for="productUnit" class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                                <select id="productUnit" x-model="newProduct.unit" class="input-field" required>
-                                    <option value="piece">Piece</option>
-                                    <option value="kg">Kg</option>
-                                    <option value="liter">Liter</option>
-                                    <option value="carton">Carton</option>
-                                    <option value="packet">Packet</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Visible To Panels:</label>
-                                <div class="space-y-2 mt-1">
-                                    <div><label class="inline-flex items-center"><input type="checkbox" value="kitchen" x-model="newProduct.visible_to" class="form-checkbox h-5 w-5 text-blue-600 rounded"> <span class="ml-2 text-gray-700">Kitchen</span></label></div>
-                                    <div><label class="inline-flex items-center"><input type="checkbox" value="men" x-model="newProduct.visible_to" class="form-checkbox h-5 w-5 text-indigo-600 rounded"> <span class="ml-2 text-gray-700">Men Dept.</span></label></div>
-                                    <div><label class="inline-flex items-center"><input type="checkbox" value="women" x-model="newProduct.visible_to" class="form-checkbox h-5 w-5 text-pink-600 rounded"> <span class="ml-2 text-gray-700">Women Dept.</span></label></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-8 text-right">
-                            <button type="submit" class="btn btn-primary">Add Product</button>
-                        </div>
-                    </form>
-                     <!-- Product List for Editing/Viewing -->
-                    <div class="mt-10">
-                        <h3 class="text-xl font-semibold mb-4 text-gray-700">Existing Products</h3>
-                        <div class="table-responsive card">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name (EN)</th>
-                                        <th>Name (AR)</th>
-                                        <th>Stock</th>
-                                        <th>Unit</th>
-                                        <th>Visibility</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <template x-for="product in products" :key="product.id">
-                                        <tr>
-                                            <td x-text="product.name_en"></td>
-                                            <td x-text="product.name_ar || '-'" dir="rtl"></td>
-                                            <td x-text="product.current_stock"></td>
-                                            <td x-text="product.unit"></td>
-                                            <td>
-                                                <span x-text="product.visible_to && product.visible_to.length > 0 ? product.visible_to.map(p => getPanelDisplayName(p)).join(', ') : 'None'"></span>
-                                            </td>
-                                            <td>
-                                                <button @click="editProductModal(product)" class="text-blue-600 hover:text-blue-800 text-sm">Edit</button>
-                                                <button @click="confirmDeleteProduct(product.id)" class="text-red-600 hover:text-red-800 text-sm ml-2">Delete</button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <tr x-show="products.length === 0">
-                                        <td colspan="6" class="text-center py-4 text-gray-500">No products added yet.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Admin: Edit Product Modal -->
-                <div x-show="showEditProductModal" class="modal">
-                    <div class="modal-content max-w-2xl">
-                        <h3 class="text-xl font-semibold mb-4">Edit Product</h3>
-                        <form @submit.prevent="updateProduct">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Name (English)</label>
-                                    <input type="text" x-model="editingProduct.name_en" class="input-field" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Name (Arabic)</label>
-                                    <input type="text" x-model="editingProduct.name_ar" class="input-field" dir="rtl">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Low Stock Threshold</label>
-                                    <input type="number" x-model.number="editingProduct.low_stock_threshold" min="0" class="input-field" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                                    <select x-model="editingProduct.unit" class="input-field" required>
-                                        <option value="piece">Piece</option>
-                                        <option value="kg">Kg</option>
-                                        <option value="liter">Liter</option>
-                                        <option value="carton">Carton</option>
-                                        <option value="packet">Packet</option>
-                                    </select>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Visible To Panels:</label>
-                                    <div class="flex space-x-4 mt-1">
-                                        <label><input type="checkbox" value="kitchen" x-model="editingProduct.visible_to"> Kitchen</label>
-                                        <label><input type="checkbox" value="men" x-model="editingProduct.visible_to"> Men Dept.</label>
-                                        <label><input type="checkbox" value="women" x-model="editingProduct.visible_to"> Women Dept.</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-6 flex justify-end space-x-3">
-                                <button type="button" @click="showEditProductModal = false" class="btn btn-secondary">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Update Product</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-                <!-- Admin: Stock Management -->
-                <div x-show="currentView === 'admin_stock_management'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Stock & Restock Management</h2>
-                    <div class="table-responsive card">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name (EN)</th>
-                                    <th>Name (AR)</th>
-                                    <th>Current Stock</th>
-                                    <th>Unit</th>
-                                    <th>Restock</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <template x-for="product in products" :key="product.id">
-                                    <tr>
-                                        <td x-text="product.name_en"></td>
-                                        <td x-text="product.name_ar || '-'" dir="rtl"></td>
-                                        <td x-text="product.current_stock"></td>
-                                        <td x-text="product.unit"></td>
-                                        <td>
-                                            <div class="flex items-center space-x-2">
-                                                <input type="number" min="0" placeholder="Quantity" class="input-field !w-24 !py-1" :id="`restock_${product.id}`">
-                                                <button @click="restockProduct(product.id, document.getElementById(`restock_${product.id}`).value)" class="btn btn-success text-sm !py-1">Restock</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                                <tr x-show="products.length === 0">
-                                    <td colspan="5" class="text-center py-4 text-gray-500">No products found.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Admin: Low Stock Alerts -->
-                <div x-show="currentView === 'admin_low_stock'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Low Stock Alerts</h2>
-                    <div x-show="lowStockProducts.length === 0" class="card text-center text-gray-500 py-8">
-                        No products are currently low on stock.
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="product in lowStockProducts" :key="product.id">
-                            <div class="card border-l-4 border-orange-500">
-                                <h3 class="text-lg font-semibold text-orange-700" x-text="product.name_en"></h3>
-                                <p class="text-sm text-gray-600" x-text="`Arabic Name: ${product.name_ar || '-'}`" dir="rtl"></p>
-                                <p class="text-sm text-gray-600">Current Stock: <span class="font-bold" x-text="product.current_stock"></span> <span x-text="product.unit"></span></p>
-                                <p class="text-sm text-gray-600">Low Stock Level: <span class="font-bold" x-text="product.low_stock_threshold"></span> <span x-text="product.unit"></span></p>
-                                <div class="mt-3 text-right">
-                                     <button @click="navigateTo('admin_stock_management'); setTimeout(() => document.getElementById(`restock_${product.id}`).focus(), 100)" class="btn btn-warning text-sm">Restock Now</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Admin: Product Returns -->
-                <div x-show="currentView === 'admin_returns'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Product Returns (Damaged/Expired)</h2>
-                    <div class="card max-w-lg mx-auto">
-                        <div class="mb-4">
-                            <label for="returnProductSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Product</label>
-                            <select id="returnProductSelect" x-model="returnForm.productId" class="input-field">
-                                <option value="">-- Select a product --</option>
-                                <template x-for="product in products" :key="product.id">
-                                    <option :value="product.id" x-text="`${product.name_en} (Stock: ${product.current_stock} ${product.unit})`"></option>
-                                </template>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label for="returnQuantity" class="block text-sm font-medium text-gray-700 mb-1">Return Quantity</label>
-                            <input type="number" id="returnQuantity" x-model.number="returnForm.quantity" min="1" class="input-field">
-                        </div>
-                        <div class="mb-4">
-                            <label for="returnReason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Return</label>
-                            <textarea id="returnReason" x-model="returnForm.reason" rows="3" class="input-field" placeholder="e.g., Damaged, Expired"></textarea>
-                        </div>
-                        <button @click="processProductReturn" class="btn btn-danger w-full">Process Return</button>
-                    </div>
-                </div>
-
-                <!-- Admin: Reports -->
-                <div x-show="currentView === 'admin_reports'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Delivery Reports</h2>
-                    <div class="mb-4">
-                        <label for="reportMonthSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Month:</label>
-                        <select id="reportMonthSelect" x-model="selectedReportMonth" @change="generateDeliveryReport" class="input-field w-auto">
-                            <template x-for="(month, index) in lastThreeMonthsForReport" :key="index">
-                                <option :value="index" x-text="month.label"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <div x-show="deliveryReport.kitchen.length || deliveryReport.men.length || deliveryReport.women.length">
-                        <button @click="downloadReportAsPDF" class="btn btn-success mb-4">Download PDF</button>
-                    </div>
-                    
-                    <div id="reportContent">
-                        <div class="mb-6" x-show="deliveryReport.kitchen.length > 0">
-                            <h3 class="text-xl font-semibold mb-2 text-green-700">Kitchen Department</h3>
-                            <div class="table-responsive card">
-                                <table>
-                                    <thead><tr><th>Product Name</th><th>Total Quantity</th><th>Unit</th></tr></thead>
-                                    <tbody>
-                                        <template x-for="item in deliveryReport.kitchen" :key="item.productId">
-                                            <tr><td x-text="item.name_en"></td><td x-text="item.totalQuantity"></td><td x-text="item.unit"></td></tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="mb-6" x-show="deliveryReport.men.length > 0">
-                            <h3 class="text-xl font-semibold mb-2 text-indigo-700">Men Department</h3>
-                             <div class="table-responsive card">
-                                <table>
-                                    <thead><tr><th>Product Name</th><th>Total Quantity</th><th>Unit</th></tr></thead>
-                                    <tbody>
-                                        <template x-for="item in deliveryReport.men" :key="item.productId">
-                                            <tr><td x-text="item.name_en"></td><td x-text="item.totalQuantity"></td><td x-text="item.unit"></td></tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="mb-6" x-show="deliveryReport.women.length > 0">
-                            <h3 class="text-xl font-semibold mb-2 text-pink-700">Women Department (Family)</h3>
-                            <div class="table-responsive card">
-                                <table>
-                                    <thead><tr><th>Product Name</th><th>Total Quantity</th><th>Unit</th></tr></thead>
-                                    <tbody>
-                                        <template x-for="item in deliveryReport.women" :key="item.productId">
-                                            <tr><td x-text="item.name_en"></td><td x-text="item.totalQuantity"></td><td x-text="item.unit"></td></tr>
-                                        </template>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div x-show="!deliveryReport.kitchen.length && !deliveryReport.men.length && !deliveryReport.women.length && reportGenerated" class="text-gray-500 text-center py-8 card">
-                            No delivery data found for the selected month.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel: Order Products -->
-                <div x-show="currentView === 'panel_order'">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold text-gray-800" x-text="getPanelDisplayName(user.panelId) + ' - Order Products'"></h2>
-                        <button @click="showCartModal = true" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block mr-1">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                            </svg>
-                            Cart (<span x-text="cart.items.length"></span>)
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        <template x-for="product in panelProducts" :key="product.id">
-                            <div class="card flex flex-col justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-800" x-text="product.name_en"></h3>
-                                    <p class="text-sm text-gray-600 mb-1" x-text="product.name_ar || '-'" dir="rtl"></p>
-                                    <p class="text-xs text-gray-500 mb-2">Stock: <span x-text="product.current_stock > 0 ? (product.current_stock + ' ' + product.unit) : 'Out of Stock'" :class="{'text-red-500 font-semibold': product.current_stock === 0}"></span></p>
-                                </div>
-                                <div class="mt-auto">
-                                    <div x-show="product.current_stock > 0">
-                                        <div class="flex items-center justify-center space-x-2 mb-2">
-                                            <button @click="updateCartQuantity(product, getCartItemQuantity(product.id) - 1)" class="btn btn-secondary !p-2 rounded-full">-</button>
-                                            <span class="text-lg font-medium w-10 text-center" x-text="getCartItemQuantity(product.id)"></span>
-                                            <button @click="updateCartQuantity(product, getCartItemQuantity(product.id) + 1)" class="btn btn-primary !p-2 rounded-full">+</button>
-                                        </div>
-                                        <button @click="addToCart(product)" class="btn btn-success w-full text-sm" :disabled="getCartItemQuantity(product.id) === 0">
-                                            Add to Cart
-                                        </button>
-                                    </div>
-                                    <div x-show="product.current_stock === 0" class="text-center text-red-500 font-semibold p-2 bg-red-50 rounded-md">
-                                        Out of Stock
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                         <div x-show="panelProducts.length === 0" class="text-gray-500 col-span-full text-center py-8">
-                            No products found for this panel.
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- Panel: My Orders -->
-                <div x-show="currentView === 'panel_my_orders'">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">My Previous Orders</h2>
-                    <div x-show="myOrders.length === 0" class="card text-center text-gray-500 py-8">
-                        You haven't placed any orders yet.
-                    </div>
-                    <div class="space-y-6">
-                        <template x-for="order in myOrders" :key="order.id">
-                            <div class="card">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="text-lg font-semibold text-blue-600" x-text="`Order #${order.id.substring(0,8)}`"></h3>
-                                    <span class="badge" :class="getOrderStatusClass(order.status)" x-text="formatOrderStatus(order.status)"></span>
-                                </div>
-                                <p class="text-sm text-gray-500 mb-3">Order Date: <span class="font-medium" x-text="formatDate(order.order_date)"></span></p>
-                                <div class="mb-3">
-                                    <h4 class="font-medium text-gray-700 mb-1">Ordered Items:</h4>
-                                    <ul class="list-disc list-inside text-sm space-y-1">
-                                        <template x-for="item in order.items" :key="item.productId">
-                                            <li x-text="`${item.name_en} - ${item.quantity} ${item.unit}`"></li>
-                                        </template>
-                                    </ul>
-                                </div>
-                                <div x-show="order.status === 'pending'" class="mt-4 text-right">
-                                    <button @click="showCancelOrderModal(order, 'user')" class="btn btn-danger text-sm">Cancel Order</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </main>
-
-            <!-- Footer -->
-            <footer class="bg-gray-800 text-white text-center py-4">
-                <p>&copy; <span x-text="new Date().getFullYear()"></span> Store Management System. All rights reserved.</p>
-                <p class="text-xs" x-show="user && user.id">App ID: <span x-text="appId"></span> | User ID: <span x-text="user.id"></span></p>
-            </footer>
-        </div> <!-- End Main App Layout -->
-    </div> <!-- End Container Fluid -->
-
-    <!-- Cart Modal -->
-    <div x-show="showCartModal" class="modal" @click.away="showCartModal = false">
-        <div class="modal-content max-w-lg w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">Your Cart</h3>
-                <button @click="showCartModal = false" class="text-gray-500 hover:text-gray-700">&times;</button>
-            </div>
-            <div x-show="cart.items.length === 0" class="text-center text-gray-500 py-6">
-                Your cart is empty.
-            </div>
-            <div x-show="cart.items.length > 0">
-                <div class="space-y-3 max-h-80 overflow-y-auto mb-4 pr-2">
-                    <template x-for="(item, index) in cart.items" :key="item.productId">
-                        <div class="flex justify-between items-center p-2 border rounded-md">
-                            <div>
-                                <p class="font-medium" x-text="item.name_en"></p>
-                                <p class="text-sm text-gray-600" x-text="`${item.quantity} ${item.unit}`"></p>
-                            </div>
-                            <button @click="removeFromCart(item.productId)" class="text-red-500 hover:text-red-700 text-sm">Remove</button>
-                        </div>
-                    </template>
-                </div>
-                <button @click="placeOrder" class="btn btn-success w-full">Place Order</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cancel Order Modal -->
-    <div x-show="cancelOrderModal.show" class="modal">
-        <div class="modal-content">
-            <h3 class="text-lg font-semibold mb-2">Confirm Order Cancellation</h3>
-            <p>Are you sure you want to cancel this order (<span x-text="cancelOrderModal.orderId ? cancelOrderModal.orderId.substring(0,8) : ''"></span>)?</p>
-            <div x-show="cancelOrderModal.canceller === 'admin'">
-                 <label for="adminCancellationReason" class="block text-sm font-medium text-gray-700 mt-3 mb-1">Reason for cancellation (Admin)</label>
-                 <textarea id="adminCancellationReason" x-model="cancelOrderModal.reason" rows="2" class="input-field" placeholder="Specify reason (optional)"></textarea>
-            </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button @click="cancelOrderModal.show = false" class="btn btn-secondary">No</button>
-                <button @click="confirmCancelOrder" class="btn btn-danger">Yes, Cancel</button>
-            </div>
-        </div>
-    </div>
-
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            addDoc, 
-            updateDoc, 
-            deleteDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            onSnapshot, 
-            Timestamp,
-            writeBatch,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // DO NOT CHANGE THIS - Provided by Canvas Environment
-        const firebaseConfigFromHost = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        const initialAuthTokenFromHost = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appIdFromHost = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id-store-management';
-
-        // User's Firebase Config (fallback if host doesn't provide)
-        const userFirebaseConfig = {
-            apiKey: "AIzaSyBnvcS8kpOrebq66LzQ2hz5Kvv_z_pu5p4",
-            authDomain: "stock-5d278.firebaseapp.com",
-            projectId: "stock-5d278",
-            storageBucket: "stock-5d278.firebasestorage.app",
-            messagingSenderId: "730697386577",
-            appId: "1:730697386577:web:8b7ef78adac14ee5990670",
-            measurementId: "G-CFNVGX1S4W"
-        };
-
-        const firebaseConfig = firebaseConfigFromHost ? JSON.parse(firebaseConfigFromHost) : userFirebaseConfig;
-
-        let app;
-        let authInstance; // Renamed to avoid conflict with Alpine's auth property
-        let db;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            authInstance = getAuth(app);
-            db = getFirestore(app);
-            // console.log("Firebase Initialized Successfully");
-        } catch (error) {
-            console.error("Firebase Initialization Error:", error);
-            // Display a user-friendly error message on the page if Firebase fails to initialize
-            document.body.innerHTML = '<div style="text-align: center; padding: 50px; font-family: sans-serif; color: red;"><h1>Application Error</h1><p>Could not initialize critical services. Please try again later.</p></div>';
-        }
-        
-
-        const panelPasswords = {
-            kitchen: "KhamerK",
-            men: "KhamerM",
-            women: "KhamerF"
-        };
-
-        function storeApp() {
-            return {
-                // App State
-                isLoading: true, // Start with loading true
-                currentView: 'login', 
-                user: { id: null, email: null, role: null, panelId: null },
-                appId: appIdFromHost,
-                
-                // Login
-                loginForm: { email: '', password: '', panelPassword: '' },
-                selectedPanelForLogin: null,
-
-                // Admin Data
-                products: [], 
-                adminOrders: [], 
-                lowStockProducts: [],
-                adminOrderFilter: { panel: 'all', status: 'pending', date: '' },
-
-                // Admin Forms - Removed description_en, generatedAlert
-                newProduct: { name_en: '', name_ar: '', current_stock: 0, low_stock_threshold: 5, unit: 'piece', visible_to: [] },
-                editingProduct: { visible_to: [] }, 
-                showEditProductModal: false,
-                returnForm: { productId: '', quantity: 1, reason: '' },
-
-                // Panel Data
-                panelProducts: [], 
-                cart: { items: [] }, 
-                myOrders: [], 
-                showCartModal: false,
-
-                // Modals & Messages
-                globalMessage: { show: false, text: '', title: '', type: 'success' }, 
-                confirmModal: { show: false, title: '', message: '', confirmButtonText: 'Confirm', onConfirm: () => {}, onCancel: () => {} },
-                cancelOrderModal: { show: false, orderId: null, reason: '', canceller: null },
-                
-                // Reports
-                deliveryReport: { kitchen: [], men: [], women: [] },
-                lastThreeMonthsForReport: [],
-                selectedReportMonth: 0, 
-                reportGenerated: false,
-
-                // Firestore Unsubscribe Functions
-                unsubProducts: null,
-                unsubAdminOrders: null,
-                unsubMyOrders: null,
-
-
-                // Initialization
-                async init() {
-                    // console.log("Alpine init started");
-                    this.isLoading = true; // Ensure loading is true at start of init
-                    this.generateMonthListForReport();
-
-                    if (!authInstance || !db) {
-                        this.showGlobalMessage("Initialization Error", "Application services could not start. Please refresh.", "error");
-                        this.isLoading = false;
-                        return;
-                    }
-                    
-                    onAuthStateChanged(authInstance, async (currentUser) => {
-                        // console.log("Auth state changed. Current user:", currentUser);
-                        if (currentUser) {
-                            this.user.id = currentUser.uid;
-                            this.user.email = currentUser.email; 
-                            
-                            if (currentUser.email) { 
-                                const adminDocRef = doc(db, `artifacts/${this.appId}/users/${currentUser.uid}`);
-                                try {
-                                    const adminDocSnap = await getDoc(adminDocRef);
-                                    if (adminDocSnap.exists() && adminDocSnap.data().role === 'admin') {
-                                        this.user.role = 'admin';
-                                        this.currentView = 'admin_dashboard';
-                                        this.loadAdminData();
-                                    } else {
-                                        this.showGlobalMessage('Error', 'You do not have admin privileges.', 'error');
-                                        await this.logout(); 
-                                        return;
-                                    }
-                                } catch (error) {
-                                    console.error("Error fetching admin doc:", error);
-                                    this.showGlobalMessage('Error', 'Could not verify admin status.', 'error');
-                                    await this.logout();
-                                    return;
-                                }
-                            } else { 
-                                // Anonymous user (panel)
-                                // Panel ID should have been set during panel login flow before onAuthStateChanged is triggered by signInAnonymously
-                                if (!this.user.panelId) { 
-                                     // This can happen if user refreshes page while logged in as panel
-                                     // We need a way to persist panelId or guide re-login for panels
-                                     // For now, if panelId is lost, force logout to re-select panel
-                                     console.warn("Panel ID not found for anonymous user after auth state change. Forcing logout.");
-                                     await this.logout(); 
-                                     return;
-                                }
-                                this.currentView = 'panel_order';
-                                this.loadPanelData();
-                            }
-                        } else {
-                            this.user = { id: null, email: null, role: null, panelId: null };
-                            this.currentView = 'login';
-                            this.cleanupListeners(); 
-                        }
-                        this.isLoading = false; // Set loading false after auth processing
-                        // console.log("Alpine init auth processing done. isLoading:", this.isLoading, "Current View:", this.currentView);
-                    });
-
-                    // Handle initial auth token if provided by host (usually for first load)
-                    if (initialAuthTokenFromHost && !authInstance.currentUser) {
-                        try {
-                            await signInWithCustomToken(authInstance, initialAuthTokenFromHost);
-                            // onAuthStateChanged will handle the rest
-                        } catch (error) {
-                            console.error("Error signing in with custom token:", error);
-                            // If custom token fails, and still no user, isLoading might remain true
-                            // unless onAuthStateChanged fires with null user.
-                            if (!authInstance.currentUser) this.isLoading = false;
-                        }
-                    } else if (!authInstance.currentUser) {
-                         // No initial token and no current user, means we are on login page
-                        this.isLoading = false;
-                    }
-                    // console.log("Alpine init finished. isLoading:", this.isLoading);
-                },
-
-                cleanupListeners() {
-                    if (this.unsubProducts) this.unsubProducts();
-                    if (this.unsubAdminOrders) this.unsubAdminOrders();
-                    if (this.unsubMyOrders) this.unsubMyOrders();
-                    this.unsubProducts = null;
-                    this.unsubAdminOrders = null;
-                    this.unsubMyOrders = null;
-                },
-
-                // Authentication
-                async loginAdmin() {
-                    this.isLoading = true;
-                    try {
-                        const userCredential = await signInWithEmailAndPassword(authInstance, this.loginForm.email, this.loginForm.password);
-                        // onAuthStateChanged will handle UI update and data loading
-                        // Admin role check is now within onAuthStateChanged
-                    } catch (error) {
-                        console.error("Admin login error:", error);
-                        this.showGlobalMessage('Login Error', this.getFirebaseErrorMessage(error), 'error');
-                        this.isLoading = false; // Ensure loading is false on error
-                    }
-                    // isLoading will be set to false by onAuthStateChanged
-                },
-
-                async loginPanel() {
-                    if (!this.selectedPanelForLogin || !panelPasswords[this.selectedPanelForLogin]) {
-                        this.showGlobalMessage('Error', 'Invalid panel selection.', 'error');
-                        return;
-                    }
-                    if (this.loginForm.panelPassword === panelPasswords[this.selectedPanelForLogin]) {
-                        this.isLoading = true;
-                        try {
-                            if (authInstance.currentUser) { // If an admin or another panel was logged in
-                                await signOut(authInstance);
-                                // Clear previous user state immediately after sign out
-                                this.user = { id: null, email: null, role: null, panelId: null };
-                            }
-                            // IMPORTANT: Set panelId on the Alpine user object *before* signInAnonymously
-                            // because onAuthStateChanged might fire quickly.
-                            this.user.panelId = this.selectedPanelForLogin; 
-                            
-                            await signInAnonymously(authInstance);
-                            // onAuthStateChanged will pick up the anonymous user.
-                            // this.user.panelId is already set, so loadPanelData should work correctly.
-                            
-                            this.selectedPanelForLogin = null; 
-                            this.loginForm.panelPassword = '';
-                            // isLoading will be set to false by onAuthStateChanged
-                        } catch (error) {
-                            console.error("Panel login error (anonymous sign-in):", error);
-                            this.showGlobalMessage('Panel Login Error', this.getFirebaseErrorMessage(error), 'error');
-                            this.user.panelId = null; // Clear panelId on error
-                            this.isLoading = false; // Ensure loading is false on error
-                        }
-                    } else {
-                        this.showGlobalMessage('Login Error', 'Incorrect password.', 'error');
-                    }
-                },
-
-                async logout() {
-                    this.isLoading = true;
-                    const currentPanel = this.user.panelId; 
-                    if (authInstance.currentUser) {
-                        await signOut(authInstance);
-                    }
-                    // State reset is handled by onAuthStateChanged(null)
-                    // but we can pre-set some UI elements for faster feedback
-                    this.currentView = 'login';
-                    this.selectedPanelForLogin = currentPanel || null; 
-                    this.loginForm = { email: '', password: '', panelPassword: '' };
-                    this.cart = { items: [] };
-                    // isLoading will be set to false by onAuthStateChanged
-                },
-
-
-                // Data Loading
-                loadAdminData() {
-                    // console.log("Loading admin data...");
-                    this.listenToProducts();
-                    this.listenToAdminOrders();
-                    this.generateDeliveryReport(); 
-                },
-                loadPanelData() {
-                    // console.log("Loading panel data for panel:", this.user.panelId);
-                    this.listenToProducts(); 
-                    this.listenToMyOrders();
-                    // loadPanelSpecificProducts will be called by listenToProducts after products are loaded
-                },
-
-                // Firestore Listeners
-                listenToProducts() {
-                    if (this.unsubProducts) this.unsubProducts();
-                    const productsCol = collection(db, `artifacts/${this.appId}/public/data/products`);
-                    this.unsubProducts = onSnapshot(productsCol, (snapshot) => {
-                        this.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                        this.updateLowStockProducts();
-                        if (this.user.panelId) { 
-                            this.loadPanelSpecificProducts();
-                        }
-                         if (this.currentView === 'admin_reports') { 
-                            this.generateDeliveryReport();
-                        }
-                        // console.log("Products loaded/updated:", this.products.length);
-                    }, error => {
-                        console.error("Error listening to products:", error);
-                        this.showGlobalMessage("Error", "Failed to load product list.", "error");
-                    });
-                },
-
-                listenToAdminOrders() {
-                    if (this.unsubAdminOrders) this.unsubAdminOrders();
-                    const ordersCol = collection(db, `artifacts/${this.appId}/public/data/orders`);
-                    this.unsubAdminOrders = onSnapshot(ordersCol, (snapshot) => {
-                        this.adminOrders = snapshot.docs.map(d => ({ 
-                            id: d.id, 
-                            ...d.data(),
-                            order_date: d.data().order_date?.toDate ? d.data().order_date.toDate() : (d.data().order_date || null),
-                            delivered_date: d.data().delivered_date?.toDate ? d.data().delivered_date.toDate() : (d.data().delivered_date || null),
-                            cancelled_date: d.data().cancelled_date?.toDate ? d.data().cancelled_date.toDate() : (d.data().cancelled_date || null),
-                        })).sort((a, b) => (b.order_date || 0) - (a.order_date || 0)); 
-                        if (this.currentView === 'admin_reports') {
-                            this.generateDeliveryReport();
-                        }
-                        // console.log("Admin orders loaded/updated:", this.adminOrders.length);
-                    }, error => {
-                        console.error("Error listening to admin orders:", error);
-                        this.showGlobalMessage("Error", "Failed to load order list.", "error");
-                    });
-                },
-                
-                listenToMyOrders() {
-                    if (this.unsubMyOrders) this.unsubMyOrders();
-                    if (!this.user.id) return; 
-
-                    const ordersCol = collection(db, `artifacts/${this.appId}/public/data/orders`);
-                    const q = query(ordersCol, where("panel_user_id", "==", this.user.id)); 
-                    
-                    this.unsubMyOrders = onSnapshot(q, (snapshot) => {
-                        this.myOrders = snapshot.docs.map(d => ({ 
-                            id: d.id, 
-                            ...d.data(),
-                            order_date: d.data().order_date?.toDate ? d.data().order_date.toDate() : (d.data().order_date || null),
-                            delivered_date: d.data().delivered_date?.toDate ? d.data().delivered_date.toDate() : (d.data().delivered_date || null),
-                            cancelled_date: d.data().cancelled_date?.toDate ? d.data().cancelled_date.toDate() : (d.data().cancelled_date || null),
-                        })).sort((a, b) => (b.order_date || 0) - (a.order_date || 0));
-                        // console.log("My orders loaded/updated:", this.myOrders.length);
-                    }, error => {
-                        console.error("Error listening to my orders:", error);
-                        this.showGlobalMessage("Error", "Failed to load your order list.", "error");
-                    });
-                },
-
-                // Computed Properties (as methods for Alpine)
-                get filteredAdminOrders() {
-                    let orders = this.adminOrders;
-                    if (this.adminOrderFilter.panel !== 'all') {
-                        orders = orders.filter(o => o.panel_id === this.adminOrderFilter.panel);
-                    }
-                    if (this.adminOrderFilter.status !== 'all') {
-                        orders = orders.filter(o => o.status === this.adminOrderFilter.status);
-                    }
-                    if (this.adminOrderFilter.date) {
-                        orders = orders.filter(o => o.order_date && this.formatDate(o.order_date, 'YYYY-MM-DD') === this.adminOrderFilter.date);
-                    }
-                    return orders;
-                },
-
-                updateLowStockProducts() {
-                    this.lowStockProducts = this.products
-                        .filter(p => p.current_stock < p.low_stock_threshold);
-                },
-
-                loadPanelSpecificProducts() {
-                    if (!this.user.panelId) {
-                        this.panelProducts = [];
-                        return;
-                    }
-                    this.panelProducts = this.products.filter(p => Array.isArray(p.visible_to) && p.visible_to.includes(this.user.panelId));
-                    // console.log("Panel specific products for", this.user.panelId, ":", this.panelProducts.length);
-                },
-
-                // Admin Actions
-                async addProduct() {
-                    this.isLoading = true;
-                    if (!this.newProduct.name_en || this.newProduct.visible_to.length === 0) { // name_ar is optional
-                        this.showGlobalMessage("Form Error", "Please fill in English Name and select at least one panel.", "error");
-                        this.isLoading = false;
-                        return;
-                    }
-                    try {
-                        const productCol = collection(db, `artifacts/${this.appId}/public/data/products`);
-                        const productData = { 
-                            ...this.newProduct, 
-                            created_at: serverTimestamp(),
-                            added_by: this.user.id 
-                        };
-                        const docRef = await addDoc(productCol, productData);
-
-                        if (this.newProduct.current_stock > 0) {
-                            const stockMovementsCol = collection(db, `artifacts/${this.appId}/public/data/stock_movements`);
-                            await addDoc(stockMovementsCol, {
-                                productId: docRef.id,
-                                productName: this.newProduct.name_en,
-                                type: "initial_stock",
-                                quantity_change: this.newProduct.current_stock,
-                                unit: this.newProduct.unit,
-                                timestamp: serverTimestamp(),
-                                reason: "New product added"
-                            });
-                        }
-
-                        this.showGlobalMessage("Success", `Product '${this.newProduct.name_en}' added successfully.`);
-                        this.newProduct = { name_en: '', name_ar: '', current_stock: 0, low_stock_threshold: 5, unit: 'piece', visible_to: [] };
-                    } catch (error) {
-                        console.error("Error adding product:", error);
-                        this.showGlobalMessage("Error", "Failed to add product: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-                
-                editProductModal(product) {
-                    this.editingProduct = JSON.parse(JSON.stringify(product)); 
-                    if (!Array.isArray(this.editingProduct.visible_to)) { 
-                        this.editingProduct.visible_to = [];
-                    }
-                    this.showEditProductModal = true;
-                },
-
-                async updateProduct() {
-                    this.isLoading = true;
-                    if (!this.editingProduct.id) return;
-                    try {
-                        const productRef = doc(db, `artifacts/${this.appId}/public/data/products/${this.editingProduct.id}`);
-                        const { id, current_stock, created_at, added_by, ...updateData } = this.editingProduct;
-                        await updateDoc(productRef, updateData);
-                        this.showGlobalMessage("Success", "Product updated successfully.");
-                        this.showEditProductModal = false;
-                    } catch (error) {
-                        console.error("Error updating product:", error);
-                        this.showGlobalMessage("Error", "Failed to update product: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-                
-                confirmDeleteProduct(productId) {
-                    this.confirmModal = {
-                        show: true,
-                        title: 'Delete Product',
-                        message: 'Are you sure you want to delete this product? This action cannot be undone.',
-                        confirmButtonText: 'Yes, Delete',
-                        onConfirm: () => this.deleteProduct(productId),
-                        onCancel: () => {}
-                    };
-                },
-
-                async deleteProduct(productId) {
-                    this.isLoading = true;
-                    try {
-                        const productRef = doc(db, `artifacts/${this.appId}/public/data/products/${productId}`);
-                        await deleteDoc(productRef);
-                        this.showGlobalMessage("Success", "Product deleted successfully.");
-                    } catch (error) {
-                        console.error("Error deleting product:", error);
-                        this.showGlobalMessage("Error", "Failed to delete product: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-
-
-                async restockProduct(productId, quantityStr) {
-                    const quantity = parseInt(quantityStr);
-                    if (isNaN(quantity) || quantity <= 0) {
-                        this.showGlobalMessage("Error", "Please enter a valid quantity.", "error");
-                        return;
-                    }
-                    this.isLoading = true;
-                    const productRef = doc(db, `artifacts/${this.appId}/public/data/products/${productId}`);
-                    try {
-                        const productSnap = await getDoc(productRef);
-                        if (!productSnap.exists()) {
-                            this.showGlobalMessage("Error", "Product not found.", "error");
-                            this.isLoading = false;
-                            return;
-                        }
-                        const productData = productSnap.data();
-                        const newStock = (productData.current_stock || 0) + quantity;
-                        
-                        const batch = writeBatch(db);
-                        batch.update(productRef, { current_stock: newStock });
-
-                        const stockMovementsCol = collection(db, `artifacts/${this.appId}/public/data/stock_movements`);
-                        const movementDocRef = doc(stockMovementsCol); 
-                        batch.set(movementDocRef, {
-                            productId: productId,
-                            productName: productData.name_en,
-                            type: "restock",
-                            quantity_change: quantity, 
-                            unit: productData.unit,
-                            timestamp: serverTimestamp(),
-                            reason: `Admin restocked ${quantity} ${productData.unit}`
-                        });
-                        
-                        await batch.commit();
-
-                        this.showGlobalMessage("Success", `${productData.name_en} (${quantity} ${productData.unit}) restocked. New stock: ${newStock} ${productData.unit}`);
-                        document.getElementById(`restock_${productId}`).value = ''; 
-                    } catch (error) {
-                        console.error("Error restocking product:", error);
-                        this.showGlobalMessage("Error", "Failed to restock product: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-
-                async markOrderDelivered(order) {
-                    this.confirmModal = {
-                        show: true,
-                        title: 'Confirm Order Delivery',
-                        message: `Are you sure order #${order.id.substring(0,8)} (${this.getPanelDisplayName(order.panel_id)}) has been delivered? Stock will be updated.`,
-                        confirmButtonText: 'Yes, Delivered',
-                        onConfirm: async () => {
-                            this.isLoading = true;
-                            const orderRef = doc(db, `artifacts/${this.appId}/public/data/orders/${order.id}`);
-                            const batch = writeBatch(db);
-
-                            try {
-                                let canFulfill = true;
-                                const productUpdates = [];
-                                const stockMovementItems = []; 
-
-                                for (const item of order.items) {
-                                    const productRef = doc(db, `artifacts/${this.appId}/public/data/products/${item.productId}`);
-                                    const productSnap = await getDoc(productRef);
-                                    if (!productSnap.exists() || productSnap.data().current_stock < item.quantity) {
-                                        canFulfill = false;
-                                        this.showGlobalMessage("Out of Stock", `Product "${item.name_en}" has insufficient stock (${productSnap.data().current_stock || 0} ${item.unit}). Ordered: ${item.quantity} ${item.unit}`, "error");
-                                        this.isLoading = false;
-                                        return;
-                                    }
-                                    productUpdates.push({
-                                        ref: productRef,
-                                        newStock: productSnap.data().current_stock - item.quantity,
-                                    });
-                                    stockMovementItems.push({ 
-                                        productId: item.productId,
-                                        productName: productSnap.data().name_en,
-                                        quantity: item.quantity,
-                                        unit: productSnap.data().unit
-                                    });
-                                }
-
-                                if (!canFulfill) { 
-                                    this.isLoading = false;
-                                    return;
-                                }
-
-                                batch.update(orderRef, { status: "delivered", delivered_date: serverTimestamp() });
-
-                                const stockMovementsCol = collection(db, `artifacts/${this.appId}/public/data/stock_movements`);
-                                for (let i = 0; i < productUpdates.length; i++) {
-                                    const pu = productUpdates[i];
-                                    const smItem = stockMovementItems[i];
-                                    batch.update(pu.ref, { current_stock: pu.newStock });
-                                    
-                                    const movementDocRef = doc(stockMovementsCol); 
-                                    batch.set(movementDocRef, {
-                                        productId: smItem.productId,
-                                        productName: smItem.productName,
-                                        type: "delivery",
-                                        quantity_change: -smItem.quantity, 
-                                        unit: smItem.unit,
-                                        related_order_id: order.id,
-                                        panel_id: order.panel_id,
-                                        timestamp: serverTimestamp(),
-                                        reason: `Order #${order.id.substring(0,8)} delivered`
-                                    });
-                                }
-                                
-                                await batch.commit();
-                                this.showGlobalMessage("Success", `Order #${order.id.substring(0,8)} marked as delivered. Stock updated.`);
-                            } catch (error) {
-                                console.error("Error marking order delivered:", error);
-                                this.showGlobalMessage("Error", "Failed to mark order as delivered: " + error.message, "error");
-                            }
-                            this.isLoading = false;
-                        },
-                        onCancel: () => {}
-                    };
-                },
-                
-                showCancelOrderModal(order, canceller) { 
-                    this.cancelOrderModal.orderId = order.id;
-                    this.cancelOrderModal.reason = '';
-                    this.cancelOrderModal.canceller = canceller;
-                    this.cancelOrderModal.show = true;
-                },
-
-                async confirmCancelOrder() {
-                    const orderId = this.cancelOrderModal.orderId;
-                    const reason = this.cancelOrderModal.reason;
-                    const canceller = this.cancelOrderModal.canceller;
-                    
-                    if (!orderId || !canceller) return;
-
-                    this.isLoading = true;
-                    this.cancelOrderModal.show = false;
-                    const orderRef = doc(db, `artifacts/${this.appId}/public/data/orders/${orderId}`);
-                    try {
-                        const newStatus = canceller === 'admin' ? 'cancelled_by_admin' : 'cancelled_by_user';
-                        await updateDoc(orderRef, { 
-                            status: newStatus, 
-                            cancelled_date: serverTimestamp(),
-                            cancellation_reason: reason || (canceller === 'admin' ? 'Cancelled by Admin' : 'Cancelled by User')
-                        });
-                        this.showGlobalMessage("Success", `Order #${orderId.substring(0,8)} cancelled successfully.`);
-                    } catch (error) {
-                        console.error("Error cancelling order:", error);
-                        this.showGlobalMessage("Error", "Failed to cancel order: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-
-                async processProductReturn() {
-                    const { productId, quantity, reason } = this.returnForm;
-                    if (!productId || !quantity || quantity <= 0 || !reason) {
-                        this.showGlobalMessage("Form Error", "Please fill in all fields.", "error");
-                        return;
-                    }
-                    this.isLoading = true;
-                    const productRef = doc(db, `artifacts/${this.appId}/public/data/products/${productId}`);
-                    try {
-                        const productSnap = await getDoc(productRef);
-                        if (!productSnap.exists()) {
-                            this.showGlobalMessage("Error", "Product not found.", "error");
-                            this.isLoading = false; return;
-                        }
-                        const productData = productSnap.data();
-                        if (productData.current_stock < quantity) {
-                            this.showGlobalMessage("Error", `Insufficient stock for "${productData.name_en}" (${productData.current_stock} ${productData.unit}) to return.`, "error");
-                            this.isLoading = false; return;
-                        }
-
-                        const newStock = productData.current_stock - quantity;
-                        
-                        const batch = writeBatch(db);
-                        batch.update(productRef, { current_stock: newStock });
-
-                        const stockMovementsCol = collection(db, `artifacts/${this.appId}/public/data/stock_movements`);
-                        const movementDocRef = doc(stockMovementsCol);
-                        batch.set(movementDocRef, {
-                            productId: productId,
-                            productName: productData.name_en,
-                            type: "return_damage_expired",
-                            quantity_change: -quantity, 
-                            unit: productData.unit,
-                            timestamp: serverTimestamp(),
-                            reason: `Product return: ${reason} (${quantity} ${productData.unit})`
-                        });
-                        
-                        await batch.commit();
-
-                        this.showGlobalMessage("Success", `${productData.name_en} (${quantity} ${productData.unit}) processed as returned. Stock updated.`);
-                        this.returnForm = { productId: '', quantity: 1, reason: '' };
-                    } catch (error)
-{
-                        console.error("Error processing product return:", error);
-                        this.showGlobalMessage("Error", "Failed to process product return: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-
-                // Panel Actions
-                addToCart(product) {
-                    if (product.current_stock === 0) {
-                        this.showGlobalMessage("Out of Stock", `Sorry, ${product.name_en} is currently out of stock.`, "error");
-                        return;
-                    }
-                    const existingItem = this.cart.items.find(item => item.productId === product.id);
-                    if (existingItem) {
-                        if (existingItem.quantity < product.current_stock) {
-                            existingItem.quantity++;
-                        } else {
-                             this.showGlobalMessage("Limit Reached", `You have added the maximum available stock (${product.current_stock}) for ${product.name_en} to your cart.`, "warning");
-                        }
-                    } else {
-                        this.cart.items.push({ 
-                            productId: product.id, 
-                            name_en: product.name_en, 
-                            name_ar: product.name_ar, 
-                            quantity: 1, 
-                            unit: product.unit,
-                            stock_at_add: product.current_stock 
-                        });
-                    }
-                },
-                updateCartQuantity(product, newQuantity) {
-                    const existingItem = this.cart.items.find(item => item.productId === product.id);
-                    if (newQuantity <= 0) {
-                        this.removeFromCart(product.id);
-                        return;
-                    }
-                    if (newQuantity > product.current_stock) {
-                        this.showGlobalMessage("Limit Reached", `Cannot order more than ${product.current_stock} ${product.unit} for ${product.name_en}.`, "warning");
-                        if(existingItem) existingItem.quantity = product.current_stock;
-                        return;
-                    }
-
-                    if (existingItem) {
-                        existingItem.quantity = newQuantity;
-                    } else if (newQuantity > 0) { 
-                         this.cart.items.push({ 
-                            productId: product.id, 
-                            name_en: product.name_en, 
-                            name_ar: product.name_ar, 
-                            quantity: newQuantity, 
-                            unit: product.unit,
-                            stock_at_add: product.current_stock
-                        });
-                    }
-                },
-                getCartItemQuantity(productId) {
-                    const item = this.cart.items.find(i => i.productId === productId);
-                    return item ? item.quantity : 0;
-                },
-                removeFromCart(productId) {
-                    this.cart.items = this.cart.items.filter(item => item.productId !== productId);
-                },
-                async placeOrder() {
-                    if (this.cart.items.length === 0) {
-                        this.showGlobalMessage("Empty Cart", "Please add items to your cart before placing an order.", "error");
-                        return;
-                    }
-                    this.isLoading = true;
-                    this.showCartModal = false;
-                    
-                    const orderData = {
-                        panel_id: this.user.panelId,
-                        panel_user_id: this.user.id, 
-                        created_by_uid: this.user.id, 
-                        items: this.cart.items.map(item => ({ 
-                            productId: item.productId,
-                            name_en: item.name_en,
-                            name_ar: item.name_ar,
-                            quantity: item.quantity,
-                            unit: item.unit
-                        })),
-                        status: "pending",
-                        order_date: serverTimestamp(),
-                    };
-
-                    try {
-                        const ordersCol = collection(db, `artifacts/${this.appId}/public/data/orders`);
-                        await addDoc(ordersCol, orderData);
-                        this.showGlobalMessage("Success", "Your order has been placed successfully. Awaiting admin review.");
-                        this.cart = { items: [] }; 
-                    } catch (error) {
-                        console.error("Error placing order:", error);
-                        this.showGlobalMessage("Error", "Failed to place order: " + error.message, "error");
-                    }
-                    this.isLoading = false;
-                },
-
-                // Reporting
-                generateMonthListForReport() {
-                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    let date = new Date();
-                    this.lastThreeMonthsForReport = [];
-
-                    for (let i = 0; i < 3; i++) {
-                        let currentMonth = date.getMonth();
-                        let currentYear = date.getFullYear();
-                        let startDay = 20;
-                        let endDay = 19; 
-
-                        let startDate, endDate;
-
-                        if (date.getDate() < startDay) {
-                           startDate = new Date(currentYear, currentMonth - 1, startDay);
-                           endDate = new Date(currentYear, currentMonth, endDay, 23, 59, 59, 999);
-                        } else {
-                           startDate = new Date(currentYear, currentMonth, startDay);
-                           endDate = new Date(currentYear, currentMonth + 1, endDay, 23, 59, 59, 999);
-                        }
-                        
-                        this.lastThreeMonthsForReport.push({
-                            label: `${months[startDate.getMonth()]} ${startDay}, ${startDate.getFullYear()} - ${months[endDate.getMonth()]} ${endDay}, ${endDate.getFullYear()}`,
-                            startDate: startDate,
-                            endDate: endDate
-                        });
-                        
-                        date = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() -1);
-                    }
-                },
-
-                async generateDeliveryReport() {
-                    this.isLoading = true;
-                    this.reportGenerated = false;
-                    const selectedPeriod = this.lastThreeMonthsForReport[this.selectedReportMonth];
-                    if (!selectedPeriod) {
-                        this.deliveryReport = { kitchen: [], men: [], women: [] };
-                        this.isLoading = false;
-                        return;
-                    }
-
-                    const { startDate, endDate } = selectedPeriod;
-                    
-                    const deliveredOrders = this.adminOrders.filter(order => 
-                        order.status === 'delivered' && 
-                        order.delivered_date &&
-                        order.delivered_date >= startDate && 
-                        order.delivered_date <= endDate
-                    );
-
-                    const report = { kitchen: {}, men: {}, women: {} }; 
-
-                    deliveredOrders.forEach(order => {
-                        const panelKey = order.panel_id; 
-                        if (report[panelKey]) {
-                            order.items.forEach(item => {
-                                if (report[panelKey][item.productId]) {
-                                    report[panelKey][item.productId].totalQuantity += item.quantity;
-                                } else {
-                                    report[panelKey][item.productId] = {
-                                        productId: item.productId,
-                                        name_en: item.name_en,
-                                        name_ar: item.name_ar,
-                                        unit: item.unit,
-                                        totalQuantity: item.quantity
-                                    };
-                                }
-                            });
-                        }
-                    });
-                    
-                    this.deliveryReport.kitchen = Object.values(report.kitchen || {});
-                    this.deliveryReport.men = Object.values(report.men || {});
-                    this.deliveryReport.women = Object.values(report.women || {});
-                    this.reportGenerated = true;
-                    this.isLoading = false;
-                },
-
-                downloadReportAsPDF() {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    const selectedPeriod = this.lastThreeMonthsForReport[this.selectedReportMonth];
-                    const reportTitle = `Delivery Report (${selectedPeriod.label})`;
-                    
-                    doc.setFont('Helvetica', 'normal'); 
-                    doc.setFontSize(18);
-                    doc.text(reportTitle, 14, 20);
-                    
-                    let yPos = 30;
-
-                    const addSectionToPdf = (title, data) => {
-                        if (data.length === 0) return;
-                        doc.setFontSize(14);
-                        doc.text(title, 14, yPos);
-                        yPos += 7;
-                        doc.autoTable({
-                            startY: yPos,
-                            head: [['Product Name (EN)', 'Product Name (AR)', 'Total Quantity', 'Unit']], 
-                            body: data.map(item => [item.name_en, item.name_ar || '-', item.totalQuantity, item.unit]), // Added fallback for name_ar
-                            theme: 'grid',
-                            styles: { font: 'Helvetica', fontSize: 10 }, 
-                            headStyles: { fillColor: [22, 160, 133], fontStyle: 'bold' }, 
-                        });
-                        yPos = doc.lastAutoTable.finalY + 10;
-                    };
-
-                    addSectionToPdf('Kitchen Department', this.deliveryReport.kitchen); 
-                    addSectionToPdf('Men Department', this.deliveryReport.men);
-                    addSectionToPdf('Women Department (Family)', this.deliveryReport.women);
-
-                    if (yPos === 30) { 
-                        doc.setFontSize(12);
-                        doc.text('No delivery data found for this month.', 14, yPos); 
-                    }
-                    
-                    doc.save(`Delivery_Report_${selectedPeriod.label.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
-                },
-
-                // UI Helpers
-                navigateTo(view) {
-                    this.currentView = view;
-                    if (view === 'admin_reports') this.generateDeliveryReport();
-                    if (view === 'admin_low_stock') this.updateLowStockProducts();
-                    if (view === 'panel_order') this.loadPanelSpecificProducts();
-                },
-                showGlobalMessage(title, text, type = 'success') {
-                    this.globalMessage = { show: true, title, text, type };
-                    setTimeout(() => { this.globalMessage.show = false; }, 4000);
-                },
-                getPanelDisplayName(panelId) {
-                    const names = { kitchen: 'Kitchen', men: 'Men Dept.', women: 'Women Dept.' }; // Changed to English
-                    return names[panelId] || panelId;
-                },
-                formatDate(timestamp, format = 'DD/MM/YYYY hh:mm A') {
-                    if (!timestamp) return 'N/A';
-                    let date;
-                    if (timestamp instanceof Date) {
-                        date = timestamp;
-                    } else if (timestamp && typeof timestamp.toDate === 'function') { 
-                        date = timestamp.toDate();
-                    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
-                        date = new Date(timestamp);
-                    } else {
-                        return 'Invalid Date';
-                    }
-
-                    if (isNaN(date.getTime())) return 'Invalid Date';
-
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear();
-                    let hours = date.getHours();
-                    const minutes = String(date.getMinutes()).padStart(2, '0');
-                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                    hours = hours % 12;
-                    hours = hours ? hours : 12; 
-                    const strHours = String(hours).padStart(2, '0');
-
-                    if (format === 'YYYY-MM-DD') return `${year}-${month}-${day}`;
-                    return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
-                },
-                getOrderStatusClass(status) {
-                    if (status === 'pending') return 'badge-pending';
-                    if (status === 'delivered') return 'badge-delivered';
-                    if (status === 'cancelled_by_user' || status === 'cancelled_by_admin') return 'badge-cancelled';
-                    return 'bg-gray-200 text-gray-800';
-                },
-                formatOrderStatus(status) {
-                    const statuses = { // Changed to English
-                        pending: 'Pending',
-                        delivered: 'Delivered',
-                        cancelled_by_user: 'Cancelled (User)',
-                        cancelled_by_admin: 'Cancelled (Admin)'
-                    };
-                    return statuses[status] || status;
-                },
-                isOrderOlderThanADay(deliveredDate) {
-                    if (!deliveredDate) return false;
-                    const now = new Date();
-                    const oneDay = 24 * 60 * 60 * 1000; 
-                    let dDate = deliveredDate;
-                    if (deliveredDate && typeof deliveredDate.toDate === 'function') { 
-                        dDate = deliveredDate.toDate();
-                    } else if (!(deliveredDate instanceof Date)) {
-                        dDate = new Date(deliveredDate);
-                    }
-                    return (now.getTime() - dDate.getTime()) > oneDay;
-                },
-                getFirebaseErrorMessage(error) { // Changed to English
-                    switch (error.code) {
-                        case 'auth/invalid-email': return 'Invalid email format.';
-                        case 'auth/user-not-found': return 'No user found with this email.';
-                        case 'auth/wrong-password': return 'Incorrect password.';
-                        case 'auth/email-already-in-use': return 'This email is already in use.';
-                        case 'auth/weak-password': return 'Password is too weak. Please use a stronger password.';
-                        default: return error.message || 'An unknown error occurred.';
-                    }
-                }
-            }
-        }
-    </script>
 </body>
 </html>
