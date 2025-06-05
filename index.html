@@ -21,6 +21,7 @@
             --success-color: #198754; /* Green for success */
             --danger-color: #dc3545; /* Red for danger/errors */
             --info-color: #0dcaf0;   /* Teal for info */
+            --warning-color: #ffc107; /* Yellow for warning */
             --white-color: #ffffff;
             --font-family-sans-serif: 'Roboto', sans-serif;
             --border-radius: 0.375rem; /* Consistent border radius */
@@ -175,7 +176,7 @@
          }
 
 
-        .button-primary, .button-success, .button-danger, .button-info, .button-secondary {
+        .button-primary, .button-success, .button-danger, .button-info, .button-secondary, .button-warning {
             border: none;
             padding: 10px 20px;
             border-radius: var(--border-radius);
@@ -227,6 +228,15 @@
             background-color: #5c636a; /* Darker shade of secondary */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .button-warning {
+            background-color: var(--warning-color);
+            color: var(--text-color); /* Dark text on yellow for readability */
+        }
+        .button-warning:hover {
+            background-color: #ffba00; /* Darker yellow */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         .button-outline-primary {
             background-color: transparent;
             color: var(--primary-color);
@@ -239,7 +249,7 @@
 
 
         /* Order Item & Card Styles */
-        .order-item, .user-order-item, .stock-item, .alert-item, .product-item {
+        .order-item, .user-order-item, .stock-item, .alert-item, .product-item, .return-notification-item {
             border: 1px solid var(--border-color);
             padding: 15px;
             margin-bottom: 15px;
@@ -248,17 +258,22 @@
             box-shadow: var(--box-shadow);
             transition: box-shadow 0.2s ease;
         }
-        .order-item:hover, .user-order-item:hover, .stock-item:hover, .alert-item:hover, .product-item:hover {
+        .order-item:hover, .user-order-item:hover, .stock-item:hover, .alert-item:hover, .product-item:hover, .return-notification-item:hover {
             box-shadow: var(--box-shadow-lg);
         }
 
-        .order-item h4, .user-order-item h4, .product-item h4 {
+        .order-item h4, .user-order-item h4, .product-item h4, .return-notification-item h4 {
             color: var(--primary-color);
             margin-top: 0;
             margin-bottom: 10px;
             font-size: 1.15em;
             font-weight: 600;
         }
+         .return-notification-item p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
 
         .order-item ul, .user-order-item ul, .editable-order-item ul {
             list-style-type: none; /* Cleaner list */
@@ -587,11 +602,6 @@
             background-color: var(--primary-color);
         }
 
-        /* Ensure button classes in HTML are updated for new scheme */
-        /* e.g., class="button-success" for green, class="button-danger" for red */
-        /* Add class="button-primary" for main action buttons */
-
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -638,7 +648,7 @@
             .content-section h2 {
                 font-size: 1.15em;
             }
-             .input-field, select, .button-primary, .button-success, .button-danger, .button-info, .button-secondary  {
+             .input-field, select, .button-primary, .button-success, .button-danger, .button-info, .button-secondary, .button-warning  {
                 font-size: 0.9em; /* Slightly smaller fonts for small devices */
                 padding: 8px 10px;
             }
@@ -662,7 +672,6 @@
         </header>
 
         <main>
-            <!-- Global navigation (logout) will be displayed here when user is logged in -->
             <nav id="global-navigation" class="global-nav" style="display: none;">
                 <button id="nav-logout-btn" class="button-danger" data-en="Logout" data-ar="تسجيل الخروج">Logout</button>
             </nav>
@@ -673,13 +682,11 @@
                 <form id="login-form">
                     <input type="email" id="login-email" data-en-placeholder="Email (Admin)" data-ar-placeholder="البريد الإلكتروني (المسؤول)" placeholder="البريد الإلكتروني (المسؤول)" class="input-field">
                     <input type="password" id="login-password" data-en-placeholder="Password (Admin)" data-ar-placeholder="كلمة المرور (المسؤول)" placeholder="كلمة المرور (المسؤول)" class="input-field">
-                    <!-- IMPORTANT: Changed button class to new scheme -->
                     <button type="submit" class="button-success" data-en="Admin Login" data-ar="تسجيل دخول المسؤول">تسجيل دخول المسؤول</button>
                 </form>
                 <div id="login-message-area" class="message-area"></div>
 
                 <div class="button-group" style="margin-top: 30px;">
-                    <!-- IMPORTANT: Changed button class to new scheme (button-secondary or button-info) -->
                     <button type="button" id="kitchen-login-btn" class="button-info" data-en="Kitchen Login" data-ar="تسجيل دخول المطبخ">تسجيل دخول المطبخ</button>
                     <button type="button" id="men-login-btn" class="button-info" data-en="Men's Section Login" data-ar="تسجيل دخول قسم الرجال">تسجيل دخول قسم الرجال</button>
                     <button type="button" id="women-login-btn" class="button-info" data-en="Women's Section Login" data-ar="تسجيل دخول قسم النساء">تسجيل دخول قسم النساء</button>
@@ -689,26 +696,23 @@
             <section id="admin-dashboard-section" class="admin-dashboard content-section">
                 <h2 data-en="Admin Control Panel" data-ar="لوحة تحكم المسؤول">لوحة تحكم المسؤول</h2>
                 <nav class="admin-sub-nav">
-                    <!-- Buttons in admin-sub-nav are styled by .admin-sub-nav button CSS rule -->
                     <button id="show-pending-orders-btn" data-en="Pending Orders Management" data-ar="إدارة الطلبات المعلقة">إدارة الطلبات المعلقة</button>
                     <button id="add-product-btn" data-en="Add New Product" data-ar="إضافة منتج جديد">إضافة منتج جديد</button>
                     <button id="low-stock-btn" data-en="Inventory Alerts" data-ar="تنبيهات المخزون">تنبيهات المخزون</button>
                     <button id="total-order-report-btn" data-en="Comprehensive Sales Report" data-ar="تقرير المبيعات الشامل">تقرير المبيعات الشامل</button>
                     <button id="stock-restock-btn" data-en="Manage Stock & Replenish" data-ar="إدارة وتجديد المخزون">إدارة وتجديد المخزون</button>
-                    <button id="order-return-btn" data-en="Process Returns" data-ar="معالجة الإرجاع">معالجة الإرجاع</button>
+                    <button id="order-return-btn" data-en="Process Returns to Supplier" data-ar="معالجة الإرجاع للمورد">معالجة الإرجاع للمورد</button>
                     <button id="admin-logout-btn" class="logout-btn" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
                 </nav>
                 <div id="admin-dashboard-content" style="margin-top: 20px;">
                     <h3 data-en="Pending Orders" data-ar="الطلبات المعلقة">الطلبات المعلقة</h3>
                     <div id="pending-orders-list">
-                        <!-- Pending orders will be loaded here -->
-                    </div>
+                        </div>
                 </div>
                 <div id="admin-message-area" class="message-area"></div>
             </section>
 
             <section id="add-product-section" class="product-add-form content-section">
-                <!-- IMPORTANT: Changed button class to new scheme -->
                 <button class="back-to-admin-btn button-secondary" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
                 <h2 data-en="Add New Product" data-ar="إضافة منتج جديد">إضافة منتج جديد</h2>
                 <form id="add-product-form">
@@ -729,24 +733,20 @@
                         <option value="liter" data-en="Liter" data-ar="لتر">لتر</option>
                         <option value="carton" data-en="Carton" data-ar="كرتون">كرتون</option>
                     </select>
-                    <!-- IMPORTANT: Changed button class to new scheme -->
                     <button type="submit" class="button-success" style="width: 100%;" data-en="Add Product" data-ar="إضافة منتج">إضافة منتج</button>
                 </form>
                 <div id="add-product-message-area" class="message-area"></div>
             </section>
 
             <section id="low-stock-alert-section" class="low-stock-alert-section content-section">
-                <!-- IMPORTANT: Changed button class to new scheme -->
                 <button class="back-to-admin-btn button-secondary" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
                 <h2 data-en="Inventory Alerts" data-ar="تنبيهات المخزون">تنبيهات المخزون</h2>
                 <div id="low-stock-products-list">
-                    <!-- Low stock products will be loaded here -->
-                </div>
+                    </div>
                 <div id="low-stock-message-area" class="message-area"></div>
             </section>
 
             <section id="total-order-report-section" class="total-order-report content-section">
-                <!-- IMPORTANT: Changed button class to new scheme -->
                 <button class="back-to-admin-btn button-secondary" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
                 <h2 data-en="Comprehensive Sales Report (Last 3 Months)" data-ar="تقرير المبيعات الشامل (آخر 3 أشهر)">تقرير المبيعات الشامل (آخر 3 أشهر)</h2>
                 <div id="report-filters">
@@ -757,64 +757,57 @@
                         <option value="men" data-en="Men's Section" data-ar="قسم الرجال">قسم الرجال</option>
                         <option value="women" data-en="Women's Section" data-ar="قسم النساء">قسم النساء</option>
                     </select>
-                    <!-- IMPORTANT: Changed button class to new scheme -->
                     <button id="generate-report-btn" class="button-primary" data-en="Show Report" data-ar="عرض التقرير">عرض التقرير</button>
                 </div>
                 <div id="total-order-report-content">
-                    <!-- Report content will be loaded here -->
-                </div>
+                    </div>
                 <div id="report-message-area" class="message-area"></div>
             </section>
 
             <section id="stock-restock-section" class="stock-restock-section content-section">
-                 <!-- IMPORTANT: Changed button class to new scheme -->
                 <button class="back-to-admin-btn button-secondary" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
                 <h2 data-en="Manage Stock & Replenish" data-ar="إدارة وتجديد المخزون">إدارة وتجديد المخزون</h2>
                 <div id="current-stock-list">
-                    <!-- Stock items will be loaded here -->
-                </div>
+                    </div>
                 <div id="stock-message-area" class="message-area"></div>
             </section>
 
             <section id="order-return-section" class="order-return-section content-section">
-                <!-- IMPORTANT: Changed button class to new scheme -->
                 <button class="back-to-admin-btn button-secondary" data-en="Back to Admin Dashboard" data-ar="العودة للوحة تحكم المسؤول">العودة للوحة تحكم المسؤول</button>
-                <h2 data-en="Process Returns" data-ar="معالجة الإرجاع">معالجة الإرجاع</h2>
-                <form id="return-product-form">
-                    <select id="return-product-select" class="input-field" required>
+                <h2 data-en="Process Returns to Supplier" data-ar="معالجة الإرجاع للمورد">معالجة الإرجاع للمورد</h2>
+                <form id="return-product-to-supplier-form">
+                    <select id="return-to-supplier-product-select" class="input-field" required>
                         <option value="" data-en="Select Product" data-ar="اختر المنتج">اختر المنتج</option>
-                        <!-- Products for return will be loaded here -->
-                    </select>
-                    <input type="number" id="return-quantity" data-en-placeholder="Return Quantity" data-ar-placeholder="كمية الإرجاع" placeholder="كمية الإرجاع" class="input-field" required min="1">
-                    <!-- IMPORTANT: Changed button class to new scheme -->
-                    <button type="submit" class="button-danger" style="width: 100%;" data-en="Return Product" data-ar="إرجاع المنتج">إرجاع المنتج</button>
+                        </select>
+                    <input type="number" id="return-to-supplier-quantity" data-en-placeholder="Return Quantity" data-ar-placeholder="كمية الإرجاع" placeholder="كمية الإرجاع" class="input-field" required min="1">
+                    <input type="text" id="return-to-supplier-name" data-en-placeholder="Supplier Name" data-ar-placeholder="اسم المورد" placeholder="اسم المورد" class="input-field" required>
+                    <button type="submit" class="button-warning" style="width: 100%;" data-en="Return Product to Supplier" data-ar="إرجاع المنتج للمورد">إرجاع المنتج للمورد</button>
                 </form>
-                <div id="return-message-area" class="message-area"></div>
+                <div id="return-to-supplier-message-area" class="message-area"></div>
+
+                <h3 data-en="Pending Replacements from Suppliers" data-ar="منتجات معلقة للاستبدال من الموردين" style="margin-top: 30px;">منتجات معلقة للاستبدال من الموردين</h3>
+                <div id="pending-return-notifications-list">
+                    </div>
             </section>
 
             <section id="user-panel-section" class="user-panel content-section">
                 <h2 id="user-panel-title" data-en="User Panel" data-ar="لوحة المستخدم">لوحة المستخدم</h2>
-                <!-- IMPORTANT: Changed button class to new scheme -->
                 <button id="user-logout-btn" class="button-danger" style="margin-bottom: 20px;" data-en="Logout" data-ar="تسجيل الخروج">تسجيل الخروج</button>
 
                 <h3 data-en="Products to Order" data-ar="المنتجات للطلب">المنتجات للطلب</h3>
                 <div id="product-list">
-                    <!-- Product list for users will be loaded here -->
-                </div>
+                    </div>
 
                 <h3 data-en="Your Cart" data-ar="سلتك">سلتك</h3>
                 <div id="user-cart-summary" style="margin-bottom: 20px; padding:15px; background-color: var(--light-grey); border-radius: var(--border-radius);">
-                    <!-- User cart summary -->
-                </div>
-                <!-- IMPORTANT: Changed button class to new scheme -->
+                    </div>
                 <button id="place-order-btn" class="button-success" style="width: 100%; margin-top: 10px;" data-en="Place Order" data-ar="تقديم الطلب">تقديم الطلب</button>
                 <div id="user-order-message-area" class="message-area"></div>
 
 
                 <h3 data-en="Your Previous Orders" data-ar="طلباتك السابقة">طلباتك السابقة</h3>
                 <div id="user-orders-list">
-                    <!-- User's previous orders -->
-                </div>
+                    </div>
             </section>
         </main>
     </div>
@@ -871,8 +864,13 @@
         const lowStockProductsList = document.getElementById('low-stock-products-list');
         const totalOrderReportContent = document.getElementById('total-order-report-content');
         const currentStockList = document.getElementById('current-stock-list');
-        const returnProductForm = document.getElementById('return-product-form');
-        const returnProductSelect = document.getElementById('return-product-select');
+
+        // Return to Supplier Elements
+        const returnProductToSupplierForm = document.getElementById('return-product-to-supplier-form');
+        const returnToSupplierProductSelect = document.getElementById('return-to-supplier-product-select');
+        const returnToSupplierMessageArea = document.getElementById('return-to-supplier-message-area');
+        const pendingReturnNotificationsList = document.getElementById('pending-return-notifications-list');
+
 
         const productList = document.getElementById('product-list');
         const userCartSummary = document.getElementById('user-cart-summary');
@@ -911,13 +909,13 @@
                 'Inventory Alerts': 'Inventory Alerts',
                 'Comprehensive Sales Report': 'Comprehensive Sales Report',
                 'Manage Stock & Replenish': 'Manage Stock & Replenish',
-                'Process Returns': 'Process Returns',
+                'Process Returns to Supplier': 'Process Returns to Supplier',
                 'Logout': 'Logout',
                 'Pending Orders': 'Pending Orders',
                 'Loading Orders...': 'Loading Orders...',
                 'No pending orders.': 'No pending orders.',
                 'Department:': 'Department:',
-                'Order ID:': 'Order ID:', // Re-added this translation
+                'Order ID:': 'Order ID:',
                 'Order Date:': 'Order Date:',
                 'Delivered': 'Delivered',
                 'Cancel': 'Cancel',
@@ -957,7 +955,6 @@
                 'Show Report': 'Show Report',
                 'Loading Report...': 'Loading Report...',
                 'No delivered order reports found.': 'No delivered order reports found.',
-                // 'Order ID:' is already above
                 'Delivery Date:': 'Delivery Date:',
                 'Share/Download PDF': 'Share/Download PDF',
                 'Report load successful.': 'Report load successful.',
@@ -976,13 +973,21 @@
                 'Select Product': 'Select Product',
                 'No products available': 'No products available',
                 'Return Quantity': 'Return Quantity',
-                'Return Product': 'Return Product',
-                'Please select product and valid quantity.': 'Please select product and valid quantity.',
-                'Product being returned...': 'Product being returned...',
-                'Cannot return more than current stock.': 'Cannot return more than current stock.', //This logic might need review for returns
-                'Product successfully returned and stock updated.': 'Product successfully returned and stock updated.',
-                'Product not found.': 'Product not found.',
-                'Failed to return product:': 'Failed to return product:',
+                'Supplier Name': 'Supplier Name',
+                'Return Product to Supplier': 'Return Product to Supplier',
+                'Product successfully returned to supplier and stock updated.': 'Product successfully returned to supplier and stock updated.',
+                'Failed to return product to supplier.': 'Failed to return product to supplier.',
+                'Pending Replacements from Suppliers': 'Pending Replacements from Suppliers',
+                'No pending replacements.': 'No pending replacements.',
+                'Returned to:': 'Returned to:',
+                'Quantity:': 'Quantity:',
+                'Mark as Replaced & Re-stock': 'Mark as Replaced & Re-stock',
+                'Replacement processed and stock updated.': 'Replacement processed and stock updated.',
+                'Failed to process replacement.': 'Failed to process replacement.',
+                'Please select product, valid quantity, and supplier name.': 'Please select product, valid quantity, and supplier name.',
+                'Return to supplier in progress...': 'Return to supplier in progress...',
+                'Cannot return more than current stock.': 'Cannot return more than current stock.',
+                'Product not found in stock.': 'Product not found in stock.',
                 'User Panel': 'User Panel',
                 'Products to Order': 'Products to Order',
                 'Loading Products...': 'Loading Products...',
@@ -994,7 +999,6 @@
                 'Added to cart.': 'Added to cart.',
                 'Out of stock, cannot add more.': 'Out of stock, cannot add more.',
                 'Removed from cart.': 'Removed from cart.',
-                // 'Your cart is empty.' is already above
                 'Order being placed...': 'Order being placed...',
                 'Sorry, insufficient stock for': 'Sorry, insufficient stock for',
                 'Please check your cart.': 'Please check your cart.',
@@ -1019,7 +1023,7 @@
                 'Logout successful.': 'Logout successful.',
                 'Warning:': 'Warning:',
                 'is out of stock.': 'is out of stock.',
-                'Language Arabic': 'Language Arabic', // For language toggle button text itself
+                'Language Arabic': 'Language Arabic',
                 'Order Update': 'Order Update',
                 'Update Order': 'Update Order',
                 'Order successfully updated.': 'Order successfully updated.',
@@ -1047,7 +1051,9 @@
                 'Are you sure you want to place this order?': 'Are you sure you want to place this order?',
                 'Are you sure you want to delete this item from the order?': 'Are you sure you want to delete this item from the order?',
                 'Loading stock...': 'Loading stock...',
-                'Loading...': 'Loading...' // Generic loading text for product stock in user panel
+                'Loading...': 'Loading...',
+                'Are you sure you want to return this product to the supplier? Stock will be reduced.': 'Are you sure you want to return this product to the supplier? Stock will be reduced.',
+                'Are you sure you want to mark this item as replaced and re-stock it?': 'Are you sure you want to mark this item as replaced and re-stock it?'
             },
             'ar': {
                 'Khamer Store Management App': 'تطبيق خمر لإدارة المخزون',
@@ -1065,13 +1071,13 @@
                 'Inventory Alerts': 'تنبيهات المخزون',
                 'Comprehensive Sales Report': 'تقرير المبيعات الشامل',
                 'Manage Stock & Replenish': 'إدارة وتجديد المخزون',
-                'Process Returns': 'معالجة الإرجاع',
+                'Process Returns to Supplier': 'معالجة الإرجاع للمورد',
                 'Logout': 'تسجيل الخروج',
                 'Pending Orders': 'الطلبات المعلقة',
                 'Loading Orders...': 'جارٍ تحميل الطلبات...',
                 'No pending orders.': 'لا توجد طلبات معلقة.',
                 'Department:': 'القسم:',
-                'Order ID:': 'رقم الطلب:', // Re-added
+                'Order ID:': 'رقم الطلب:',
                 'Order Date:': 'تاريخ الطلب:',
                 'Delivered': 'تم التوصيل',
                 'Cancel': 'إلغاء',
@@ -1111,7 +1117,6 @@
                 'Show Report': 'عرض التقرير',
                 'Loading Report...': 'جارٍ تحميل التقرير...',
                 'No delivered order reports found.': 'لم يتم العثور على تقارير طلبات تم تسليمها.',
-                // 'Order ID:' is already above
                 'Delivery Date:': 'تاريخ التسليم:',
                 'Share/Download PDF': 'مشاركة/تنزيل PDF',
                 'Report load successful.': 'تم تحميل التقرير بنجاح.',
@@ -1130,13 +1135,21 @@
                 'Select Product': 'اختر المنتج',
                 'No products available': 'لا توجد منتجات متاحة',
                 'Return Quantity': 'كمية الإرجاع',
-                'Return Product': 'إرجاع المنتج',
-                'Please select product and valid quantity.': 'الرجاء تحديد المنتج وكمية صالحة.',
-                'Product being returned...': 'جارٍ إرجاع المنتج...',
+                'Supplier Name': 'اسم المورد',
+                'Return Product to Supplier': 'إرجاع المنتج للمورد',
+                'Product successfully returned to supplier and stock updated.': 'تم إرجاع المنتج للمورد وتحديث المخزون بنجاح.',
+                'Failed to return product to supplier.': 'فشل في إرجاع المنتج للمورد.',
+                'Pending Replacements from Suppliers': 'منتجات معلقة للاستبدال من الموردين',
+                'No pending replacements.': 'لا توجد منتجات معلقة للاستبدال.',
+                'Returned to:': 'أُعيد إلى:',
+                'Quantity:': 'الكمية:',
+                'Mark as Replaced & Re-stock': 'وضع علامة كـ "تم الاستبدال" وإعادة التخزين',
+                'Replacement processed and stock updated.': 'تمت معالجة الاستبدال وتحديث المخزون.',
+                'Failed to process replacement.': 'فشل في معالجة الاستبدال.',
+                'Please select product, valid quantity, and supplier name.': 'الرجاء تحديد المنتج وكمية صالحة واسم المورد.',
+                'Return to supplier in progress...': 'جارٍ إرجاع المنتج للمورد...',
                 'Cannot return more than current stock.': 'لا يمكن إرجاع كمية أكبر من المخزون الحالي.',
-                'Product successfully returned and stock updated.': 'تم إرجاع المنتج بنجاح وتحديث المخزون.',
-                'Product not found.': 'لم يتم العثور على المنتج.',
-                'Failed to return product:': 'فشل في إرجاع المنتج:',
+                'Product not found in stock.': 'المنتج غير موجود في المخزن.',
                 'User Panel': 'لوحة المستخدم',
                 'Products to Order': 'المنتجات للطلب',
                 'Loading Products...': 'جارٍ تحميل المنتجات...',
@@ -1148,7 +1161,6 @@
                 'Added to cart.': 'تمت الإضافة إلى السلة.',
                 'Out of stock, cannot add more.': 'المخزون غير كافٍ، لا يمكن إضافة المزيد.',
                 'Removed from cart.': 'تمت الإزالة من السلة.',
-                // 'Your cart is empty.' is already above
                 'Order being placed...': 'جارٍ تقديم الطلب...',
                 'Sorry, insufficient stock for': 'عذرًا، المخزون غير كافٍ لـ',
                 'Please check your cart.': 'يرجى مراجعة سلتك.',
@@ -1173,7 +1185,7 @@
                 'Logout successful.': 'تم تسجيل الخروج بنجاح.',
                 'Warning:': 'تحذير:',
                 'is out of stock.': 'نفد المخزون.',
-                'Language Arabic': 'English', // For language toggle button text itself
+                'Language Arabic': 'English',
                 'Order Update': 'تحديث الطلب',
                 'Update Order': 'تحديث الطلب',
                 'Order successfully updated.': 'تم تحديث الطلب بنجاح.',
@@ -1201,7 +1213,9 @@
                 'Are you sure you want to place this order?': 'هل أنت متأكد أنك تريد تقديم هذا الطلب؟',
                 'Are you sure you want to delete this item from the order?': 'هل أنت متأكد أنك تريد حذف هذا العنصر من الطلب؟',
                 'Loading stock...': 'جارٍ تحميل المخزون...',
-                'Loading...': 'جار التحميل...' // Generic loading for product stock
+                'Loading...': 'جار التحميل...',
+                'Are you sure you want to return this product to the supplier? Stock will be reduced.': 'هل أنت متأكد أنك تريد إرجاع هذا المنتج إلى المورد؟ سيتم تخفيض المخزون.',
+                'Are you sure you want to mark this item as replaced and re-stock it?': 'هل أنت متأكد أنك تريد وضع علامة على هذا العنصر كمستبدل وإعادة تخزينه؟'
             }
         };
 
@@ -1228,9 +1242,8 @@
                         el.placeholder = lang === 'en' ? (enPlaceholder || arPlaceholder) : (arPlaceholder || enPlaceholder);
                     }
                 } else if (el.tagName === 'BUTTON' && el.id === 'language-toggle') {
-                    // Special handling for language toggle button text
                      el.textContent = lang === 'en' ? translations.ar['Language Arabic'] : translations.en['Language Arabic'];
-                } else if (enText || arText) { // Check if either exists to avoid clearing non-translatable content
+                } else if (enText || arText) {
                      el.textContent = lang === 'en' ? (enText || arText) : (arText || enText);
                 }
             });
@@ -1244,18 +1257,20 @@
             });
 
             if (currentUserCategory && userPanelTitle) {
-                 userPanelTitle.textContent = translations[currentLanguage]['User Panel'] || 'User Panel';
+                 userPanelTitle.textContent = _t('User Panel');
             }
             document.querySelectorAll('.restock-quantity').forEach(input => {
-                input.placeholder = translations[currentLanguage]['Re-stock Quantity'] || 'Re-stock Quantity';
+                input.placeholder = _t('Re-stock Quantity');
             });
-             // Update dynamically created button texts for "Delivered", "Cancel" etc. in pending orders
             if (adminDashboardSection.classList.contains('active-section')) {
-                loadAdminDashboard(); // Reload to update button texts
+                loadAdminDashboard();
             }
-            // Update user orders section button/status texts
             if (userPanelSection.classList.contains('active-section') && auth.currentUser) {
                 loadUserOrders(auth.currentUser.uid);
+            }
+             // Refresh return notifications if that section is active
+            if (orderReturnSection.classList.contains('active-section')) {
+                loadReturnNotifications();
             }
         }
 
@@ -1284,9 +1299,9 @@
                 console.error("Message area element not found for message:", messageKeyOrText);
                 return;
             }
-            const message = _t(messageKeyOrText); // Translate if key exists
+            const message = _t(messageKeyOrText);
             areaElement.textContent = message;
-            areaElement.className = `message-area ${type}`; // Ensure class is reset then type added
+            areaElement.className = `message-area ${type}`;
             areaElement.style.display = 'block';
             setTimeout(() => {
                 areaElement.style.display = 'none';
@@ -1313,7 +1328,7 @@
                 }
             } else {
                 console.error("Section to show is null or undefined.");
-                loginSection.classList.add('active-section'); // Fallback to login
+                loginSection.classList.add('active-section');
                 globalNavigation.style.display = 'none';
             }
         }
@@ -1322,35 +1337,32 @@
             if (event.state && event.state.sectionId) {
                 const targetSection = document.getElementById(event.state.sectionId);
                 if (targetSection) {
-                    currentUserCategory = event.state.category; // Restore category
-                    showSection(targetSection); // Show without pushing new state
-                    // Re-run data loading for the section
+                    currentUserCategory = event.state.category;
+                    showSection(targetSection);
                     if (targetSection === adminDashboardSection) renderAdminDashboard();
                     else if (targetSection === addProductSection) { /* No specific load */ }
                     else if (targetSection === lowStockAlertSection) loadLowStockAlerts();
                     else if (targetSection === totalOrderReportSection) loadTotalOrderReport();
                     else if (targetSection === stockRestockSection) loadStockAndRestock();
-                    else if (targetSection === orderReturnSection) loadOrderReturnProducts();
+                    else if (targetSection === orderReturnSection) {
+                        loadProductsForReturnToSupplier();
+                        loadReturnNotifications();
+                    }
                     else if (targetSection === userPanelSection && auth.currentUser) {
                         loadUserProducts(currentUserCategory);
                         loadUserOrders(auth.currentUser.uid);
                         updateCartSummary();
                     }
                 } else {
-                     showSection(loginSection); // Fallback if section ID is invalid
+                     showSection(loginSection);
                 }
-            } else if (!auth.currentUser) { // If no state and not logged in, go to login
+            } else if (!auth.currentUser) {
                 showSection(loginSection);
             }
-            // If there's a user but no specific state, they might be on admin/user dashboard already,
-            // onAuthStateChanged should handle the correct view.
         });
 
 
         async function initializeFirebaseCollections() {
-            // This function can be used to ensure collections exist if needed,
-            // but Firestore creates collections automatically when the first document is added.
-            // For this app, it's likely not strictly necessary unless specific security rules depend on pre-existing collections.
             console.log("Firebase collections will be created on first write if they don't exist.");
         }
 
@@ -1385,8 +1397,7 @@
                         auth.signOut();
                     }
                 } else {
-                    // For email/password, if doc doesn't exist, create admin. For anonymous, this shouldn't happen if login works.
-                    if (!user.isAnonymous && user.email) { // Only for named users
+                    if (!user.isAnonymous && user.email) {
                         try {
                             await userDocRef.set({
                                 role: 'admin', email: user.email,
@@ -1434,8 +1445,7 @@
                 displayMessage(loginMessageArea, 'Login in progress... please wait.', 'info');
                 try {
                     await auth.signInWithEmailAndPassword(email, password);
-                    // onAuthStateChanged handles redirection
-                    displayMessage(loginMessageArea, 'Login successful.', 'success'); // This might be overwritten by onAuthStateChanged's navigation
+                    displayMessage(loginMessageArea, 'Login successful.', 'success');
                 } catch (error) {
                     displayMessage(loginMessageArea, `${_t('Login failed:')} ${error.message}`, 'error');
                 }
@@ -1453,10 +1463,9 @@
                     const userCredential = await auth.signInAnonymously();
                     const user = userCredential.user;
                     await db.collection('users').doc(user.uid).set({
-                        role: category, email: 'anonymous', // Store 'anonymous' as email
+                        role: category, email: 'anonymous',
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    // onAuthStateChanged will handle showing the correct panel
                 } catch (error) {
                     displayMessage(loginMessageArea, `${_t('Login failed:')} ${error.message}`, 'error');
                 }
@@ -1471,8 +1480,7 @@
 
         async function handleLogout() {
             await auth.signOut();
-            // onAuthStateChanged handles showing login section
-            displayMessage(loginMessageArea, 'Logout successful.', 'success'); // Display on login page after logout
+            displayMessage(loginMessageArea, 'Logout successful.', 'success');
         }
         if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
         if (userLogoutBtn) userLogoutBtn.addEventListener('click', handleLogout);
@@ -1500,7 +1508,6 @@
                         const orderId = doc.id;
                         const orderItemDiv = document.createElement('div');
                         orderItemDiv.classList.add('order-item');
-                        // IMPORTANT: Changed button classes to new scheme
                         orderItemDiv.innerHTML = `
                             <h4>${_t('Department:')} ${order.category ? _t(order.category.charAt(0).toUpperCase() + order.category.slice(1)) : 'N/A'}</h4>
                             <p><strong>${_t('Order Date:')}</strong> ${order.orderDate.toDate().toLocaleString()}</p>
@@ -1518,11 +1525,11 @@
                     });
 
                     document.querySelectorAll('.deliver-order-btn').forEach(button => {
-                        button.removeEventListener('click', handleDeliverOrder); // Prevent multiple listeners
+                        button.removeEventListener('click', handleDeliverOrder);
                         button.addEventListener('click', handleDeliverOrder);
                     });
                     document.querySelectorAll('.cancel-order-btn').forEach(button => {
-                        button.removeEventListener('click', handleCancelOrder); // Prevent multiple listeners
+                        button.removeEventListener('click', handleCancelOrder);
                         button.addEventListener('click', handleCancelOrder);
                     });
                 }, error => {
@@ -1534,7 +1541,6 @@
         async function handleDeliverOrder(event) {
             const orderId = event.target.dataset.orderId;
             const orderRef = db.collection('orders').doc(orderId);
-            // Replace window.confirm with a custom modal if you build one
             if (!confirm(_t('Are you sure you want to mark this order as delivered and update stock?'))) return;
 
             displayMessage(document.getElementById('admin-message-area'), _t('Order being delivered...'), 'info');
@@ -1554,7 +1560,7 @@
                             if (currentStock < productOrder.quantity) {
                                 stockSufficient = false;
                                 displayMessage(document.getElementById('admin-message-area'), `${_t('Warning:')} ${_t('Insufficient stock for')} ${currentLanguage === 'en' ? productOrder.name_en : productOrder.name_ar}. ${_t('Available:')} ${currentStock}`, 'error');
-                                break; // Stop processing if any item is out of stock
+                                break;
                             }
                             batch.update(productRef, {
                                 quantity: firebase.firestore.FieldValue.increment(-productOrder.quantity)
@@ -1562,7 +1568,7 @@
                         } else {
                             stockSufficient = false;
                             displayMessage(document.getElementById('admin-message-area'), `${_t('Warning:')} ${currentLanguage === 'en' ? productOrder.name_en : productOrder.name_ar} ${_t('is out of stock.')}`, 'error');
-                            break; // Product definition missing in stock
+                            break;
                         }
                     }
                     if (stockSufficient) {
@@ -1609,7 +1615,6 @@
                 }
                 displayMessage(addProductMessageArea, _t('Product being added...'), 'info');
                 try {
-                    // Check if product with same English name and category already exists
                     const q = db.collection('products')
                                 .where('name_en', '==', nameEn)
                                 .where('category', '==', category);
@@ -1620,12 +1625,12 @@
                         return;
                     }
 
-                    const newProductRef = db.collection('products').doc(); // Auto-generate ID
+                    const newProductRef = db.collection('products').doc();
                     await newProductRef.set({
                         name_en: nameEn, name_ar: nameAr, category: category, quantity_type: quantityType,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    await db.collection('stock').doc(newProductRef.id).set({ // Use same ID for stock
+                    await db.collection('stock').doc(newProductRef.id).set({
                         productId: newProductRef.id, name_en: nameEn, name_ar: nameAr,
                         quantity: quantity, lowStockAlert: lowStockAlertQuantity, category: category,
                         quantity_type: quantityType, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1646,11 +1651,10 @@
                 let hasLowStock = false;
                 snapshot.forEach(doc => {
                     const product = doc.data();
-                    if (product.quantity <= product.lowStockAlert && product.quantity > 0) { // Ensure quantity > 0 for relevant alerts
+                    if (product.quantity <= product.lowStockAlert && product.quantity > 0) {
                         hasLowStock = true;
                         const alertItemDiv = document.createElement('div');
                         alertItemDiv.classList.add('alert-item');
-                        // IMPORTANT: Changed button class to new scheme
                         alertItemDiv.innerHTML = `
                             <p><strong>${currentLanguage === 'en' ? product.name_en : product.name_ar}</strong></p>
                             <p>${_t('Current Stock:')} ${product.quantity} ${product.quantity_type}</p>
@@ -1663,15 +1667,13 @@
                 if (!hasLowStock) {
                     lowStockProductsList.innerHTML = `<p>${_t('No low stock alerts.')}</p>`;
                 }
-                 // Re-attach event listeners if needed, though direct click listener on document is better
             }, error => {
                 displayMessage(document.getElementById('low-stock-message-area'), `${_t('Error loading inventory alerts:')} ${error.message}`, 'error');
             });
         }
-        // Event delegation for dynamically added "Remove Alert" buttons
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('remove-alert-btn')) {
-                e.target.closest('.alert-item').remove(); // Visually remove, doesn't change data
+                e.target.closest('.alert-item').remove();
                 displayMessage(document.getElementById('low-stock-message-area'), _t('Alert successfully removed (display only).'), 'success');
             }
         });
@@ -1683,25 +1685,19 @@
             displayMessage(document.getElementById('report-message-area'), _t('Loading Report...'), 'info');
 
             const today = new Date();
-            // Report for the last 3 full months, relative to the 20th of the month.
-            // If today is June 5th, we want reports for May (Apr 20 - May 19), April (Mar 20 - Apr 19), March (Feb 20 - Mar 19).
-            // So, startDate needs to be around Feb 20th.
-            let reportStartMonth = today.getMonth(); // current month (0-11)
+            let reportStartMonth = today.getMonth();
             let reportStartYear = today.getFullYear();
 
-            if (today.getDate() < 20) { // If before 20th, current reporting period hasn't finished
+            if (today.getDate() < 20) {
                 reportStartMonth -= 1;
             }
-             // We want to go back 2 more full periods from the current/last one.
             reportStartMonth -=2;
 
-
             if (reportStartMonth < 0) {
-                reportStartMonth += 12; // Adjust month (e.g., -1 becomes 11 for December)
-                reportStartYear -=1;    // Adjust year accordingly
+                reportStartMonth += 12;
+                reportStartYear -=1;
             }
             const startDate = new Date(reportStartYear, reportStartMonth, 20);
-
 
             let query = db.collection('orders')
                 .where('status', '==', 'delivered')
@@ -1724,23 +1720,20 @@
                     return;
                 }
 
-                // Group orders by reporting month (20th to 19th of next month)
                 const groupedOrders = {};
                 orders.forEach(order => {
                     if (order.deliveredAt) {
                         const deliveredDate = order.deliveredAt.toDate();
                         let year = deliveredDate.getFullYear();
-                        let month = deliveredDate.getMonth(); // 0-11
+                        let month = deliveredDate.getMonth();
 
                         let reportMonthKey;
                         if (deliveredDate.getDate() >= 20) {
-                            // Belongs to the period ending next month on 19th
                             let nextMonth = month + 1;
                             let nextYear = year;
                             if (nextMonth > 11) { nextMonth = 0; nextYear++; }
-                            reportMonthKey = `${nextYear}-${(nextMonth + 1).toString().padStart(2, '0')}`; // Key is based on end month of period
+                            reportMonthKey = `${nextYear}-${(nextMonth + 1).toString().padStart(2, '0')}`;
                         } else {
-                            // Belongs to the period ending this month on 19th
                             reportMonthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
                         }
 
@@ -1752,7 +1745,7 @@
                 });
 
                 let reportHtml = '';
-                const sortedMonthKeys = Object.keys(groupedOrders).sort().reverse(); // Show newest first
+                const sortedMonthKeys = Object.keys(groupedOrders).sort().reverse();
 
                 if (sortedMonthKeys.length === 0) {
                      totalOrderReportContent.innerHTML = `<p>${_t('No delivered order reports found.')}</p>`;
@@ -1765,12 +1758,10 @@
                     const monthDate = new Date(year, parseInt(monthNum)-1, 1);
                     const monthName = monthDate.toLocaleString(currentLanguage === 'ar' ? 'ar-SA' : 'en-US', { month: 'long', year: 'numeric' });
 
-
                     reportHtml += `<div class="report-month-section" id="report-section-${monthKey.replace('-', '_')}">`;
-                    reportHtml += `<h3>${_t('Report for period ending')} ${monthName} 19</h3>`; // Clarify period
+                    reportHtml += `<h3>${_t('Report for period ending')} ${monthName} 19</h3>`;
                     reportHtml += `<ul>`;
                     groupedOrders[monthKey].forEach(order => {
-                        // IMPORTANT: Changed button class to new scheme
                         reportHtml += `
                             <li class="order-item">
                                 <p><strong>${_t('Order ID:')}</strong> ${order.id}</p>
@@ -1815,36 +1806,31 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({
                 orientation: 'p',
-                unit: 'pt', // points for better control with html
+                unit: 'pt',
                 format: 'a4'
             });
 
-            // Clone the element to modify it (e.g., remove buttons) without affecting the displayed page
             const contentToPrint = reportElementContainer.cloneNode(true);
-            contentToPrint.querySelectorAll('.share-report-btn, hr').forEach(el => el.remove()); // Remove button and hr from PDF
+            contentToPrint.querySelectorAll('.share-report-btn, hr').forEach(el => el.remove());
 
-            // Add a title to the PDF
             const pdfTitle = contentToPrint.querySelector('h3').textContent;
-            doc.text(pdfTitle, 40, 40); // Add title at top
+            doc.text(pdfTitle, 40, 40);
 
-            // Use html method
-            // It's important to handle CSS for jsPDF. It might not render complex CSS perfectly.
-            // Basic text, lists, and simple layouts work best.
             await doc.html(contentToPrint, {
                 callback: function (doc) {
                     doc.save(`Order_Report_${monthKey}.pdf`);
                     displayMessage(document.getElementById('report-message-area'), _t('PDF successfully downloaded.'), 'success');
                 },
-                x: 20, // margin-left
-                y: 60, // margin-top (after title)
-                width: 555, // A4 width in points is 595, leaving some margin (595 - 2*20)
-                windowWidth: contentToPrint.scrollWidth || 800, // Width of the content
+                x: 20,
+                y: 60,
+                width: 555,
+                windowWidth: contentToPrint.scrollWidth || 800,
                 html2canvas: {
-                    scale: 0.70, // Adjust scale if content overflows or is too small
+                    scale: 0.70,
                     logging: false,
-                    useCORS: true // If you have external images, though not in this report
+                    useCORS: true
                 },
-                 autoPaging: 'slice' // Try 'slice' or 'text' for better auto-paging
+                 autoPaging: 'slice'
             });
         }
 
@@ -1862,7 +1848,6 @@
                     const product = doc.data();
                     const stockItemDiv = document.createElement('div');
                     stockItemDiv.classList.add('stock-item');
-                    // IMPORTANT: Changed button class to new scheme
                     stockItemDiv.innerHTML = `
                         <p><strong>${currentLanguage === 'en' ? product.name_en : product.name_ar}</strong> - ${_t('Remaining Stock:')} <strong>${product.quantity}</strong> ${product.quantity_type}</p>
                         <div style="display:flex; gap:10px; align-items:center;">
@@ -1903,78 +1888,179 @@
             }
         }
 
-        async function loadOrderReturnProducts() {
-            if (!returnProductSelect) return;
-            returnProductSelect.innerHTML = `<option value="">${_t('Select Product')}</option>`;
+        // --- New Functions for Return to Supplier ---
+        async function loadProductsForReturnToSupplier() {
+            if (!returnToSupplierProductSelect) return;
+            returnToSupplierProductSelect.innerHTML = `<option value="">${_t('Select Product')}</option>`;
             try {
-                const snapshot = await db.collection('stock').get(); // Get all products from stock
+                const snapshot = await db.collection('stock').orderBy('name_en').get();
                 if (snapshot.empty) {
                     const option = document.createElement('option');
                     option.value = '';
                     option.textContent = _t('No products available');
                     option.disabled = true;
-                    returnProductSelect.appendChild(option);
+                    returnToSupplierProductSelect.appendChild(option);
                     return;
                 }
                 snapshot.forEach(doc => {
                     const product = doc.data();
                     const option = document.createElement('option');
-                    option.value = doc.id; // Product ID from stock collection
+                    option.value = doc.id;
                     option.textContent = `${currentLanguage === 'en' ? product.name_en : product.name_ar} (${_t('Remaining Stock:')} ${product.quantity} ${product.quantity_type})`;
-                    returnProductSelect.appendChild(option);
+                    option.dataset.productNameEn = product.name_en;
+                    option.dataset.productNameAr = product.name_ar;
+                    option.dataset.quantityType = product.quantity_type;
+                    returnToSupplierProductSelect.appendChild(option);
                 });
             } catch (error) {
-                displayMessage(document.getElementById('return-message-area'), `${_t('Failed to load return products:')} ${error.message}`, 'error');
+                displayMessage(returnToSupplierMessageArea, `${_t('Failed to load return products:')} ${error.message}`, 'error');
             }
         }
 
-        if (returnProductForm) {
-            returnProductForm.addEventListener('submit', async (e) => {
+        if (returnProductToSupplierForm) {
+            returnProductToSupplierForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const productId = document.getElementById('return-product-select').value;
-                const returnQuantity = parseInt(document.getElementById('return-quantity').value);
+                const selectedOption = returnToSupplierProductSelect.options[returnToSupplierProductSelect.selectedIndex];
+                const productId = selectedOption.value;
+                const productNameEn = selectedOption.dataset.productNameEn;
+                const productNameAr = selectedOption.dataset.productNameAr;
+                const quantityType = selectedOption.dataset.quantityType;
 
-                if (!productId || isNaN(returnQuantity) || returnQuantity <= 0) {
-                    displayMessage(document.getElementById('return-message-area'), _t('Please select product and valid quantity.'), 'error'); return;
+                const returnQuantity = parseInt(document.getElementById('return-to-supplier-quantity').value);
+                const supplierName = document.getElementById('return-to-supplier-name').value.trim();
+
+                if (!productId || isNaN(returnQuantity) || returnQuantity <= 0 || !supplierName) {
+                    displayMessage(returnToSupplierMessageArea, _t('Please select product, valid quantity, and supplier name.'), 'error');
+                    return;
                 }
-                displayMessage(document.getElementById('return-message-area'), _t('Product being returned...'), 'info');
-                try {
-                    const productRef = db.collection('stock').doc(productId);
-                    const productDoc = await productRef.get();
 
-                    if (productDoc.exists) {
-                        await productRef.update({
-                            quantity: firebase.firestore.FieldValue.increment(returnQuantity), // Increment stock
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        await db.collection('returns').add({ // Log the return
-                            productId: productId,
-                            productName_en: productDoc.data().name_en,
-                            productName_ar: productDoc.data().name_ar,
-                            returnQuantity: returnQuantity,
-                            quantity_type: productDoc.data().quantity_type,
-                            returnDate: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        displayMessage(document.getElementById('return-message-area'), _t('Product successfully returned and stock updated.'), 'success');
-                        returnProductForm.reset();
-                        loadOrderReturnProducts(); // Refresh product list
-                    } else {
-                        displayMessage(document.getElementById('return-message-area'), _t('Product not found.'), 'error');
+                if (!confirm(_t('Are you sure you want to return this product to the supplier? Stock will be reduced.'))) return;
+
+                displayMessage(returnToSupplierMessageArea, _t('Return to supplier in progress...'), 'info');
+                try {
+                    const stockRef = db.collection('stock').doc(productId);
+                    const stockDoc = await stockRef.get();
+
+                    if (!stockDoc.exists) {
+                        displayMessage(returnToSupplierMessageArea, _t('Product not found in stock.'), 'error');
+                        return;
                     }
+
+                    const currentStock = stockDoc.data().quantity;
+                    if (returnQuantity > currentStock) {
+                        displayMessage(returnToSupplierMessageArea, _t('Cannot return more than current stock.'), 'error');
+                        return;
+                    }
+
+                    // Decrease stock
+                    await stockRef.update({
+                        quantity: firebase.firestore.FieldValue.increment(-returnQuantity),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Log the return to supplier
+                    await db.collection('returnsToSupplier').add({
+                        productId: productId,
+                        productName_en: productNameEn,
+                        productName_ar: productNameAr,
+                        quantity_type: quantityType,
+                        returnQuantity: returnQuantity,
+                        supplierName: supplierName,
+                        returnDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'pending_replacement' // 'pending_replacement', 'replaced'
+                    });
+
+                    displayMessage(returnToSupplierMessageArea, _t('Product successfully returned to supplier and stock updated.'), 'success');
+                    returnProductToSupplierForm.reset();
+                    loadProductsForReturnToSupplier(); // Refresh product list (shows updated stock)
+                    // loadReturnNotifications(); // onSnapshot will update this
                 } catch (error) {
-                    displayMessage(document.getElementById('return-message-area'), `${_t('Failed to return product:')} ${error.message}`, 'error');
+                    console.error("Error returning product to supplier:", error);
+                    displayMessage(returnToSupplierMessageArea, `${_t('Failed to return product to supplier.')} ${error.message}`, 'error');
                 }
             });
         }
+
+        async function loadReturnNotifications() {
+            if (!pendingReturnNotificationsList) return;
+            pendingReturnNotificationsList.innerHTML = `<p>${_t('Loading...')}</p>`;
+
+            db.collection('returnsToSupplier').where('status', '==', 'pending_replacement').orderBy('returnDate', 'desc')
+                .onSnapshot(snapshot => {
+                    pendingReturnNotificationsList.innerHTML = '';
+                    if (snapshot.empty) {
+                        pendingReturnNotificationsList.innerHTML = `<p>${_t('No pending replacements.')}</p>`;
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const returnData = doc.data();
+                        const returnId = doc.id;
+                        const itemDiv = document.createElement('div');
+                        itemDiv.classList.add('return-notification-item');
+                        itemDiv.innerHTML = `
+                            <h4>${currentLanguage === 'en' ? returnData.productName_en : returnData.productName_ar}</h4>
+                            <p><strong>${_t('Returned to:')}</strong> ${returnData.supplierName}</p>
+                            <p><strong>${_t('Quantity:')}</strong> ${returnData.returnQuantity} ${returnData.quantity_type}</p>
+                            <p><strong>${_t('Return Date:')}</strong> ${returnData.returnDate.toDate().toLocaleString()}</p>
+                            <button class="button-success process-replacement-btn" data-return-id="${returnId}" data-product-id="${returnData.productId}" data-quantity="${returnData.returnQuantity}">${_t('Mark as Replaced & Re-stock')}</button>
+                        `;
+                        pendingReturnNotificationsList.appendChild(itemDiv);
+                    });
+
+                    document.querySelectorAll('.process-replacement-btn').forEach(button => {
+                        button.removeEventListener('click', handleProcessReplacement);
+                        button.addEventListener('click', handleProcessReplacement);
+                    });
+
+                }, error => {
+                    console.error("Error loading return notifications:", error);
+                    pendingReturnNotificationsList.innerHTML = `<p>${_t('Error loading notifications.')}</p>`;
+                    displayMessage(returnToSupplierMessageArea, `${_t('Error loading notifications:')} ${error.message}`, 'error');
+                });
+        }
+
+        async function handleProcessReplacement(event) {
+            const returnId = event.target.dataset.returnId;
+            const productId = event.target.dataset.productId;
+            const quantity = parseInt(event.target.dataset.quantity);
+
+            if (!confirm(_t('Are you sure you want to mark this item as replaced and re-stock it?'))) return;
+
+            displayMessage(returnToSupplierMessageArea, _t('Stock being updated...'), 'info');
+            try {
+                const stockRef = db.collection('stock').doc(productId);
+                const returnRef = db.collection('returnsToSupplier').doc(returnId);
+
+                // Increment stock
+                await stockRef.update({
+                    quantity: firebase.firestore.FieldValue.increment(quantity),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update return status
+                await returnRef.update({
+                    status: 'replaced',
+                    replacedDate: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                displayMessage(returnToSupplierMessageArea, _t('Replacement processed and stock updated.'), 'success');
+                // loadReturnNotifications(); // onSnapshot will update this
+                loadProductsForReturnToSupplier(); // Refresh product list in dropdown to show updated stock
+            } catch (error) {
+                console.error("Error processing replacement:", error);
+                displayMessage(returnToSupplierMessageArea, `${_t('Failed to process replacement.')} ${error.message}`, 'error');
+            }
+        }
+
+        // --- End of New Functions for Return to Supplier ---
 
 
         async function loadUserProducts(category) {
             if(!productList || !category) return;
             productList.innerHTML = `<p>${_t('Loading Products...')}</p>`;
-            // Listen for real-time updates on products and their stock
             db.collection('products').where('category', '==', category)
                 .onSnapshot(productsSnapshot => {
-                    productList.innerHTML = ''; // Clear previous list
+                    productList.innerHTML = '';
                     if (productsSnapshot.empty) {
                         productList.innerHTML = `<p>${_t('No products in this category.')}</p>`;
                         return;
@@ -1985,7 +2071,6 @@
 
                         const productDiv = document.createElement('div');
                         productDiv.classList.add('product-item');
-                        // Stock will be loaded by a separate listener
                         productDiv.innerHTML = `
                             <h4>${currentLanguage === 'en' ? product.name_en : product.name_ar}</h4>
                             <p>${_t('Available:')} <span id="stock-${productId}">${_t('Loading...')}</span> ${product.quantity_type}</p>
@@ -1997,7 +2082,6 @@
                         `;
                         productList.appendChild(productDiv);
 
-                        // Real-time stock update for each product
                         db.collection('stock').doc(productId).onSnapshot(stockDoc => {
                             const stockSpan = document.getElementById(`stock-${productId}`);
                             if (stockSpan) {
@@ -2030,7 +2114,6 @@
             userCartSummary.innerHTML = cartHtml;
         }
 
-        // Event delegation for add/remove from cart
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('add-to-cart-btn')) {
                 const productId = e.target.dataset.productId;
@@ -2078,13 +2161,12 @@
                 if (!confirm(_t('Are you sure you want to place this order?'))) return;
 
                 displayMessage(userOrderMessageArea, _t('Order being placed...'), 'info');
-                const batch = db.batch();
                 let stockSufficient = true;
-                let orderProducts = {}; // To store actual product details for the order
+                let orderProducts = {};
 
                 for (const productId in userCart) {
                     const requestedQuantity = userCart[productId].quantity;
-                    if (requestedQuantity <= 0) continue; // Skip items with 0 quantity
+                    if (requestedQuantity <= 0) continue;
 
                     const stockRef = db.collection('stock').doc(productId);
                     const stockDoc = await stockRef.get();
@@ -2094,8 +2176,7 @@
                         displayMessage(userOrderMessageArea, `${_t('Sorry, insufficient stock for')} ${currentLanguage === 'en' ? userCart[productId].name_en : userCart[productId].name_ar}. ${_t('Please check your cart.')}`, 'error');
                         break;
                     }
-                    // No stock update at this point. Stock is updated by admin upon delivery.
-                    orderProducts[productId] = { // Store the cart item details in the order
+                    orderProducts[productId] = {
                         name_en: userCart[productId].name_en,
                         name_ar: userCart[productId].name_ar,
                         quantity: requestedQuantity,
@@ -2105,9 +2186,9 @@
 
                 if (!stockSufficient) {
                     displayMessage(userOrderMessageArea, _t('Failed to place order due to stock issues.'), 'error');
-                    return; // Stop if pre-check fails
+                    return;
                 }
-                if (Object.keys(orderProducts).length === 0) { // If cart became empty due to 0 quantity items
+                if (Object.keys(orderProducts).length === 0) {
                      displayMessage(userOrderMessageArea, _t('Your cart is effectively empty.'), 'error'); return;
                 }
 
@@ -2116,15 +2197,14 @@
                     await db.collection('orders').add({
                         userId: auth.currentUser.uid,
                         category: currentUserCategory,
-                        products: orderProducts, // Use the validated orderProducts
+                        products: orderProducts,
                         orderDate: firebase.firestore.FieldValue.serverTimestamp(),
                         status: 'pending'
                     });
                     displayMessage(userOrderMessageArea, _t('Order successfully placed.'), 'success');
                     userCart = {};
                     updateCartSummary();
-                    loadUserProducts(currentUserCategory); // Refresh product list (to update cart quantities to 0 on UI)
-                    // loadUserOrders(auth.currentUser.uid); // This will be called by onSnapshot automatically
+                    loadUserProducts(currentUserCategory);
                 } catch (error) {
                     displayMessage(userOrderMessageArea, `${_t('Failed to place order:')} ${error.message}`, 'error');
                 }
@@ -2145,7 +2225,7 @@
                         const order = doc.data();
                         const orderId = doc.id;
                         const orderItemDiv = document.createElement('div');
-                        orderItemDiv.classList.add('user-order-item'); // Use a more generic class if needed
+                        orderItemDiv.classList.add('user-order-item');
 
                         let productDetailsHtml = '<ul class="editable-order-item-list">';
                         for (const productId in order.products) {
@@ -2171,17 +2251,15 @@
                         }
                         productDetailsHtml += '</ul>';
 
-                        // IMPORTANT: Changed button class to new scheme
                         orderItemDiv.innerHTML = `
                             <p><strong>${_t('Order Date:')}</strong> ${order.orderDate.toDate().toLocaleString()}</p>
-                            <p><strong>${_t('Status:')}</strong> <strong style="color: ${order.status === 'pending' ? '#ffc107' : order.status === 'delivered' ? 'var(--success-color)' : 'var(--danger-color)'}; text-transform: capitalize;">${_t(order.status)}</strong></p>
+                            <p><strong>${_t('Status:')}</strong> <strong style="color: ${order.status === 'pending' ? 'var(--warning-color)' : order.status === 'delivered' ? 'var(--success-color)' : 'var(--danger-color)'}; text-transform: capitalize;">${_t(order.status)}</strong></p>
                             ${productDetailsHtml}
                             ${order.status === 'pending' ? `<div class="button-group" style="margin-top:10px; justify-content:flex-end;"><button class="button-danger cancel-user-order-btn" data-order-id="${orderId}">${_t('Cancel Order')}</button></div>` : ''}
                         `;
                         userOrdersList.appendChild(orderItemDiv);
                     });
 
-                    // Re-attach event listeners for dynamically created buttons
                     document.querySelectorAll('.cancel-user-order-btn').forEach(button => {
                         button.removeEventListener('click', handleCancelUserOrder);
                         button.addEventListener('click', handleCancelUserOrder);
@@ -2225,7 +2303,7 @@
             if (isNaN(newQuantity) || newQuantity < 0) {
                 displayMessage(userOrderMessageArea, _t('Please enter a valid quantity.'), 'error'); return;
             }
-            displayMessage(userOrderMessageArea, _t('Order Update') + "...", 'info'); //_t('Order being updated...'),
+            displayMessage(userOrderMessageArea, _t('Order Update') + "...", 'info');
             try {
                 const orderRef = db.collection('orders').doc(orderId);
                 const orderDoc = await orderRef.get();
@@ -2317,13 +2395,15 @@
             showSection(totalOrderReportSection);
             const reportCategorySelect = document.getElementById('report-category');
             if (reportCategorySelect) loadTotalOrderReport(reportCategorySelect.value);
-            else loadTotalOrderReport(); // Default to all
+            else loadTotalOrderReport();
         });
         if (stockRestockBtn) stockRestockBtn.addEventListener('click', () => {
             showSection(stockRestockSection); loadStockAndRestock();
         });
         if (orderReturnBtn) orderReturnBtn.addEventListener('click', () => {
-            showSection(orderReturnSection); loadOrderReturnProducts();
+            showSection(orderReturnSection);
+            loadProductsForReturnToSupplier();
+            loadReturnNotifications(); // Load existing notifications
         });
 
         const generateReportBtn = document.getElementById('generate-report-btn');
@@ -2344,11 +2424,8 @@
             initializeFirebaseCollections();
             const initialHash = window.location.hash.substring(1);
             if (initialHash && document.getElementById(initialHash)) {
-                // Auth state change will handle showing the correct section
-                // but we can try to restore if already authenticated
                 if(auth.currentUser){
                      const targetSection = document.getElementById(initialHash);
-                     // Check if the target section is an admin section and current user is admin
                      const isAdminSection = ['admin-dashboard-section', 'add-product-section', 'low-stock-alert-section', 'total-order-report-section', 'stock-restock-section', 'order-return-section'].includes(initialHash);
                      const isUserSection = initialHash === 'user-panel-section';
 
@@ -2359,7 +2436,10 @@
                              else if (initialHash === 'low-stock-alert-section') loadLowStockAlerts();
                              else if (initialHash === 'total-order-report-section') loadTotalOrderReport();
                              else if (initialHash === 'stock-restock-section') loadStockAndRestock();
-                             else if (initialHash === 'order-return-section') loadOrderReturnProducts();
+                             else if (initialHash === 'order-return-section') {
+                                 loadProductsForReturnToSupplier();
+                                 loadReturnNotifications();
+                             }
                         } else if (isUserSection && ['kitchen', 'men', 'women'].includes(currentUserCategory)) {
                              showSection(targetSection);
                              loadUserProducts(currentUserCategory);
@@ -2368,19 +2448,16 @@
                         } else if (initialHash === 'login-section'){
                             showSection(loginSection);
                         }
-                        // If not authenticated or wrong role for hash, onAuthStateChanged will correct it.
                      }
                 } else {
-                    // If not authenticated, default to login or let onAuthStateChanged handle
                      if (initialHash === 'login-section' || !document.getElementById(initialHash)) {
                         showSection(loginSection);
                     }
                 }
-            } else if (!auth.currentUser) { // If no hash and not logged in
+            } else if (!auth.currentUser) {
                 showSection(loginSection);
             }
-            // onAuthStateChanged will ultimately determine the correct section based on auth state.
-             setLanguage(currentLanguage); // Ensure language is set on load
+             setLanguage(currentLanguage);
         });
 
     </script>
